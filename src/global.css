@@ -198,6 +198,26 @@
   body {
     @apply bg-background text-body text-foreground antialiased;
   }
+  /* Tailwind v4 сбросил курсор кнопок в default: возвращаем pointer всем интерактивным элементам разом */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab'],
+  [role='menuitem'],
+  [role='menuitemradio'],
+  [role='menuitemcheckbox'],
+  [role='option'],
+  [role='checkbox'],
+  [role='radio'],
+  [role='switch'],
+  [role='combobox'],
+  select,
+  summary,
+  label:has(input, button, [role='checkbox'], [role='radio'], [role='switch']),
+  input[type='file'],
+  input[type='checkbox'],
+  input[type='radio'] {
+    cursor: pointer;
+  }
 }
 
 /* Дисплейный заголовок: condensed, uppercase, межстрочный 0.9 — не использовать мельче 48px */
