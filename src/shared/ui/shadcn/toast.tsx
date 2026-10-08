@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Toast as ToastPrimitive } from "@base-ui/react/toast"
-import { cn } from "cn"
+import { cn } from "@/shared/lib/utils"
 
 import { Button } from "@/shared/ui/shadcn/animate-ui/components/buttons/button"
 import { XIcon, CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"

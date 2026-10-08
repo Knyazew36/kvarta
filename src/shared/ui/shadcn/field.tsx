@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "cn"
+import { cn } from "@/shared/lib/utils"
 
 import { ErrorText } from "@/shared/ui/rb/ErrorText"
 

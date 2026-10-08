@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Input as InputPrimitive } from "@base-ui/react/input"
-import { cn } from "cn"
+import { cn } from "@/shared/lib/utils"
 
 // Российский формат: 8 и 7 в начале считаем кодом страны, остальное — 10 цифр номера
 export function formatPhone(raw: string) {
