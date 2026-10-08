@@ -109,7 +109,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/shared/ui/shadcn/animate-ui/components/radix/sheet'
+} from '@/shared/ui/shadcn/sheet'
 import { Skeleton } from '@/shared/ui/shadcn/skeleton'
 import { Spinner } from '@/shared/ui/shadcn/spinner'
 import {
@@ -272,9 +272,7 @@ const ShadcnShowcase = () => {
         </AlertDialog>
 
         <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline">Sheet</Button>
-          </SheetTrigger>
+          <SheetTrigger render={<Button variant="outline" />}>Sheet</SheetTrigger>
           <SheetContent>
             <SheetHeader>
               <SheetTitle>Боковая панель</SheetTitle>

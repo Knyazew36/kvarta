@@ -18,7 +18,7 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@/shared/ui/shadcn/animate-ui/components/radix/sheet';
+} from '@/shared/ui/shadcn/sheet';
 import {
   TooltipProvider,
   Tooltip,

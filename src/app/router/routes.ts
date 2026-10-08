@@ -8,19 +8,29 @@ export type AppRoute = { path: string } & (
   | { lazy: () => Promise<{ default: ComponentType }>; Component?: never }
 )
 
-// ── Приватные: только после входа, иначе редирект на логин ──────────────────
-export const privateRoutes: AppRoute[] = [
-  { path: ROUTES.HOME, lazy: () => import('@/pages/home/HomePage') },
+const soon = () => import('@/pages/soon/SoonPage')
+
+// ── Кабинет: внутри оболочки AppShell (/app/:orgId/*) ───────────────────────
+export const appRoutes: AppRoute[] = [
+  { path: ROUTES.TODAY, lazy: () => import('@/pages/today/TodayPage') },
+  { path: ROUTES.MONEY, lazy: soon },
+  { path: ROUTES.NOTIFICATIONS, lazy: soon },
+  { path: ROUTES.SETTINGS, lazy: soon },
+  { path: ROUTES.HELP, lazy: soon },
+  { path: ROUTES.SPECIALISTS, lazy: soon },
+  { path: ROUTES.PROFILE, lazy: soon },
 ]
 
+// ── Приватные вне оболочки кабинета ─────────────────────────────────────────
+export const privateRoutes: AppRoute[] = []
+
 // ── Гостевые: только без входа, иначе редирект на главную ───────────────────
-export const guestRoutes: AppRoute[] = [
-  { path: ROUTES.LOGIN, lazy: () => import('@/pages/login/LoginPage') },
-]
+export const guestRoutes: AppRoute[] = [{ path: ROUTES.LOGIN, lazy: () => import('@/pages/login/LoginPage') }]
 
 // ── Публичные: доступны всем ────────────────────────────────────────────────
 export const publicRoutes: AppRoute[] = [
   { path: ROUTES.UI, lazy: () => import('@/pages/ui/UiPage') },
+  { path: ROUTES.PAGES, lazy: () => import('@/pages/pages-index/PagesIndexPage') },
   // 404 грузим сразу: страница крошечная, отдельный чанк не окупается
   { path: '*', Component: NotFoundPage },
 ]

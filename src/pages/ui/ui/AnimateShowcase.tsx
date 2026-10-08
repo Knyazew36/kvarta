@@ -35,14 +35,6 @@ import {
 } from '@/shared/ui/shadcn/animate-ui/components/radix/files'
 import { RadioGroup, RadioGroupItem } from '@/shared/ui/shadcn/animate-ui/components/radix/radio-group'
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/shared/ui/shadcn/animate-ui/components/radix/sheet'
-import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
@@ -160,20 +152,6 @@ const AnimateShowcase = () => {
               <FileItem>package.json</FileItem>
             </Files>
           </div>
-        </DemoSection>
-
-        <DemoSection title="Sheet" path={`${P}/radix/sheet`}>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline">Открыть Sheet</Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>Анимированная панель</SheetTitle>
-                <SheetDescription>Версия Sheet из animate-ui.</SheetDescription>
-              </SheetHeader>
-            </SheetContent>
-          </Sheet>
         </DemoSection>
 
         <DemoSection title="Sidebar" path={`${P}/radix/sidebar`}>
