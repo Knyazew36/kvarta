@@ -1,5 +1,6 @@
 import AnimateShowcase from './ui/AnimateShowcase'
 import ShadcnShowcase from './ui/ShadcnShowcase'
+import ShellShowcase from './ui/ShellShowcase'
 
 // Витрина всех UI-компонентов шаблона: быстро проверить вид и скопировать пример использования
 const UiPage = () => {
@@ -10,6 +11,14 @@ const UiPage = () => {
         <h1 className="display-heading text-heading-lg md:text-display lg:text-display-xl">UI-кит</h1>
         <p className="max-w-[640px] text-subheading text-slate">Все компоненты шаблона в одном месте</p>
       </header>
+
+      <section className="flex flex-col gap-10">
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="display-heading text-heading-lg md:text-display">Оболочка</h2>
+          <span className="mono-label text-slate">00</span>
+        </div>
+        <ShellShowcase />
+      </section>
 
       <section className="flex flex-col gap-10">
         <div className="flex items-end justify-between gap-4">
