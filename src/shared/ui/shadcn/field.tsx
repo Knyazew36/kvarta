@@ -1,6 +1,7 @@
-import { useMemo } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
+
+import { ErrorText } from "@/shared/ui/rb/ErrorText"
 
 import { Label } from "@/shared/ui/shadcn/label"
 import { Separator } from "@/shared/ui/shadcn/separator"
@@ -171,54 +172,22 @@ function FieldSeparator({
   )
 }
 
+// Текст ошибки поля рисует общий ErrorText, чтобы ошибки выглядели одинаково во всём приложении
 function FieldError({
   className,
   children,
   errors,
-  ...props
-}: React.ComponentProps<"div"> & {
+  id,
+}: {
+  className?: string
+  children?: React.ReactNode
+  id?: string
   errors?: Array<{ message?: string } | undefined>
 }) {
-  const content = useMemo(() => {
-    if (children) {
-      return children
-    }
-
-    if (!errors?.length) {
-      return null
-    }
-
-    const uniqueErrors = [
-      ...new Map(errors.map((error) => [error?.message, error])).values(),
-    ]
-
-    if (uniqueErrors?.length == 1) {
-      return uniqueErrors[0]?.message
-    }
-
-    return (
-      <ul className="ml-4 flex list-disc flex-col gap-1">
-        {uniqueErrors.map(
-          (error, index) =>
-            error?.message && <li key={index}>{error.message}</li>
-        )}
-      </ul>
-    )
-  }, [children, errors])
-
-  if (!content) {
-    return null
-  }
-
   return (
-    <div
-      role="alert"
-      data-slot="field-error"
-      className={cn("text-sm font-normal text-destructive", className)}
-      {...props}
-    >
-      {content}
-    </div>
+    <ErrorText id={id} errors={errors} className={className}>
+      {children}
+    </ErrorText>
   )
 }
 

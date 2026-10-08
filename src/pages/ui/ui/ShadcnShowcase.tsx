@@ -36,7 +36,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/shared/ui/shadcn/breadcrumb'
-import { Button } from '@/shared/ui/shadcn/button'
+import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Calendar } from '@/shared/ui/shadcn/calendar'
 import {
   Card,
@@ -109,7 +109,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/shared/ui/shadcn/sheet'
+} from '@/shared/ui/shadcn/animate-ui/components/radix/sheet'
 import { Skeleton } from '@/shared/ui/shadcn/skeleton'
 import { Spinner } from '@/shared/ui/shadcn/spinner'
 import {
@@ -272,7 +272,9 @@ const ShadcnShowcase = () => {
         </AlertDialog>
 
         <Sheet>
-          <SheetTrigger render={<Button variant="outline" />}>Sheet</SheetTrigger>
+          <SheetTrigger asChild>
+            <Button variant="outline">Sheet</Button>
+          </SheetTrigger>
           <SheetContent>
             <SheetHeader>
               <SheetTitle>Боковая панель</SheetTitle>

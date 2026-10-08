@@ -40,7 +40,7 @@ type SheetOverlayProps = SheetOverlayPrimitiveProps;
 function SheetOverlay({ className, ...props }: SheetOverlayProps) {
   return (
     <SheetOverlayPrimitive
-      className={cn('fixed inset-0 z-50 bg-black/50', className)}
+      className={cn('fixed inset-0 z-50 bg-black/40 supports-backdrop-filter:backdrop-blur-sm', className)}
       {...props}
     />
   );
@@ -68,11 +68,12 @@ function SheetContent({
       <SheetOverlay />
       <SheetContentPrimitive
         className={cn(
-          'bg-background fixed z-50 flex flex-col gap-4 shadow-lg',
-          side === 'right' && 'h-full w-[350px] border-l',
-          side === 'left' && 'h-full w-[350px] border-r',
-          side === 'top' && 'w-full h-[350px] border-b',
-          side === 'bottom' && 'w-full h-[350px] border-t',
+          // Плавающая панель: скруглена со стороны контента, без тени и рамки
+          'fixed z-50 flex flex-col gap-4 bg-popover text-popover-foreground',
+          side === 'right' && 'h-full w-full rounded-l-card sm:max-w-lg',
+          side === 'left' && 'h-full w-3/4 rounded-r-card sm:max-w-sm',
+          side === 'top' && 'h-auto max-h-[85svh] w-full rounded-b-card',
+          side === 'bottom' && 'h-auto max-h-[85svh] w-full rounded-t-card',
           className,
         )}
         side={side}
@@ -80,9 +81,9 @@ function SheetContent({
       >
         {children}
         {showCloseButton && (
-          <SheetClose className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
+          <SheetClose className="absolute top-5 right-5 flex size-9 items-center justify-center rounded-full bg-mist text-foreground transition-colors outline-none hover:bg-ash focus-visible:ring-3 focus-visible:ring-ring/30 disabled:pointer-events-none">
             <XIcon className="size-4" />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">Закрыть</span>
           </SheetClose>
         )}
       </SheetContentPrimitive>
@@ -95,7 +96,7 @@ type SheetHeaderProps = SheetHeaderPrimitiveProps;
 function SheetHeader({ className, ...props }: SheetHeaderProps) {
   return (
     <SheetHeaderPrimitive
-      className={cn('flex flex-col gap-1.5 p-4', className)}
+      className={cn('flex flex-col gap-1.5 p-6 pr-16', className)}
       {...props}
     />
   );
@@ -106,7 +107,7 @@ type SheetFooterProps = SheetFooterPrimitiveProps;
 function SheetFooter({ className, ...props }: SheetFooterProps) {
   return (
     <SheetFooterPrimitive
-      className={cn('mt-auto flex flex-col gap-2 p-4', className)}
+      className={cn('mt-auto flex flex-col gap-2 p-6', className)}
       {...props}
     />
   );
@@ -117,7 +118,7 @@ type SheetTitleProps = SheetTitlePrimitiveProps;
 function SheetTitle({ className, ...props }: SheetTitleProps) {
   return (
     <SheetTitlePrimitive
-      className={cn('text-foreground font-semibold', className)}
+      className={cn('section-heading text-subheading-lg text-foreground', className)}
       {...props}
     />
   );
@@ -128,7 +129,7 @@ type SheetDescriptionProps = SheetDescriptionPrimitiveProps;
 function SheetDescription({ className, ...props }: SheetDescriptionProps) {
   return (
     <SheetDescriptionPrimitive
-      className={cn('text-muted-foreground text-sm', className)}
+      className={cn('text-body-sm text-slate', className)}
       {...props}
     />
   );

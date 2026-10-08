@@ -4,14 +4,17 @@ import { ThemeProvider } from 'next-themes'
 
 import { queryClient } from '@/shared/api/query-client'
 import { Toaster } from '@/shared/ui/shadcn/toast'
+import { TooltipProvider } from '@/shared/ui/shadcn/animate-ui/components/animate/tooltip'
 
 const ServiceProvider = ({ children }: { children: ReactNode }) => {
   return (
-    // attribute="class": тёмная тема в global.css завязана на класс .dark; дизайн светлый, тёмная тема — инверсия
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+    // attribute="class": тёмная тема в global.css завязана на класс .dark; обе темы поддерживаются на всех экранах
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <QueryClientProvider client={queryClient}>
-        {children}
-        <Toaster />
+        <TooltipProvider>
+          {children}
+          <Toaster />
+        </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>
   )
