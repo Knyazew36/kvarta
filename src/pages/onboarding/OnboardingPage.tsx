@@ -1,6 +1,6 @@
 import { ArrowRightIcon, CheckIcon, ChevronDownIcon, ExternalLinkIcon, LinkIcon, SendIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Link, useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 import { useState } from 'react'
 
 import { DEMO_ORG_ID, to } from '@/shared/config/paths'
@@ -63,7 +63,7 @@ const PropertyStep = ({ onDone }: { onDone: () => void }) => (
       <Label htmlFor="ob-property" className="text-body-sm font-medium">
         Внутреннее название
       </Label>
-      <Input id="ob-property" defaultValue="Студия на Лиговском" />
+      <Input id="ob-property" placeholder="Например, Студия на Лиговском" />
     </div>
     <Button type="submit" className="shadow-control">
       Создать объект
@@ -182,14 +182,18 @@ const TaskStep = ({ onDone }: { onDone: () => void }) => (
 
 const OnboardingPage = () => {
   const { orgId = DEMO_ORG_ID } = useParams()
+  // Название приходит с экрана создания организации; при прямом заходе — демо-организация
+  const orgName = (useLocation().state as { orgName?: string } | null)?.orgName ?? 'Волна'
   // Шаги независимы: любой можно открыть и пропустить, порядок — только рекомендация
+  // Только что созданная организация пуста: ни один шаг не может быть выполнен заранее
+  const isNew = orgId === 'org-new'
   const [done, setDone] = useState<Record<StepKey, boolean>>({
-    property: true,
+    property: !isNew,
     channel: false,
     max: false,
     task: false,
   })
-  const [open, setOpen] = useState<StepKey | null>('channel')
+  const [open, setOpen] = useState<StepKey | null>(isNew ? 'property' : 'channel')
   const doneCount = Object.values(done).filter(Boolean).length
 
   const complete = (key: StepKey) => {
@@ -208,7 +212,7 @@ const OnboardingPage = () => {
     <EntryShell>
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-10 py-6 md:py-12">
         <header className="flex flex-col gap-6">
-          <Reveal className="text-caption text-smoke">Организация «Волна» · первые шаги</Reveal>
+          <Reveal className="text-caption text-smoke">Организация «{orgName}» · первые шаги</Reveal>
           <SplitHeadline text="Запустим за 10 минут" delay={0.1} className="brand-display text-[44px] md:text-[76px]" />
           <Reveal delay={0.35} className="flex items-center gap-4">
             <div className="flex h-1.5 flex-1 gap-1.5" aria-hidden>

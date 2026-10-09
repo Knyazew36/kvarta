@@ -1,9 +1,9 @@
 import { BanIcon, CheckIcon, ClockIcon, HouseIcon, MessageCircleIcon, MinusIcon } from 'lucide-react'
 import { motion } from 'motion/react'
-import { Link, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { useState } from 'react'
 
-import { DEMO_ORG_ID, ROUTES, to } from '@/shared/config/paths'
+import { DEMO_ORG_ID, to } from '@/shared/config/paths'
 import { DEMO_TZ } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { useDemoState } from '@/shared/mock/state'
@@ -57,9 +57,10 @@ const Closed = ({ kind }: { kind: 'expired' | 'revoked' }) => (
           <MessageCircleIcon /> Попросить новое
         </Button>
       )}
+      {/* Выбор организации отключён: организация у пользователя одна
       <Button variant="outline" asChild>
         <Link to={ROUTES.WORKSPACES}>Мои организации</Link>
-      </Button>
+      </Button> */}
     </div>
   </Reveal>
 )

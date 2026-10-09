@@ -28,6 +28,9 @@ const PagesIndexPage = () => {
         <Link to={ROUTES.UI} className="w-fit text-body-sm text-slate underline-offset-4 hover:text-foreground hover:underline">
           Витрина компонентов →
         </Link>
+        <Link to={ROUTES.UX} className="w-fit text-body-sm text-slate underline-offset-4 hover:text-foreground hover:underline">
+          Карты путей по ролям →
+        </Link>
       </header>
 
       {CONTOURS.map((contour) => {
@@ -53,9 +56,9 @@ const PagesIndexPage = () => {
                     {screen.variants && screen.variants.length > 0 && (
                       <ul className="flex flex-wrap gap-1.5">
                         {screen.variants.map((variant) => (
-                          <li key={variant.query}>
+                          <li key={`${variant.label}${variant.query}`}>
                             <Link
-                              to={`${screen.href}?${variant.query}`}
+                              to={variant.href ?? `${screen.href}?${variant.query}`}
                               className="inline-flex h-7 items-center rounded-full bg-mist px-3 text-caption text-slate transition-colors hover:bg-foreground hover:text-background"
                             >
                               {variant.label}

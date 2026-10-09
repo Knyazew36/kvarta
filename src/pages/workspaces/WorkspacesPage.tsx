@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { Link, useNavigate } from 'react-router'
 import { useState } from 'react'
 
-import { to } from '@/shared/config/paths'
+import { ROUTES, to } from '@/shared/config/paths'
 import { DEMO_TZ } from '@/shared/lib/format'
 import { useDemoState } from '@/shared/mock/state'
 import { Reveal, RevealGroup, RevealItem, SplitHeadline } from '@/shared/ui/rb/motion'
@@ -91,7 +91,7 @@ const WorkspacesPage = () => {
               description: 'Создайте свою, чтобы вести объекты, или откройте ссылку-приглашение от владельца — организация появится здесь.',
               action: (
                 <Button size="sm" className="shadow-control" asChild>
-                  <Link to={to.onboarding('org-new')}>
+                  <Link to={ROUTES.ORG_NEW}>
                     <PlusIcon /> Создать организацию
                   </Link>
                 </Button>
@@ -134,7 +134,7 @@ const WorkspacesPage = () => {
                     to={workspace.href}
                     onClick={(event) => open(event, workspace)}
                     aria-busy={opening === workspace.id || undefined}
-                    className="group rounded-card bg-card shadow-card hover:bg-mist/60 focus-visible:ring-ring/30 flex items-center gap-4 p-4 transition-[transform,box-shadow,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] outline-none hover:-translate-y-0.5 hover:shadow-[0_1px_2px_rgb(10_18_23/0.04),0_24px_48px_-20px_rgb(10_18_23/0.22)] focus-visible:ring-3 md:gap-6 md:p-6"
+                    className="group rounded-card bg-card shadow-card hover:bg-mist/60 focus-visible:ring-ring/30 flex items-center gap-4 p-4 transition-[translate,box-shadow,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] outline-none hover:-translate-y-0.5 hover:shadow-[0_1px_2px_rgb(10_18_23/0.04),0_24px_48px_-20px_rgb(10_18_23/0.22)] focus-visible:ring-3 md:gap-6 md:p-6"
                   >
                     <span className="bg-foreground text-heading-sm text-background flex size-14 shrink-0 items-center justify-center rounded-3xl font-medium transition-[border-radius] duration-500 group-hover:rounded-[1.75rem] md:size-16">
                       {workspace.name[0]}
@@ -158,7 +158,7 @@ const WorkspacesPage = () => {
                         ) : (
                           <motion.span key="arrow" exit={{ opacity: 0, x: 12 }} className="flex">
                             <ArrowRightIcon
-                              className="text-smoke group-hover:text-background size-5 transition-[transform,color] duration-500 group-hover:translate-x-0.5"
+                              className="text-smoke group-hover:text-background size-5 transition-[translate,color] duration-500 group-hover:translate-x-0.5"
                               aria-hidden
                             />
                           </motion.span>
@@ -195,7 +195,7 @@ const WorkspacesPage = () => {
 
         <Reveal delay={0.9}>
           <Link
-            to={to.onboarding('org-new')}
+            to={ROUTES.ORG_NEW}
             className="text-body-sm text-slate hover:text-foreground inline-flex w-fit items-center gap-2 underline-offset-4 hover:underline"
           >
             <PlusIcon className="size-4" aria-hidden /> Создать свою организацию

@@ -64,7 +64,7 @@ export const DemoSwitcher = () => {
   return (
     <div className="mono-label fixed right-4 bottom-24 z-40 md:bottom-4">
       {open ? (
-        <div className="flex w-72 flex-col gap-4 rounded-3xl bg-foreground p-4 text-background">
+        <div className="flex w-72 flex-col gap-4 rounded-3xl bg-foreground/70 p-4 text-background">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <FlaskConicalIcon className="size-3.5" aria-hidden /> Вариант макета
@@ -84,12 +84,15 @@ export const DemoSwitcher = () => {
           <Link to={ROUTES.PAGES} className="text-background/70 underline-offset-4 hover:text-background hover:underline">
             → Все экраны
           </Link>
+          <Link to={ROUTES.UX} className="text-background/70 underline-offset-4 hover:text-background hover:underline">
+            → Карты путей по ролям
+          </Link>
         </div>
       ) : (
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="flex h-10 items-center gap-2 rounded-full bg-foreground px-4 text-background transition-transform hover:-translate-y-0.5"
+          className="flex h-10 items-center gap-2 rounded-full bg-foreground/50 px-4 text-background transition hover:-translate-y-0.5 hover:bg-foreground/90"
         >
           <FlaskConicalIcon className="size-3.5" aria-hidden />
           {DEMO_ROLES.find((r) => r.value === demo.role)?.label} · {demo.state}

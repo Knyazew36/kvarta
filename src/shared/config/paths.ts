@@ -4,9 +4,11 @@ export const ROUTES = {
   LOGIN: '/login',
   INVITE: '/invite/:token',
   WORKSPACES: '/workspaces',
+  ORG_NEW: '/org/new',
   ONBOARDING: '/app/:orgId/onboarding',
   UI: '/ui',
   PAGES: '/pages',
+  UX: '/ux',
 
   APP: '/app/:orgId',
   TODAY: '/app/:orgId/today',
@@ -25,7 +27,10 @@ export const ROUTES = {
   SETTINGS: '/app/:orgId/settings/:section?',
   HELP: '/app/:orgId/help',
   SPECIALISTS: '/app/:orgId/specialists',
-  PROFILE: '/app/:orgId/profile',
+  SPECIALIST: '/app/:orgId/specialists/:specialistId',
+  SPECIALIST_FAVORITES: '/app/:orgId/specialist-favorites',
+  SPECIALIST_REQUESTS: '/app/:orgId/specialist-requests',
+  PROFILE: '/app/:orgId/profile/:tab?',
 
   HOST: '/host/:ownerSlug',
   HOST_PROPERTY: '/host/:ownerSlug/properties/:propertySlug',
@@ -34,6 +39,11 @@ export const ROUTES = {
   GUEST_BOOKINGS: '/guest/bookings',
   GUEST_BOOKING: '/guest/bookings/:bookingId',
   GUEST_INSTRUCTIONS: '/guest/bookings/:bookingId/instructions',
+
+  // Кабинет специалиста: свои права, без организации и без поиска по каталогу (CAT-06)
+  SPECIALIST_PROFILE: '/specialist/profile',
+  SPECIALIST_INBOX: '/specialist/requests',
+  SPECIALIST_REVIEWS: '/specialist/reviews',
 } as const
 
 // Организация по умолчанию для статичных макетов
@@ -56,11 +66,16 @@ export const to = {
   property: (propertyId: string, tab = 'info', orgId = DEMO_ORG_ID) =>
     `/app/${orgId}/properties/${propertyId}/${tab}`,
   money: (orgId = DEMO_ORG_ID) => `/app/${orgId}/money`,
+  moneyTab: (tab: string, orgId = DEMO_ORG_ID) => `/app/${orgId}/money/${tab}`,
   notifications: (orgId = DEMO_ORG_ID) => `/app/${orgId}/notifications`,
   settings: (section = 'team', orgId = DEMO_ORG_ID) => `/app/${orgId}/settings/${section}`,
   help: (orgId = DEMO_ORG_ID) => `/app/${orgId}/help`,
   specialists: (orgId = DEMO_ORG_ID) => `/app/${orgId}/specialists`,
-  profile: (orgId = DEMO_ORG_ID) => `/app/${orgId}/profile`,
+  specialist: (specialistId: string, orgId = DEMO_ORG_ID) => `/app/${orgId}/specialists/${specialistId}`,
+  specialistFavorites: (orgId = DEMO_ORG_ID) => `/app/${orgId}/specialist-favorites`,
+  specialistRequests: (orgId = DEMO_ORG_ID) => `/app/${orgId}/specialist-requests`,
+  // Без вкладки — корень профиля: так пункт меню остаётся активным на любой вкладке
+  profile: (tab?: string, orgId = DEMO_ORG_ID) => `/app/${orgId}/profile${tab ? `/${tab}` : ''}`,
   onboarding: (orgId = DEMO_ORG_ID) => `/app/${orgId}/onboarding`,
   host: (ownerSlug = DEMO_OWNER_SLUG) => `/host/${ownerSlug}`,
   hostProperty: (propertySlug: string, ownerSlug = DEMO_OWNER_SLUG) =>
@@ -70,4 +85,7 @@ export const to = {
   guestBookings: () => '/guest/bookings',
   guestBooking: (bookingId: string) => `/guest/bookings/${bookingId}`,
   guestInstructions: (bookingId: string) => `/guest/bookings/${bookingId}/instructions`,
+  specialistProfile: () => '/specialist/profile',
+  specialistInbox: () => '/specialist/requests',
+  specialistReviews: () => '/specialist/reviews',
 }

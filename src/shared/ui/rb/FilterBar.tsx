@@ -9,7 +9,7 @@ export type FilterOption = { value: string; label: string }
 export type FilterDef = { key: string; label: string; options: FilterOption[] }
 
 // Служебные параметры демо и вид экрана (масштаб календаря, подборка) не считаются фильтрами и не сбрасываются
-const DEMO_KEYS = ['role', 'objects', 'state', 'mode', 'tab']
+const DEMO_KEYS = ['role', 'objects', 'state', 'mode', 'tab', 'access']
 
 type FilterBarProps = {
   filters: FilterDef[]
@@ -66,14 +66,15 @@ export const FilterBar = ({ filters, search, className, children }: FilterBarPro
             <Select key={filter.key} items={items} value={value} onValueChange={(next) => update(filter.key, next as string)}>
               <SelectTrigger
                 aria-label={filter.label}
-                className={cn('shrink-0 rounded-full bg-card', value !== 'all' && 'bg-foreground text-background [&_svg]:text-background!')}
+                className={cn('max-w-64 shrink-0 rounded-full bg-card', value !== 'all' && 'bg-foreground text-background [&_svg]:text-background!')}
               >
-                <SelectValue />
+                <SelectValue className="block! min-w-0 truncate" />
               </SelectTrigger>
-              <SelectContent alignItemWithTrigger={false} align="start">
+              {/* Ширина по самому длинному пункту, а не по кнопке: иначе названия объектов обрезаются без троеточия */}
+              <SelectContent alignItemWithTrigger={false} align="start" className="w-max max-w-[min(22rem,calc(100vw-2rem))] min-w-(--anchor-width)">
                 {items.map((item) => (
-                  <SelectItem key={item.value} value={item.value}>
-                    {item.label}
+                  <SelectItem key={item.value} value={item.value} title={item.label} className="*:first:min-w-0 *:first:shrink">
+                    <span className="truncate">{item.label}</span>
                   </SelectItem>
                 ))}
               </SelectContent>

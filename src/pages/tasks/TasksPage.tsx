@@ -245,11 +245,12 @@ const TasksPage = () => {
           denied={{
             title: 'Задачи недоступны',
             description: 'Доступ к организации «Волна» отозван владельцем 8 окт в 09:05 МСК. Ваши прошлые отчёты сохранены у владельца.',
-            action: (
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/workspaces">Другая организация</Link>
-              </Button>
-            ),
+            // Выбор организации отключён: организация у пользователя одна
+            // action: (
+            //   <Button variant="outline" size="sm" asChild>
+            //     <Link to="/workspaces">Другая организация</Link>
+            //   </Button>
+            // ),
           }}
         />
       </div>

@@ -154,5 +154,55 @@ export const OPERATION_STATUS: Record<OperationStatus, StatusMeta> = {
   archived: { tone: 'neutral', icon: ArchiveIcon, label: 'В архиве' },
 }
 
+// ── Канал MAX пользователя ──────────────────────────────────────────────────
+
+// Связь подтверждена ≠ сообщения доходят (NTF-10): сбой доставки показываем отдельным статусом
+export type MaxStatus = 'linked' | 'none' | 'failed'
+
+export const MAX_STATUS: Record<MaxStatus, StatusMeta> = {
+  linked: { tone: 'success', icon: CircleCheckIcon, label: 'MAX подключён' },
+  none: { tone: 'attention', icon: LinkIcon, label: 'MAX не подключён' },
+  failed: { tone: 'danger', icon: TriangleAlertIcon, label: 'MAX не доставляет' },
+}
+
+// ── Каталог специалистов ────────────────────────────────────────────────────
+
+// Допуск к каталогу (CAT-01…05): «нет данных» и «сбой обмена» — не то же, что «закрыт»
+export type CatalogAccess = 'open' | 'stale' | 'closed' | 'pending'
+
+export const CATALOG_ACCESS: Record<CatalogAccess, StatusMeta> = {
+  open: { tone: 'success', icon: ShieldCheckIcon, label: 'Доступ открыт' },
+  stale: { tone: 'attention', icon: RefreshCwIcon, label: 'По последним данным' },
+  closed: { tone: 'danger', icon: LockIcon, label: 'Доступ закрыт' },
+  pending: { tone: 'neutral', icon: CircleHelpIcon, label: 'Ждём данных площадки' },
+}
+
+// Отсутствие ответа ≠ согласие (CAT-10): «истёк» отдельно от «отказ»
+export type ContactRequestStatus = 'pending' | 'granted' | 'declined' | 'withdrawn' | 'expired'
+
+export const CONTACT_REQUEST_STATUS: Record<ContactRequestStatus, StatusMeta> = {
+  pending: { tone: 'attention', icon: HourglassIcon, label: 'Ждёт ответа' },
+  granted: { tone: 'success', icon: CircleCheckIcon, label: 'Контакты открыты' },
+  declined: { tone: 'danger', icon: XCircleIcon, label: 'Отказ' },
+  withdrawn: { tone: 'neutral', icon: Undo2Icon, label: 'Отозван' },
+  expired: { tone: 'neutral', icon: ClockIcon, label: 'Истёк без ответа' },
+}
+
+export type SpecialistAvailability = 'available' | 'unavailable' | 'hidden'
+
+export const SPECIALIST_AVAILABILITY: Record<SpecialistAvailability, StatusMeta> = {
+  available: { tone: 'success', icon: CirclePlayIcon, label: 'Принимает обращения' },
+  unavailable: { tone: 'neutral', icon: PauseIcon, label: 'Временно недоступен' },
+  hidden: { tone: 'neutral', icon: EyeOffIcon, label: 'Профиль скрыт' },
+}
+
+export type ModerationStatus = 'published' | 'pending' | 'rejected'
+
+export const MODERATION_STATUS: Record<ModerationStatus, StatusMeta> = {
+  published: { tone: 'success', icon: EyeIcon, label: 'Опубликован' },
+  pending: { tone: 'attention', icon: HourglassIcon, label: 'На модерации' },
+  rejected: { tone: 'danger', icon: BanIcon, label: 'Не прошёл модерацию' },
+}
+
 // Подпись статуса под конкретный случай без потери иконки и тона
 export const withLabel = (meta: StatusMeta, label: string): StatusMeta => ({ ...meta, label })

@@ -1,6 +1,5 @@
 import {
   BellIcon,
-  BuildingIcon,
   ChevronDownIcon,
   LifeBuoyIcon,
   LogOutIcon,
@@ -14,7 +13,7 @@ import { useTheme } from 'next-themes'
 import { Link, useParams } from 'react-router'
 import { DEMO_ORG_ID, ROUTES, to } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
-import { useDemoState, type DemoRole } from '@/shared/mock/state'
+import { DEMO_USERS, useDemoState } from '@/shared/mock/state'
 import { PersonAvatar } from '@/shared/ui/rb/PersonAvatar'
 import {
   DropdownMenu,
@@ -34,12 +33,6 @@ const THEMES = [
   { value: 'system', label: 'Как в системе', icon: MonitorIcon },
 ] as const
 
-// Макетные данные: заменятся ответом API профиля
-const USERS: Record<DemoRole, { name: string; role: string }> = {
-  owner: { name: 'Анна Волкова', role: 'Владелец' },
-  manager: { name: 'Игорь Петров', role: 'Управляющий' },
-  employee: { name: 'Марина Соколова', role: 'Сотрудник' },
-}
 const ORG_NAME = 'Волна'
 
 type UserDropdownProps = {
@@ -53,7 +46,7 @@ export const UserDropdown = ({ compact, className }: UserDropdownProps) => {
   const { orgId = DEMO_ORG_ID } = useParams()
   const { role, isEmployee } = useDemoState()
   const { theme = 'system', setTheme } = useTheme()
-  const user = USERS[role]
+  const user = DEMO_USERS[role]
 
   return (
     <DropdownMenu>
@@ -96,7 +89,7 @@ export const UserDropdown = ({ compact, className }: UserDropdownProps) => {
         <DropdownMenuSeparator className="bg-mist" />
 
         <DropdownMenuGroup>
-          <DropdownMenuItem render={<Link to={to.profile(orgId)} />}>
+          <DropdownMenuItem render={<Link to={to.profile(undefined, orgId)} />}>
             <UserIcon /> Профиль
           </DropdownMenuItem>
           {!isEmployee && (
@@ -104,9 +97,10 @@ export const UserDropdown = ({ compact, className }: UserDropdownProps) => {
               <BellIcon /> Уведомления и MAX
             </DropdownMenuItem>
           )}
+          {/* Выбор организации отключён: организация у пользователя одна
           <DropdownMenuItem render={<Link to={ROUTES.WORKSPACES} />}>
             <BuildingIcon /> Сменить организацию
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           {/* Гостевой кабинет — отдельный контур, переход в него явный (§2) */}
           <DropdownMenuItem render={<Link to={to.guestBookings()} />}>
             <UsersIcon /> Мои поездки как гость

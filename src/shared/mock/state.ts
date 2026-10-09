@@ -52,6 +52,13 @@ export const DEMO_ME: Record<DemoRole, string> = {
   employee: 'Марина Соколова',
 }
 
+// Кто вошёл: шапка и профиль читают одно место, иначе имя и роль разойдутся. Заменится ответом API профиля
+export const DEMO_USERS: Record<DemoRole, { name: string; role: string }> = {
+  owner: { name: 'Анна Волкова', role: 'Владелец' },
+  manager: { name: 'Игорь Петров', role: 'Управляющий' },
+  employee: { name: 'Марина Соколова', role: 'Сотрудник' },
+}
+
 const pick = <T extends string>(value: string | null, allowed: readonly { value: T }[]): T | null =>
   allowed.some((item) => item.value === value) ? (value as T) : null
 

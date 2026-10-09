@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { ArrowLeftIcon, ArrowRightIcon, BanknoteIcon, CircleCheckIcon, CornerDownLeftIcon, LockIcon, type LucideIcon } from 'lucide-react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
-import { ROUTES, to } from '@/shared/config/paths'
-import { DEMO_TZ, DEMO_TZ_FULL } from '@/shared/lib/format'
+import { ROUTES } from '@/shared/config/paths'
+import { DEMO_TZ } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { useDemoState } from '@/shared/mock/state'
 import { ErrorText } from '@/shared/ui/rb/ErrorText'
@@ -231,7 +231,8 @@ const LoginPage = () => {
       next()
     }, SUBMIT_DELAY_MS)
   }
-  const enter = () => submit(() => navigate(from ?? ROUTES.WORKSPACES))
+  // Организация у пользователя одна: после входа сразу её создание, выбор организации отключён
+  const enter = () => submit(() => navigate(from ?? ROUTES.ORG_NEW))
 
   return (
     // reducedMotion="user": при системной настройке «меньше движения» остаются только смены прозрачности
@@ -390,15 +391,14 @@ const LoginPage = () => {
 
               <Reveal delay={0.7} className="flex flex-col gap-2 border-t border-mist pt-6 text-body-sm text-slate">
                 <span>Вас пригласили в команду? Откройте ссылку из приглашения — она сразу покажет организацию.</span>
-                <Link to={to.onboarding('org-new')} className="w-fit text-foreground underline-offset-4 hover:underline">
+                <Link to={ROUTES.ORG_NEW} className="w-fit text-foreground underline-offset-4 hover:underline">
                   Создать свою организацию
                 </Link>
               </Reveal>
             </div>
           </div>
 
-          <Reveal delay={0.9} className="mono-label flex flex-wrap justify-between gap-x-4 gap-y-1 text-smoke">
-            <span>Время: {DEMO_TZ_FULL}</span>
+          <Reveal delay={0.9} className="mono-label flex flex-wrap justify-end gap-x-4 gap-y-1 text-smoke">
             <a href="mailto:help@rentybot.ru" className="transition-colors hover:text-foreground">
               help@rentybot.ru
             </a>

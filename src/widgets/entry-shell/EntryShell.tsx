@@ -1,7 +1,6 @@
 import { motion, MotionConfig } from 'motion/react'
 import { Link } from 'react-router'
 import { ROUTES } from '@/shared/config/paths'
-import { DEMO_TZ_FULL } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { EASE } from '@/shared/ui/rb/motion-presets'
 import { ThemeTogglerButton } from '@/shared/ui/shadcn/animate-ui/components/buttons/theme-toggler'
@@ -32,9 +31,8 @@ export const EntryShell = ({ children, className }: { children: React.ReactNode;
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.9 }}
-        className="mono-label text-smoke mx-auto flex w-full max-w-[1200px] flex-wrap gap-x-4 gap-y-1 px-4 pb-6 md:px-8"
+        className="mono-label text-smoke mx-auto flex w-full max-w-[1200px] flex-wrap justify-end gap-x-4 gap-y-1 px-4 pb-6 md:px-8"
       >
-        <span>Время: {DEMO_TZ_FULL}</span>
         <a href="mailto:help@rentybot.ru" className="hover:text-foreground transition-colors">
           help@rentybot.ru
         </a>

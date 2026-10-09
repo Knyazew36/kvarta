@@ -1,10 +1,8 @@
 import { Link, useParams } from 'react-router'
 import { DEMO_ORG_ID, ROUTES, to } from '@/shared/config/paths'
-import { DEMO_TZ_FULL } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 
-// Футер кабинета: служебная mono-строка — часовой пояс организации, версия, помощь.
-// Часовой пояс здесь не украшение: все даты кабинета показаны в нём (§9)
+// Футер кабинета: служебная mono-строка — версия, помощь
 export const AppFooter = ({ className }: { className?: string }) => {
   const { orgId = DEMO_ORG_ID } = useParams()
 
@@ -20,7 +18,6 @@ export const AppFooter = ({ className }: { className?: string }) => {
           <span className="size-1.5 rounded-full bg-foreground" aria-hidden />
           Rentybot
         </span>
-        <span>Время: {DEMO_TZ_FULL}</span>
         <span>Макет · итерация 1</span>
       </div>
       <nav aria-label="Служебные ссылки" className="flex flex-wrap items-center gap-x-4 gap-y-1">

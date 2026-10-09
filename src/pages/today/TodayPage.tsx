@@ -298,11 +298,12 @@ const TodayPage = () => {
           denied={{
             title: 'Сводка недоступна',
             description: 'Доступ к организации «Волна» отозван владельцем 8 окт в 09:05 МСК. Записи организации скрыты.',
-            action: (
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/workspaces">Другая организация</Link>
-              </Button>
-            ),
+            // Выбор организации отключён: организация у пользователя одна
+            // action: (
+            //   <Button variant="outline" size="sm" asChild>
+            //     <Link to="/workspaces">Другая организация</Link>
+            //   </Button>
+            // ),
           }}
         />
       </div>

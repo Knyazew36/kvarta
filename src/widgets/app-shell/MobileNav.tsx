@@ -39,8 +39,8 @@ export const MobileNav = ({ inline, className }: MobileNavProps) => {
 
   const nav = navFor(role)
   const primary = nav.main.filter((item) => item.mobile)
-  const rest = [...nav.main.filter((item) => !item.mobile), ...nav.settings, NAV_HELP]
-  const moreActive = rest.some((item) => pathname.startsWith(item.href(orgId)))
+  const rest = [...nav.main.filter((item) => !item.mobile), ...(nav.settingsEntry ? [nav.settingsEntry] : []), NAV_HELP]
+  const moreActive = rest.some((item) => pathname.startsWith(item.match?.(orgId) ?? item.href(orgId)))
 
   const tabClass = (active: boolean) =>
     cn(
@@ -59,7 +59,7 @@ export const MobileNav = ({ inline, className }: MobileNavProps) => {
         )}
       >
         {primary.map((item) => {
-          const active = pathname.startsWith(item.href(orgId))
+          const active = pathname.startsWith(item.match?.(orgId) ?? item.href(orgId))
           return (
             <Link key={item.key} to={item.href(orgId)} className={tabClass(active)} aria-current={active ? 'page' : undefined}>
               <item.icon className="size-5" aria-hidden />
