@@ -9,7 +9,6 @@ import {
   MessageCircleIcon,
   PencilIcon,
   RefreshCwIcon,
-  TriangleAlertIcon,
   XIcon,
 } from 'lucide-react'
 import { Link, useParams } from 'react-router'
@@ -32,6 +31,7 @@ import { SyncFreshness } from '@/shared/ui/rb/SyncFreshness'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { CancelBookingDialog } from '@/widgets/booking-actions/CancelBookingDialog'
 import { ConfirmPaymentDialog } from '@/widgets/booking-actions/ConfirmPaymentDialog'
+import { ConflictBanner } from '@/widgets/booking-actions/ConflictBanner'
 import { ConflictDialog } from '@/widgets/booking-actions/ConflictDialog'
 
 // ── Макетные данные: три сценария карточки ──────────────────────────────────
@@ -200,22 +200,10 @@ const AspectCard = ({ aspect, bookingId }: { aspect: Aspect; bookingId: string }
 const OverviewTab = ({ booking, canSeeMoney }: { booking: Booking; canSeeMoney: boolean }) => (
   <div className="flex flex-col gap-4">
     {booking.scenario === 'conflict' && (
-      <div className="flex flex-col gap-4 rounded-card bg-foreground p-5 text-background shadow-card sm:flex-row sm:items-center sm:justify-between md:p-6 dark:bg-mist dark:text-foreground">
-        <span className="flex items-start gap-3">
-          <TriangleAlertIcon className="mt-0.5 size-5 shrink-0 text-[#ff8a7a]" aria-hidden />
-          <span className="flex flex-col gap-0.5">
-            <span className="text-body font-medium">12–13 окт заняты и этой бронью, и #1045 с Суточно</span>
-            <span className="text-body-sm text-smoke">Пока конфликт не решён, обе брони остаются в силе, и гостей двое на одни даты</span>
-          </span>
-        </span>
-        <ConflictDialog
-          trigger={
-            <Button variant="accent" size="sm" className="self-start shadow-control sm:self-auto">
-              Разобрать
-            </Button>
-          }
-        />
-      </div>
+      <ConflictBanner
+        title="12–13 окт заняты и этой бронью, и #1045 с Суточно"
+        description="Пока конфликт не решён, обе брони остаются в силе, и гостей двое на одни даты"
+      />
     )}
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {ASPECTS[booking.scenario]

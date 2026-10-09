@@ -5,6 +5,7 @@ import { DEMO_TZ, pluralize } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { SectionCard } from '@/shared/ui/rb/Section'
 import { type Source, SourceTag } from '@/shared/ui/rb/SourceTag'
+import { ConflictBanner } from '@/widgets/booking-actions/ConflictBanner'
 import type { PropertyBrief } from '../PropertyPage'
 
 // ── Макетные данные: октябрь 2026, «сегодня» — 8 октября ────────────────────
@@ -69,6 +70,9 @@ export const CalendarTab = ({ property }: { property: PropertyBrief }) => {
 
   return (
     <div className="grid items-start gap-4 lg:grid-cols-[1fr_340px]">
+      {stays.some((stay) => stay.conflict) && (
+        <ConflictBanner className="lg:col-span-2" title="Пересечение дат 12–14 окт" description="Брони #1042 (Авито) и #1045 (Суточно) заняли одни даты" />
+      )}
       <SectionCard
         title="Октябрь 2026"
         count={`${pluralize(busyNights.size, ['ночь занята', 'ночи заняты', 'ночей занято'])} · ${DEMO_TZ}`}

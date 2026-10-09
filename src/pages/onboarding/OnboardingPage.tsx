@@ -1,26 +1,50 @@
-import { useState } from 'react'
 import { ArrowRightIcon, CheckIcon, ChevronDownIcon, ExternalLinkIcon, LinkIcon, SendIcon } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
 import { Link, useParams } from 'react-router'
+import { useState } from 'react'
+
 import { DEMO_ORG_ID, to } from '@/shared/config/paths'
 import { DEMO_TZ } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
+import { Reveal, RevealGroup, RevealItem, SplitHeadline } from '@/shared/ui/rb/motion'
+import { EASE } from '@/shared/ui/rb/motion-presets'
 import { SourceMark } from '@/shared/ui/rb/SourceTag'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { CopyButton } from '@/shared/ui/shadcn/animate-ui/components/buttons/copy'
 import { Input } from '@/shared/ui/shadcn/input'
 import { Label } from '@/shared/ui/shadcn/label'
-import { LinkListingDialog } from '@/widgets/property-actions/LinkListingDialog'
 import { EntryShell } from '@/widgets/entry-shell/EntryShell'
+import { LinkListingDialog } from '@/widgets/property-actions/LinkListingDialog'
 
 // ── Шаги ────────────────────────────────────────────────────────────────────
 
 type StepKey = 'property' | 'channel' | 'max' | 'task'
 
 const STEPS: { key: StepKey; title: string; summary: string; doneText: string }[] = [
-  { key: 'property', title: 'Объект', summary: 'Одно название — остальное можно заполнить позже', doneText: 'Создан «Студия на Лиговском»' },
-  { key: 'channel', title: 'Площадка', summary: 'Брони с Авито или Суточно сами попадут в календарь', doneText: 'Авито: брони получены' },
-  { key: 'max', title: 'Уведомления в MAX', summary: 'Заезды, переводы гостей и задачи — сообщением', doneText: 'MAX подключён' },
-  { key: 'task', title: 'Первая задача', summary: 'Например, уборка перед ближайшим заездом', doneText: 'Задача поставлена' },
+  {
+    key: 'property',
+    title: 'Объект',
+    summary: 'Одно название — остальное можно заполнить позже',
+    doneText: 'Создан «Студия на Лиговском»',
+  },
+  {
+    key: 'channel',
+    title: 'Площадка',
+    summary: 'Брони с Авито или Суточно сами попадут в календарь',
+    doneText: 'Авито: брони получены',
+  },
+  {
+    key: 'max',
+    title: 'Уведомления в MAX',
+    summary: 'Заезды, переводы гостей и задачи — сообщением',
+    doneText: 'MAX подключён',
+  },
+  {
+    key: 'task',
+    title: 'Первая задача',
+    summary: 'Например, уборка перед ближайшим заездом',
+    doneText: 'Задача поставлена',
+  },
 ]
 
 const BOT_CODE = '/start volna-4821'
@@ -59,23 +83,23 @@ const ChannelStep = () => (
           trigger={
             <button
               type="button"
-              className="flex items-center gap-3 rounded-3xl bg-background p-4 text-left outline-none transition-colors hover:bg-mist focus-visible:ring-3 focus-visible:ring-ring/30"
+              className="bg-background hover:bg-mist focus-visible:ring-ring/30 flex items-center gap-3 rounded-3xl p-4 text-left transition-colors outline-none focus-visible:ring-3"
             >
               <SourceMark source={source} size="md" />
               <span className="flex flex-1 flex-col">
                 <span className="text-body-sm font-medium">{source === 'avito' ? 'Авито' : 'Суточно'}</span>
                 <span className="text-caption text-smoke">ссылка на объявление</span>
               </span>
-              <LinkIcon className="size-4 text-smoke" aria-hidden />
+              <LinkIcon className="text-smoke size-4" aria-hidden />
             </button>
           }
         />
       ))}
     </div>
-    <ol className="grid grid-cols-3 gap-2 text-caption text-slate">
+    <ol className="text-caption text-slate grid grid-cols-3 gap-2">
       {['Ссылка сохранена', 'Доступ подтверждён', 'Брони получены'].map((label, index) => (
         <li key={label} className="flex flex-col gap-1.5">
-          <span className="h-1 rounded-full bg-mist" />
+          <span className="bg-mist h-1 rounded-full" />
           <span>
             <span className="mono-label text-smoke">{String(index + 1).padStart(2, '0')}</span> {label}
           </span>
@@ -88,30 +112,30 @@ const ChannelStep = () => (
 
 const MaxStep = ({ onDone }: { onDone: () => void }) => (
   <div className="flex flex-col gap-5">
-    <ol className="flex flex-col gap-3 text-body-sm">
+    <ol className="text-body-sm flex flex-col gap-3">
       <li className="flex items-start gap-3">
-        <span className="mono-label mt-0.5 text-smoke">01</span>
+        <span className="mono-label text-smoke mt-0.5">01</span>
         <span className="flex flex-1 flex-col gap-2">
           Откройте бота Rentybot в MAX
-          <Button variant="outline" size="sm" className="self-start bg-canvas">
+          <Button variant="outline" size="sm" className="bg-canvas self-start">
             <ExternalLinkIcon /> Открыть MAX
           </Button>
         </span>
       </li>
       <li className="flex items-start gap-3">
-        <span className="mono-label mt-0.5 text-smoke">02</span>
+        <span className="mono-label text-smoke mt-0.5">02</span>
         <span className="flex flex-1 flex-col gap-2">
           Отправьте боту команду — она связывает чат с вашей организацией
-          <span className="flex w-fit items-center gap-2 rounded-2xl bg-background p-1 pl-4">
-            <span className="font-mono text-body-sm">{BOT_CODE}</span>
+          <span className="bg-background flex w-fit items-center gap-2 rounded-2xl p-1 pl-4">
+            <span className="text-body-sm font-mono">{BOT_CODE}</span>
             <CopyButton content={BOT_CODE} size="sm" variant="ghost" className="rounded-xl" aria-label="Скопировать команду" />
           </span>
         </span>
       </li>
     </ol>
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl bg-background p-4">
-      <span className="inline-flex items-center gap-2 text-body-sm text-slate">
-        <span className="size-2 animate-pulse rounded-full bg-foreground" aria-hidden />
+    <div className="bg-background flex flex-wrap items-center justify-between gap-3 rounded-3xl p-4">
+      <span className="text-body-sm text-slate inline-flex items-center gap-2">
+        <span className="bg-foreground size-2 animate-pulse rounded-full" aria-hidden />
         Ждём сообщение от бота · код действует до 10:40 {DEMO_TZ}
       </span>
       {/* В макете подтверждение имитируется кнопкой: в продукте оно приходит от бота само */}
@@ -148,7 +172,7 @@ const TaskStep = ({ onDone }: { onDone: () => void }) => (
       </Label>
       <Input id="ob-task-when" type="time" defaultValue="13:00" />
     </div>
-    <Button type="submit" className="self-start shadow-control sm:col-span-2">
+    <Button type="submit" className="shadow-control self-start sm:col-span-2">
       <SendIcon /> Поставить задачу
     </Button>
   </form>
@@ -159,7 +183,12 @@ const TaskStep = ({ onDone }: { onDone: () => void }) => (
 const OnboardingPage = () => {
   const { orgId = DEMO_ORG_ID } = useParams()
   // Шаги независимы: любой можно открыть и пропустить, порядок — только рекомендация
-  const [done, setDone] = useState<Record<StepKey, boolean>>({ property: true, channel: false, max: false, task: false })
+  const [done, setDone] = useState<Record<StepKey, boolean>>({
+    property: true,
+    channel: false,
+    max: false,
+    task: false,
+  })
   const [open, setOpen] = useState<StepKey | null>('channel')
   const doneCount = Object.values(done).filter(Boolean).length
 
@@ -178,70 +207,139 @@ const OnboardingPage = () => {
   return (
     <EntryShell>
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-10 py-6 md:py-12">
-        <header className="flex flex-col gap-5">
-          <p className="text-caption text-smoke">Организация «Волна» · первые шаги</p>
-          <h1 className="text-heading font-semibold tracking-[-0.03em] md:text-heading-lg">Запустим за 10 минут</h1>
-          <div className="flex items-center gap-4">
+        <header className="flex flex-col gap-6">
+          <Reveal className="text-caption text-smoke">Организация «Волна» · первые шаги</Reveal>
+          <SplitHeadline text="Запустим за 10 минут" delay={0.1} className="brand-display text-[44px] md:text-[76px]" />
+          <Reveal delay={0.35} className="flex items-center gap-4">
             <div className="flex h-1.5 flex-1 gap-1.5" aria-hidden>
-              {STEPS.map((step) => (
-                <span key={step.key} className={cn('flex-1 rounded-full transition-colors', done[step.key] ? 'bg-foreground' : 'bg-mist')} />
+              {STEPS.map((step, index) => (
+                <span key={step.key} className="bg-mist relative flex-1 overflow-hidden rounded-full">
+                  {/* Отрезок заливается слева направо: прогресс ощущается как движение, а не как смена цвета */}
+                  <motion.span
+                    className="bg-foreground absolute inset-0 origin-left rounded-full"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: done[step.key] ? 1 : 0 }}
+                    transition={{ duration: 0.9, ease: EASE, delay: 0.5 + index * 0.08 }}
+                  />
+                </span>
               ))}
             </div>
             <span className="mono-label text-smoke tabular-nums">
-              {doneCount} из {STEPS.length}
+              <motion.span key={doneCount} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="inline-block">
+                {doneCount}
+              </motion.span>{' '}
+              из {STEPS.length}
             </span>
-          </div>
+          </Reveal>
         </header>
 
-        <ol className="flex flex-col gap-3">
+        <RevealGroup as="ol" delay={0.5} stagger={0.08} className="flex flex-col gap-3">
           {STEPS.map((step, index) => {
             const isOpen = open === step.key
             const isDone = done[step.key]
             return (
-              <li key={step.key} className={cn('rounded-card bg-card shadow-card transition-colors', isOpen && 'ring-1 ring-foreground/10')}>
+              <RevealItem
+                as="li"
+                key={step.key}
+                className={cn(
+                  'rounded-card bg-card shadow-card transition-shadow duration-500',
+                  isOpen && 'shadow-[0_1px_2px_rgb(10_18_23/0.04),0_24px_56px_-24px_rgb(10_18_23/0.25)]',
+                )}
+              >
                 <button
                   type="button"
                   aria-expanded={isOpen}
                   onClick={() => setOpen(isOpen ? null : step.key)}
-                  className="flex w-full items-center gap-4 rounded-card p-5 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/30 md:gap-6 md:p-6"
+                  className="group rounded-card focus-visible:ring-ring/30 flex w-full items-center gap-4 p-5 text-left outline-none focus-visible:ring-3 md:gap-6 md:p-6"
                 >
                   <span
                     className={cn(
-                      'flex size-12 shrink-0 items-center justify-center rounded-full font-mono text-body-sm tabular-nums',
-                      isDone ? 'bg-foreground text-background' : isOpen ? 'bg-lime text-[#0a1217]' : 'bg-mist text-slate',
+                      'text-body-sm relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full font-mono tabular-nums transition-colors duration-500',
+                      isDone ? 'bg-foreground text-background' : isOpen ? 'bg-lime text-[#0a1217]' : 'bg-mist text-slate group-hover:bg-ash/50',
                     )}
                   >
-                    {isDone ? <CheckIcon className="size-5" aria-hidden /> : String(index + 1).padStart(2, '0')}
+                    <AnimatePresence mode="wait" initial={false}>
+                      {isDone ? (
+                        <motion.span
+                          key="done"
+                          initial={{ scale: 0, rotate: -45 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ type: 'spring', stiffness: 380, damping: 18 }}
+                        >
+                          <CheckIcon className="size-5" aria-hidden />
+                        </motion.span>
+                      ) : (
+                        <motion.span key="num" exit={{ y: -16, opacity: 0 }} transition={{ duration: 0.2 }}>
+                          {String(index + 1).padStart(2, '0')}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="text-subheading-lg font-medium">{step.title}</span>
-                    <span className="text-body-sm text-slate">{isDone ? step.doneText : step.summary}</span>
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.span
+                        key={isDone ? 'done' : 'todo'}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.25 }}
+                        className="text-body-sm text-slate"
+                      >
+                        {isDone ? step.doneText : step.summary}
+                      </motion.span>
+                    </AnimatePresence>
                   </span>
-                  <ChevronDownIcon className={cn('size-5 shrink-0 text-smoke transition-transform', isOpen && 'rotate-180')} aria-hidden />
+                  <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.45, ease: EASE }} className="flex">
+                    <ChevronDownIcon className="text-smoke size-5 shrink-0" aria-hidden />
+                  </motion.span>
                 </button>
-                {isOpen && (
-                  <div className="flex flex-col gap-4 px-5 pb-5 md:pr-6 md:pb-6 md:pl-[96px]">
-                    {isDone ? <p className="text-body-sm text-slate">Шаг выполнен. Изменить можно в настройках кабинета.</p> : content[step.key]}
-                    {!isDone && step.key !== 'property' && (
-                      <button type="button" onClick={() => setOpen(null)} className="self-start text-caption text-smoke underline-offset-4 hover:text-foreground hover:underline">
-                        Пропустить, вернусь позже
-                      </button>
-                    )}
-                  </div>
-                )}
-              </li>
+                {/* Высота раскрывается плавно, содержимое проявляется чуть позже — шаг «открывается», а не выскакивает */}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      key="body"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{
+                        height: 'auto',
+                        opacity: 1,
+                        transition: { height: { duration: 0.5, ease: EASE }, opacity: { duration: 0.35, delay: 0.12 } },
+                      }}
+                      exit={{
+                        height: 0,
+                        opacity: 0,
+                        transition: { height: { duration: 0.4, ease: EASE }, opacity: { duration: 0.15 } },
+                      }}
+                      className="overflow-hidden"
+                    >
+                      <div className="flex flex-col gap-4 px-5 pb-5 md:pr-6 md:pb-6 md:pl-[96px]">
+                        {isDone ? <p className="text-body-sm text-slate">Шаг выполнен. Изменить можно в настройках кабинета.</p> : content[step.key]}
+                        {!isDone && step.key !== 'property' && (
+                          <button
+                            type="button"
+                            onClick={() => setOpen(null)}
+                            className="text-caption text-smoke hover:text-foreground self-start underline-offset-4 transition-colors hover:underline"
+                          >
+                            Пропустить, вернусь позже
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </RevealItem>
             )
           })}
-        </ol>
+        </RevealGroup>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <Reveal delay={0.9} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-body-sm text-slate">Незавершённые шаги останутся на «Сегодня», пока вы их не закроете.</span>
-          <Button className="self-start shadow-control sm:self-auto" asChild>
+          <Button className="shadow-control self-start sm:self-auto" asChild>
             <Link to={to.today(orgId === 'org-new' ? DEMO_ORG_ID : orgId)}>
               В кабинет <ArrowRightIcon />
             </Link>
           </Button>
-        </div>
+        </Reveal>
       </div>
     </EntryShell>
   )

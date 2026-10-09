@@ -3,6 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource-variable/geologica";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -10,6 +11,8 @@
     /* Дизайн «Lime spark on editorial white»: Inter вместо Sana Sans; засечечного шрифта в проекте нет — вся типографика на гротеске */
     --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     --font-heading: var(--font-sans);
+    /* Дисплейный шрифт — только для главного заголовка экрана: гротеск, нарисованный под кириллицу. Меняется здесь, в одном месте */
+    --font-display: 'Geologica Variable', 'Inter Variable', ui-sans-serif, sans-serif;
     --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
     --color-canvas: var(--canvas);
     --color-paper: var(--paper);
@@ -245,6 +248,14 @@
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.03em;
+}
+
+/* Главный заголовок экрана: дисплейный гротеск, плотный трекинг, один на экран — громкость даёт размер, а не жирность */
+@utility brand-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.045em;
 }
 
 /* Заголовок раздела: гротеск 500, обычный регистр — громкость даёт размер, а не капс */

@@ -9,6 +9,7 @@ import { BOOKING_STATUS, type BookingStatus } from '@/shared/ui/rb/status-preset
 import { StatusFromMeta } from '@/shared/ui/rb/StatusBadge'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { BookingFormSheet } from '@/widgets/booking-actions/BookingFormSheet'
+import { ConflictBanner } from '@/widgets/booking-actions/ConflictBanner'
 import type { PropertyBrief } from '../PropertyPage'
 
 // ── Макетные данные: строки общего списка броней ────────────────────────────
@@ -35,63 +36,67 @@ const rowHref = (row: Row) => (row.status === 'hold' ? to.request(row.id) : to.b
 // Брони объекта — тот же общий список, отфильтрованный по объекту, поэтому колонки «Объект» нет
 export const BookingsTab = ({ property, canSeeMoney }: { property: PropertyBrief; canSeeMoney: boolean }) => {
   const rows = ROWS.filter((row) => row.propertyId === property.id)
+  const hasConflict = rows.some((row) => row.status === 'conflict')
   return (
-    <SectionCard
-      title="Брони объекта"
-      count={rows.length}
-      className="shadow-card"
-      action={
-        <div className="flex items-center gap-2">
-          <Link to={`${to.bookings()}?property=${property.id}`} className="hidden items-center gap-1 text-body-sm text-slate hover:text-foreground hover:underline sm:inline-flex">
-            В общем списке <ArrowUpRightIcon className="size-3.5" aria-hidden />
-          </Link>
-          <BookingFormSheet
-            kind="booking"
-            propertyId={property.id}
-            trigger={
-              <Button size="sm" variant="outline" className="bg-canvas">
-                <CalendarPlusIcon /> Ручная бронь
-              </Button>
-            }
-          />
-        </div>
-      }
-    >
-      {rows.length > 0 ? (
-        <ul className="-mx-3 flex flex-col">
-          {rows.map((row) => (
-            <li key={row.id}>
-              <Link
-                to={rowHref(row)}
-                className={cn(
-                  'grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 rounded-2xl p-3 outline-none transition-colors hover:bg-mist focus-visible:bg-mist md:grid-cols-[150px_1fr_auto_auto]',
-                  (row.status === 'cancelled' || row.status === 'done') && 'text-slate',
-                )}
-              >
-                <span className="flex flex-col gap-0.5">
-                  <span className="text-body-sm font-medium tabular-nums">{row.dates}</span>
-                  <span className="text-caption text-smoke">{pluralize(row.nights, ['ночь', 'ночи', 'ночей'])}</span>
-                </span>
-                <span className="order-first col-span-2 flex min-w-0 flex-col gap-0.5 md:order-none md:col-span-1">
-                  <span className="truncate text-body-sm font-medium">{row.guest}</span>
-                  <span className="flex items-center gap-2 text-caption text-smoke">
-                    {row.number} · {pluralize(row.guests, ['гость', 'гостя', 'гостей'])}
-                    <SourceTag source={row.source} variant="plain" />
+    <div className="flex flex-col gap-4">
+      {hasConflict && <ConflictBanner title="Пересечение дат 12–14 окт" description="Брони #1042 (Авито) и #1045 (Суточно) заняли одни даты" />}
+      <SectionCard
+        title="Брони объекта"
+        count={rows.length}
+        className="shadow-card"
+        action={
+          <div className="flex items-center gap-2">
+            <Link to={`${to.bookings()}?property=${property.id}`} className="hidden items-center gap-1 text-body-sm text-slate hover:text-foreground hover:underline sm:inline-flex">
+              В общем списке <ArrowUpRightIcon className="size-3.5" aria-hidden />
+            </Link>
+            <BookingFormSheet
+              kind="booking"
+              propertyId={property.id}
+              trigger={
+                <Button size="sm" variant="outline" className="bg-canvas">
+                  <CalendarPlusIcon /> Ручная бронь
+                </Button>
+              }
+            />
+          </div>
+        }
+      >
+        {rows.length > 0 ? (
+          <ul className="-mx-3 flex flex-col">
+            {rows.map((row) => (
+              <li key={row.id}>
+                <Link
+                  to={rowHref(row)}
+                  className={cn(
+                    'grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 rounded-2xl p-3 outline-none transition-colors hover:bg-mist focus-visible:bg-mist md:grid-cols-[150px_1fr_auto_auto]',
+                    (row.status === 'cancelled' || row.status === 'done') && 'text-slate',
+                  )}
+                >
+                  <span className="flex flex-col gap-0.5">
+                    <span className="text-body-sm font-medium tabular-nums">{row.dates}</span>
+                    <span className="text-caption text-smoke">{pluralize(row.nights, ['ночь', 'ночи', 'ночей'])}</span>
                   </span>
-                </span>
-                {canSeeMoney ? (
-                  <span className={cn('hidden text-right tabular-nums md:block', row.amount == null ? 'text-caption text-smoke' : 'text-body-sm')}>{formatMoney(row.amount)}</span>
-                ) : (
-                  <span className="hidden md:block" />
-                )}
-                <StatusFromMeta meta={BOOKING_STATUS[row.status]} size="sm" className="justify-self-end" />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-body-sm text-slate">Броней по объекту нет.</p>
-      )}
-    </SectionCard>
+                  <span className="order-first col-span-2 flex min-w-0 flex-col gap-0.5 md:order-none md:col-span-1">
+                    <span className="truncate text-body-sm font-medium">{row.guest}</span>
+                    <span className="flex items-center gap-2 text-caption text-smoke">
+                      {row.number} · {pluralize(row.guests, ['гость', 'гостя', 'гостей'])}
+                      <SourceTag source={row.source} variant="plain" />
+                    </span>
+                  </span>
+                  {canSeeMoney ? (
+                    <span className={cn('hidden text-right tabular-nums md:block', row.amount == null ? 'text-caption text-smoke' : 'text-body-sm')}>{formatMoney(row.amount)}</span>
+                  ) : (
+                    <span className="hidden md:block" />
+                  )}
+                  <StatusFromMeta meta={BOOKING_STATUS[row.status]} size="sm" className="justify-self-end" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-body-sm text-slate">Броней по объекту нет.</p>
+        )}
+      </SectionCard>
+    </div>
   )
 }

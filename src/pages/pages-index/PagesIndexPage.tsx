@@ -39,34 +39,36 @@ const PagesIndexPage = () => {
               {CONTOUR_LABEL[contour]}
               <span className="ml-2 text-smoke">{screens.length}</span>
             </h2>
-            <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <ul className="flex flex-col divide-y divide-ash overflow-hidden rounded-card bg-card shadow-card">
               {screens.map((screen) => (
-                <li key={screen.id} className="flex flex-col gap-4 rounded-card bg-card p-6 shadow-card">
-                  <div className="flex items-start justify-between gap-3">
+                <li key={screen.id} className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-start md:gap-6 md:px-6">
+                  <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+                    <Link to={screen.href} className="group flex min-w-0 flex-col gap-0.5 outline-none">
+                      <span className="flex items-center gap-1.5 text-body font-medium group-hover:underline group-focus-visible:underline">
+                        {screen.title}
+                        <ArrowUpRightIcon className="size-4 shrink-0 text-smoke" aria-hidden />
+                      </span>
+                      <span className="truncate font-mono text-caption text-smoke">{screen.href}</span>
+                    </Link>
+                    {screen.variants && screen.variants.length > 0 && (
+                      <ul className="flex flex-wrap gap-1.5">
+                        {screen.variants.map((variant) => (
+                          <li key={variant.query}>
+                            <Link
+                              to={`${screen.href}?${variant.query}`}
+                              className="inline-flex h-7 items-center rounded-full bg-mist px-3 text-caption text-slate transition-colors hover:bg-foreground hover:text-background"
+                            >
+                              {variant.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3 md:pt-0.5">
                     <span className="text-caption text-smoke">Фаза {screen.phase}</span>
                     <StatusFromMeta meta={STATUS[screen.status]} size="sm" />
                   </div>
-                  <Link to={screen.href} className="group flex flex-col gap-1 outline-none">
-                    <span className="flex items-center gap-1.5 text-subheading-lg font-medium group-hover:underline group-focus-visible:underline">
-                      {screen.title}
-                      <ArrowUpRightIcon className="size-4 text-smoke" aria-hidden />
-                    </span>
-                    <span className="truncate font-mono text-caption text-smoke">{screen.href}</span>
-                  </Link>
-                  {screen.variants && screen.variants.length > 0 && (
-                    <ul className="flex flex-wrap gap-1.5">
-                      {screen.variants.map((variant) => (
-                        <li key={variant.query}>
-                          <Link
-                            to={`${screen.href}?${variant.query}`}
-                            className="inline-flex h-7 items-center rounded-full bg-mist px-3 text-caption text-slate transition-colors hover:bg-foreground hover:text-background"
-                          >
-                            {variant.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
                 </li>
               ))}
             </ul>

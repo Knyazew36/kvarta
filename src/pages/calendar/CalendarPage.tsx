@@ -14,9 +14,9 @@ import { SyncFreshness, type SyncInfo } from '@/shared/ui/rb/SyncFreshness'
 import { SyncRefresh, useSyncRefresh } from '@/shared/ui/rb/SyncRefresh'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/shadcn/animate-ui/components/animate/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/shadcn/animate-ui/components/animate/tooltip'
-import { Button, buttonVariants } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { BookingFormSheet } from '@/widgets/booking-actions/BookingFormSheet'
-import { ConflictDialog } from '@/widgets/booking-actions/ConflictDialog'
+import { ConflictBanner } from '@/widgets/booking-actions/ConflictBanner'
 
 // ── Макетные данные: октябрь 2026, «сегодня» — 8 октября ────────────────────
 
@@ -942,26 +942,7 @@ const CalendarPage = () => {
       )}
 
       {conflicts.length > 0 && (
-        // Весь блок открывает разбор конфликта; «кнопка» внутри — span, вложенный <button> недопустим
-        <ConflictDialog
-          trigger={
-            <button
-              type="button"
-              className="group rounded-card bg-foreground text-background shadow-card dark:bg-mist dark:text-foreground flex cursor-pointer flex-col gap-3 p-5 text-left outline-none transition-opacity hover:opacity-95 focus-visible:ring-3 focus-visible:ring-ring/30 sm:flex-row sm:items-center sm:justify-between md:px-8"
-            >
-              <span className="flex items-start gap-3">
-                <TriangleAlertIcon className="mt-0.5 size-5 shrink-0 text-[#ff8a7a]" aria-hidden />
-                <span className="flex flex-col gap-0.5">
-                  <span className="text-body font-medium">Пересечение дат 12–14 окт · Студия на Лиговском</span>
-                  <span className="text-body-sm text-smoke">Брони #1042 (Авито) и #1045 (Суточно) заняли одни даты</span>
-                </span>
-              </span>
-              <span className={cn(buttonVariants({ variant: 'accent', size: 'sm' }), 'shadow-control self-start group-hover:bg-lime/85 sm:self-auto')}>
-                Разобрать конфликт
-              </span>
-            </button>
-          }
-        />
+        <ConflictBanner title="Пересечение дат 12–14 окт · Студия на Лиговском" description="Брони #1042 (Авито) и #1045 (Суточно) заняли одни даты" />
       )}
 
       <div className="flex flex-col gap-4">
