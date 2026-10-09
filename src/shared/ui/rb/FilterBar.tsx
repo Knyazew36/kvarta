@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 export type FilterOption = { value: string; label: string }
 export type FilterDef = { key: string; label: string; options: FilterOption[] }
 
-// Служебные параметры демо не считаются фильтрами и не сбрасываются кнопкой «Сбросить»
-const DEMO_KEYS = ['role', 'objects', 'state']
+// Служебные параметры демо и вид экрана (масштаб календаря, подборка) не считаются фильтрами и не сбрасываются
+const DEMO_KEYS = ['role', 'objects', 'state', 'mode', 'tab']
 
 type FilterBarProps = {
   filters: FilterDef[]

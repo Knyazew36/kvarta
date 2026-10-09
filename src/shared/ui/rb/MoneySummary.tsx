@@ -31,7 +31,7 @@ export const MoneySummary = ({ lines, className, inverted }: { lines: MoneyLine[
               'shrink-0 text-right tabular-nums',
               line.kind === 'total' ? 'text-subheading-lg font-medium' : 'text-body font-medium',
               unknown && 'mono-label rounded-full bg-mist px-2 py-0.5 text-slate',
-              line.kind === 'claimed' && !unknown && 'rounded-full bg-attention px-2 text-black',
+              line.kind === 'claimed' && !unknown && 'rounded-full bg-attention px-2 text-background',
             )}
           >
             {unknown ? NO_DATA : formatMoney(line.value)}

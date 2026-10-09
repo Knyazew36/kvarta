@@ -2,16 +2,14 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
-@import "@fontsource-variable/oswald";
 @import "@fontsource-variable/jetbrains-mono";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    /* Дизайн «AI for Business»: Inter вместо SuisseIntl, Oswald вместо SuisseIntlCond (у Anton нет кириллицы), JetBrains Mono вместо SuisseIntlMono */
+    /* Дизайн «Lime spark on editorial white»: Inter вместо Sana Sans; засечечного шрифта в проекте нет — вся типографика на гротеске */
     --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     --font-heading: var(--font-sans);
-    --font-display: 'Oswald Variable', 'Arial Narrow', sans-serif;
     --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
     --color-canvas: var(--canvas);
     --color-paper: var(--paper);
@@ -21,11 +19,12 @@
     --color-smoke: var(--smoke);
     --color-slate: var(--slate);
     --color-graphite: var(--graphite);
-    --color-mint: #d1ffca;
-    --color-voltage: #fff100;
-    /* Семантические алиасы акцентов: в разметке статусов читается смысл, а не цвет */
-    --color-success: #d1ffca;
-    --color-attention: #fff100;
+    --color-frost: var(--frost);
+    --color-lime: #cdfe00;
+    /* Семантические алиасы: в разметке статусов читается смысл, а не цвет.
+       Второго акцента в системе нет — «внимание» держится на контрасте ink, а не на жёлтом */
+    --color-success: var(--frost);
+    --color-attention: var(--carbon);
     --color-hatch: var(--hatch);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
@@ -65,17 +64,18 @@
     --radius-2xl: 20px;
     --radius-3xl: 24px;
     --radius-4xl: 32px;
-    --radius-card: 32px;
-    --radius-pill: 48px;
+    /* Мягкая тень карточек: по просьбе — глубина не только сменой поверхностей */
+    --shadow-card: var(--card-shadow);
+    --shadow-control: var(--control-shadow);
+    --radius-card: 24px;
+    --radius-pill: 9999px;
     --radius-arc: 64px;
-    --text-caption: 12px;
-    --text-caption--line-height: 1.6;
-    --text-caption--letter-spacing: -0.03em;
+    --text-caption: 13px;
+    --text-caption--line-height: 1.5;
     --text-body-sm: 14px;
-    --text-body-sm--line-height: 1.3;
-    --text-body-sm--letter-spacing: -0.011em;
+    --text-body-sm--line-height: 1.43;
     --text-body: 16px;
-    --text-body--line-height: 1.25;
+    --text-body--line-height: 1.43;
     --text-subheading: 18px;
     --text-subheading--line-height: 1.33;
     --text-subheading-lg: 20px;
@@ -89,34 +89,40 @@
     --text-heading-lg: 48px;
     --text-heading-lg--line-height: 0.9;
     --text-heading-lg--letter-spacing: -0.03em;
-    --text-display: 80px;
-    --text-display--line-height: 0.9;
-    --text-display--letter-spacing: -0.03em;
+    --text-display-sm: 56px;
+    --text-display-sm--line-height: 1.1;
+    --text-display-sm--letter-spacing: -0.02em;
+    --text-display: 72px;
+    --text-display--line-height: 1.1;
+    --text-display--letter-spacing: -0.02em;
     --text-display-xl: 130px;
     --text-display-xl--line-height: 0.9;
     --text-display-xl--letter-spacing: -0.03em;
 }
 
-/* Основная тема: тёплый серый холст, белые карточки, чёрные блоки; глубина только контрастом поверхностей, без теней */
+/* Основная тема: белый холст, frost-карточки, ink-блоки; глубина только сменой поверхностей white → frost → ink, без теней */
 :root {
-    --canvas: #e5e5e5;
-    --paper: #ffffff;
-    --carbon: #000000;
-    --mist: #f3f3f3;
-    --ash: #c6c6c6;
-    --smoke: #979797;
-    --slate: #444444;
-    --graphite: #2f2f2f;
-    --hatch: #c6c6c6;
+    --canvas: #ffffff;
+    --frost: #e4eff7;
+    --paper: var(--frost);
+    --carbon: #0a1217;
+    --mist: #f2f7fb;
+    --ash: #c9d6df;
+    --smoke: #85898b;
+    --slate: #4a5359;
+    --graphite: #1f2a31;
+    --hatch: #c9d6df;
+    --card-shadow: 0 1px 2px rgb(10 18 23 / 0.04), 0 12px 32px -12px rgb(10 18 23 / 0.14);
+    --control-shadow: 0 1px 2px rgb(10 18 23 / 0.08), 0 2px 6px -2px rgb(10 18 23 / 0.10);
 
     --background: var(--canvas);
     --foreground: var(--carbon);
     --card: var(--paper);
     --card-foreground: var(--carbon);
-    --popover: var(--paper);
+    --popover: var(--canvas);
     --popover-foreground: var(--carbon);
     --primary: var(--carbon);
-    --primary-foreground: var(--paper);
+    --primary-foreground: #ffffff;
     --secondary: var(--mist);
     --secondary-foreground: var(--carbon);
     --muted: var(--mist);
@@ -127,33 +133,36 @@
     --border: var(--ash);
     --input: var(--mist);
     --ring: var(--carbon);
-    --chart-1: #000000;
-    --chart-2: #444444;
-    --chart-3: #979797;
-    --chart-4: #c6c6c6;
-    --chart-5: #d1ffca;
+    --chart-1: #0a1217;
+    --chart-2: #4a5359;
+    --chart-3: #85898b;
+    --chart-4: #c9d6df;
+    --chart-5: #e4eff7;
     --radius: 0.5rem;
-    --sidebar: var(--paper);
+    --sidebar: var(--canvas);
     --sidebar-foreground: var(--carbon);
     --sidebar-primary: var(--carbon);
-    --sidebar-primary-foreground: var(--paper);
+    --sidebar-primary-foreground: #ffffff;
     --sidebar-accent: var(--mist);
     --sidebar-accent-foreground: var(--carbon);
     --sidebar-border: var(--ash);
     --sidebar-ring: var(--carbon);
 }
 
-/* Тёмная тема в дизайне не описана — инверсия той же монохромной системы */
+/* Тёмная тема в дизайне не описана — ink становится холстом, frost-ступень темнеет, lime остаётся тем же акцентом */
 .dark {
-    --canvas: #111111;
-    --paper: #1c1c1c;
-    --carbon: #ffffff;
-    --mist: #262626;
-    --ash: #3a3a3a;
-    --smoke: #8a8a8a;
-    --slate: #b5b5b5;
-    --graphite: #2f2f2f;
-    --hatch: #4a4a4a;
+    --canvas: #0a1217;
+    --frost: #131f26;
+    --paper: var(--frost);
+    --carbon: #eef3f6;
+    --mist: #1a2830;
+    --ash: #2a3a43;
+    --smoke: #85898b;
+    --slate: #b1bcc3;
+    --graphite: #d5dee3;
+    --hatch: #2f414b;
+    --card-shadow: 0 1px 2px rgb(0 0 0 / 0.30), 0 12px 32px -12px rgb(0 0 0 / 0.55);
+    --control-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 2px 6px -2px rgb(0 0 0 / 0.40);
 
     --background: var(--canvas);
     --foreground: var(--carbon);
@@ -162,7 +171,7 @@
     --popover: var(--paper);
     --popover-foreground: var(--carbon);
     --primary: var(--carbon);
-    --primary-foreground: #000000;
+    --primary-foreground: #0a1217;
     --secondary: var(--mist);
     --secondary-foreground: var(--carbon);
     --muted: var(--mist);
@@ -173,15 +182,15 @@
     --border: var(--ash);
     --input: var(--mist);
     --ring: var(--carbon);
-    --chart-1: #ffffff;
-    --chart-2: #b5b5b5;
-    --chart-3: #8a8a8a;
-    --chart-4: #3a3a3a;
-    --chart-5: #d1ffca;
+    --chart-1: #eef3f6;
+    --chart-2: #b1bcc3;
+    --chart-3: #85898b;
+    --chart-4: #2a3a43;
+    --chart-5: #131f26;
     --sidebar: var(--paper);
     --sidebar-foreground: var(--carbon);
     --sidebar-primary: var(--carbon);
-    --sidebar-primary-foreground: #000000;
+    --sidebar-primary-foreground: #0a1217;
     --sidebar-accent: var(--mist);
     --sidebar-accent-foreground: var(--carbon);
     --sidebar-border: var(--ash);
@@ -194,6 +203,16 @@
   }
   html {
     @apply font-sans;
+    /* Цифры всегда табличные: время, суммы и счётчики встают в колонку */
+    font-feature-settings: 'lnum' on, 'tnum' on;
+    /* Место под скроллбар зарезервировано всегда: при блокировке скролла модалкой ширина вьюпорта не меняется */
+    scrollbar-gutter: stable;
+  }
+  /* Radix (react-remove-scroll) компенсирует пропавший скроллбар отступом body.
+     С gutter скроллбар никуда не пропадает, поэтому компенсация даёт обратный прыжок: обнуляем */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+    --removed-body-scroll-bar-size: 0px !important;
   }
   body {
     @apply bg-background text-body text-foreground antialiased;
@@ -220,30 +239,27 @@
   }
 }
 
-/* Дисплейный заголовок: condensed, uppercase, межстрочный 0.9 — не использовать мельче 48px */
+/* Дисплейный заголовок: тот же гротеск, что и интерфейс, громкость — размером и плотным трекингом */
 @utility display-heading {
-  font-family: var(--font-display);
-  font-weight: 700;
-  line-height: 0.9;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  line-height: 1.05;
   letter-spacing: -0.03em;
-  text-transform: uppercase;
 }
 
-/* Вторичный заголовок: гротеск 450, uppercase */
+/* Заголовок раздела: гротеск 500, обычный регистр — громкость даёт размер, а не капс */
 @utility section-heading {
   font-family: var(--font-sans);
-  font-weight: 450;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
-/* Моно-метка для метаданных и нумерации */
+/* Служебная подпись: мета, время, номера. Раньше была моноширинной — теперь тихий гротеск 13px */
 @utility mono-label {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  line-height: 1.3;
-  letter-spacing: -0.03em;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 /* Штриховка для удержаний и блокировок в календаре: паттерн-разметка, а не декоративный градиент */

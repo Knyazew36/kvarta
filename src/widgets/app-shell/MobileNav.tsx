@@ -18,7 +18,7 @@ const MoreLink = ({ item, orgId, onClick }: { item: NavItem; orgId: string; onCl
       <item.icon className="size-4" aria-hidden />
     </span>
     <span className="flex-1 text-body font-medium">{item.label}</span>
-    {item.badge != null && <span className="mono-label rounded-full bg-attention px-1.5 py-0.5 text-black">{item.badge}</span>}
+    {item.badge != null && <span className="mono-label rounded-full bg-attention px-1.5 py-0.5 text-background">{item.badge}</span>}
     <ChevronRightIcon className="size-4 text-smoke" aria-hidden />
   </Link>
 )
@@ -65,7 +65,7 @@ export const MobileNav = ({ inline, className }: MobileNavProps) => {
               <item.icon className="size-5" aria-hidden />
               {item.label}
               {item.badge != null && !active && (
-                <span className="mono-label absolute top-1.5 right-[calc(50%-20px)] flex size-4 items-center justify-center rounded-full bg-attention text-[10px] text-black">
+                <span className="mono-label absolute top-1.5 right-[calc(50%-20px)] flex size-4 items-center justify-center rounded-full bg-attention text-[10px] text-background">
                   {item.badge}
                 </span>
               )}

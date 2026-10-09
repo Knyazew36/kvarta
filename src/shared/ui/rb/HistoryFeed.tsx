@@ -1,4 +1,5 @@
 import { cn } from '@/shared/lib/utils'
+import { PersonName } from '@/shared/ui/rb/PersonAvatar'
 
 export type HistoryEntry = {
   id: string
@@ -8,6 +9,8 @@ export type HistoryEntry = {
   // Основание изменения: обмен с площадкой, решение владельца, правило серии
   reason?: string
   system?: boolean
+  // Действие сотрудника — показываем аватар; гость и Rentybot остаются текстом
+  staff?: boolean
 }
 
 export const HistoryFeed = ({ entries, className }: { entries: HistoryEntry[]; className?: string }) => (
@@ -23,8 +26,8 @@ export const HistoryFeed = ({ entries, className }: { entries: HistoryEntry[]; c
           aria-hidden
         />
         <div className="flex min-w-0 flex-col gap-1">
-          <span className="mono-label text-smoke">
-            {entry.at} · {entry.author}
+          <span className="mono-label inline-flex flex-wrap items-center gap-x-1 text-smoke">
+            {entry.at} · {entry.staff ? <PersonName name={entry.author} /> : entry.author}
           </span>
           <span className="text-body-sm">{entry.text}</span>
           {entry.reason && <span className="mono-label text-slate">Основание: {entry.reason}</span>}

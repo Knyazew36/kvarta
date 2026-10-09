@@ -71,7 +71,7 @@ export const NotificationsPopover = () => {
       >
         <BellIcon className="size-5" aria-hidden />
         {unread > 0 && (
-          <span className="mono-label absolute -top-0.5 -right-0.5 flex size-5 items-center justify-center rounded-full bg-attention text-black">
+          <span className="mono-label absolute -top-0.5 -right-0.5 flex size-5 items-center justify-center rounded-full bg-attention text-background">
             {unread}
           </span>
         )}

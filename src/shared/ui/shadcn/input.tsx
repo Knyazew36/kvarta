@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Input as InputPrimitive } from "@base-ui/react/input"
 import { cn } from "@/shared/lib/utils"
+import { DateInput } from "@/shared/ui/shadcn/date-input"
 
 // Российский формат: 8 и 7 в начале считаем кодом страны, остальное — 10 цифр номера
 export function formatPhone(raw: string) {
@@ -19,6 +20,29 @@ export function formatPhone(raw: string) {
 }
 
 function Input({ className, type, onChange, value, defaultValue, ...props }: React.ComponentProps<"input">) {
+  // Системный пикер даты выглядит по-разному в каждом браузере — вместо него всегда календарь shadcn.
+  // onChange получает объект с target.value, чтобы код форм под нативный input работал без изменений
+  if (type === "date") {
+    const emit = (next: string) =>
+      onChange?.({ target: { value: next, name: props.name }, currentTarget: { value: next, name: props.name } } as React.ChangeEvent<HTMLInputElement>)
+    return (
+      <DateInput
+        id={props.id}
+        name={props.name}
+        value={value as string | undefined}
+        defaultValue={defaultValue as string | undefined}
+        onValueChange={emit}
+        placeholder={props.placeholder}
+        min={props.min as string | undefined}
+        max={props.max as string | undefined}
+        disabled={props.disabled}
+        className={className}
+        aria-invalid={props["aria-invalid"] === true || props["aria-invalid"] === "true"}
+        aria-label={props["aria-label"]}
+      />
+    )
+  }
+
   const isPhone = type === "tel"
 
   // Маска применяется до onChange: и управляемое, и неуправляемое поле получают уже отформатированное значение

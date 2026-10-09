@@ -82,7 +82,18 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex flex-col gap-1.5 p-6 pr-16", className)}
+      className={cn("flex shrink-0 flex-col gap-1.5 p-6 pr-16", className)}
+      {...props}
+    />
+  )
+}
+
+// Скроллится только тело: шапка с заголовком и крестиком и футер с действиями всегда на виду
+function SheetBody({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="sheet-body"
+      className={cn("min-h-0 flex-1 overflow-y-auto px-6 pb-6", className)}
       {...props}
     />
   )
@@ -92,7 +103,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-footer"
-      className={cn("mt-auto flex flex-col gap-2 p-6", className)}
+      className={cn("mt-auto flex shrink-0 flex-col gap-2 p-6", className)}
       {...props}
     />
   )
@@ -130,6 +141,7 @@ export {
   SheetClose,
   SheetContent,
   SheetHeader,
+  SheetBody,
   SheetFooter,
   SheetTitle,
   SheetDescription,

@@ -59,7 +59,7 @@ export const Topbar = () => {
       <SidebarTrigger className="hidden size-11 rounded-full bg-card md:flex" aria-label="Свернуть меню" />
       <Link to={ROUTES.PAGES} className="section-heading flex items-center gap-1.5 text-subheading-lg font-medium md:hidden">
         Rentybot
-        <span className="size-2 rounded-full bg-success" aria-hidden />
+        <span className="size-2 rounded-full bg-foreground" aria-hidden />
       </Link>
       {/* С одним объектом выбирать нечего — фильтр не показываем (§2) */}
       {!isEmployee && !singleObject && (

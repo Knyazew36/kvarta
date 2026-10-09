@@ -1,251 +1,255 @@
-import {
-  AlarmClockIcon,
-  ArrowDownToLineIcon,
-  ArrowUpFromLineIcon,
-  BanknoteIcon,
-  CalendarPlusIcon,
-  CircleCheckIcon,
-  CircleDashedIcon,
-  ClipboardCheckIcon,
-  ClipboardPlusIcon,
-  CloudAlertIcon,
-  HourglassIcon,
-  HousePlusIcon,
-  LifeBuoyIcon,
-  LoaderIcon,
-  MessageSquareWarningIcon,
-  PlusIcon,
-  RefreshCwIcon,
-  SplitIcon,
-  TimerOffIcon,
-  type LucideIcon,
-} from 'lucide-react'
+import { ArrowRightIcon, CalendarPlusIcon, ClipboardPlusIcon, MessageCircleIcon, PlusIcon, RefreshCwIcon, TriangleAlertIcon } from 'lucide-react'
 import { Link, useParams } from 'react-router'
 import { DEMO_ORG_ID, to } from '@/shared/config/paths'
-import { DEMO_TZ, DEMO_TZ_FULL, formatMoney } from '@/shared/lib/format'
+import { DEMO_TZ, DEMO_TZ_FULL, formatMoney, pluralize } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { useDemoState } from '@/shared/mock/state'
-import { EventCard } from '@/shared/ui/rb/EventCard'
-import { PageHeader } from '@/shared/ui/rb/PageHeader'
-import { PersonAvatar } from '@/shared/ui/rb/PersonAvatar'
-import { SectionCard } from '@/shared/ui/rb/Section'
-import { SourceTag, type Source } from '@/shared/ui/rb/SourceTag'
+import { PersonAvatar, PersonName } from '@/shared/ui/rb/PersonAvatar'
+import { SOURCE_LABEL, type Source } from '@/shared/ui/rb/SourceTag'
 import { StateView } from '@/shared/ui/rb/StateView'
-import { StatusBadge, type StatusTone } from '@/shared/ui/rb/StatusBadge'
-import { SyncFreshness, type SyncInfo } from '@/shared/ui/rb/SyncFreshness'
+import type { SyncInfo } from '@/shared/ui/rb/SyncFreshness'
+import { SyncRefresh, useSyncRefresh } from '@/shared/ui/rb/SyncRefresh'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { BookingFormSheet } from '@/widgets/booking-actions/BookingFormSheet'
 
 // ── Макетные данные экрана: заменятся ответом API «сводка дня» ──────────────
 
-type Attention = { id: string; icon: LucideIcon; title: string; subtitle: string; href: string; tone: StatusTone; label: string; money?: boolean }
+type Attention = { id: string; title: string; subtitle: string; href: string; label: string; person?: string; danger?: boolean; money?: boolean }
 
+// Порядок — по срочности: первым идёт то, что сгорит раньше
 const ATTENTION: Attention[] = [
-  {
-    id: 'a1',
-    icon: BanknoteIcon,
-    title: 'Гость сообщил о переводе 14 000 ₽',
-    subtitle: 'Заявка RB-1048 · Дом в Репино · удержание до 18:00 МСК',
-    href: to.request('r-201'),
-    tone: 'attention',
-    label: 'Ждёт проверки',
-    money: true,
-  },
-  {
-    id: 'a2',
-    icon: SplitIcon,
-    title: 'Пересечение дат 12–14 окт',
-    subtitle: 'Студия на Лиговском · Авито RB-1045 и Суточно RB-1046',
-    href: to.booking('b-1045'),
-    tone: 'danger',
-    label: 'Конфликт',
-  },
-  {
-    id: 'a3',
-    icon: TimerOffIcon,
-    title: 'Окно подготовки 3 часа',
-    subtitle: 'Лофт у Невы · выезд 12:00, заезд 15:00 · уборка ещё не начата',
-    href: to.booking('b-1044', 'prep'),
-    tone: 'attention',
-    label: 'Мало времени',
-  },
-  {
-    id: 'a4',
-    icon: AlarmClockIcon,
-    title: 'Заменить смеситель на кухне',
-    subtitle: 'Апартаменты на Мойке · Олег Ким · срок был вчера 18:00',
-    href: to.task('t-303'),
-    tone: 'danger',
-    label: 'Просрочено',
-  },
-  {
-    id: 'a5',
-    icon: CloudAlertIcon,
-    title: 'Сбой обмена с Суточно',
-    subtitle: 'Данные по 2 объектам на 07:58 МСК · свободные даты не открыты',
-    href: to.settings('channels'),
-    tone: 'attention',
-    label: 'Канал недоступен',
-  },
+  { id: 'a2', title: 'Пересечение дат 12–14 окт', subtitle: 'Студия на Лиговском · Авито и Суточно', href: to.booking('b-1045'), label: 'Конфликт', danger: true },
+  { id: 'a4', title: 'Заменить смеситель на кухне', subtitle: 'Апартаменты на Мойке · срок был вчера', person: 'Олег Ким', href: to.task('t-303'), label: 'Просрочено', danger: true },
+  { id: 'a3', title: 'Окно подготовки 3 часа', subtitle: 'Лофт у Невы · уборка ещё не начата', href: to.booking('b-1044', 'prep'), label: 'Мало времени' },
+  { id: 'a1', title: 'Гость сообщил о переводе 14 000 ₽', subtitle: 'Дом в Репино · удержание до 18:00', href: to.request('r-201'), label: 'Проверить', money: true },
 ]
 
 type Movement = {
   id: string
+  kind: 'in' | 'out'
   time: string
   property: string
   guest: string
   guests: number
-  number: string
   source: Source
-  readiness: 'ready' | 'in_progress' | 'not_ready'
+  readiness?: 'ready' | 'in_progress' | 'not_ready'
   money: number | null
   moneyNote: string
 }
 
-const CHECK_INS: Movement[] = [
-  { id: 'b-1042', time: '14:00', property: 'Студия на Лиговском', guest: 'Ольга Смирнова', guests: 2, number: 'RB-1042', source: 'avito', readiness: 'in_progress', money: 12600, moneyNote: 'оплачено' },
-  { id: 'b-1044', time: '15:00', property: 'Лофт у Невы', guest: 'Елена Кравец', guests: 2, number: 'RB-1044', source: 'direct', readiness: 'not_ready', money: 6800, moneyNote: 'остаток' },
+// Заезды и выезды одной лентой по времени: день читается сверху вниз, а не из двух карточек
+const MOVEMENTS: Movement[] = [
+  { id: 'b-1039', kind: 'out', time: '12:00', property: 'Лофт у Невы', guest: 'Дмитрий Орлов', guests: 3, source: 'sutochno', money: null, moneyNote: 'залог' },
+  { id: 'b-1042', kind: 'in', time: '14:00', property: 'Студия на Лиговском', guest: 'Ольга Смирнова', guests: 2, source: 'avito', readiness: 'in_progress', money: 12600, moneyNote: 'оплачено' },
+  { id: 'b-1044', kind: 'in', time: '15:00', property: 'Лофт у Невы', guest: 'Елена Кравец', guests: 2, source: 'direct', readiness: 'not_ready', money: 6800, moneyNote: 'остаток' },
 ]
 
-const CHECK_OUTS: Movement[] = [
-  { id: 'b-1039', time: '12:00', property: 'Лофт у Невы', guest: 'Дмитрий Орлов', guests: 3, number: 'RB-1039', source: 'sutochno', readiness: 'ready', money: null, moneyNote: 'залог' },
-]
-
-const READINESS: Record<Movement['readiness'], { tone: StatusTone; icon: LucideIcon; label: string }> = {
-  ready: { tone: 'success', icon: CircleCheckIcon, label: 'Готово' },
-  in_progress: { tone: 'neutral', icon: LoaderIcon, label: 'Готовится' },
-  not_ready: { tone: 'attention', icon: CircleDashedIcon, label: 'Не готово' },
+const READINESS: Record<NonNullable<Movement['readiness']>, string> = {
+  ready: 'Готово',
+  in_progress: 'Готовится',
+  not_ready: 'Не готово',
 }
 
-type MyTask = { id: string; title: string; due: string; property?: string; status: 'todo' | 'in_progress' | 'overdue'; action: string }
+type MyTask = { id: string; title: string; due: string; property?: string; inProgress?: boolean; action: string }
 
 const MY_TASKS: MyTask[] = [
-  { id: 't-307', title: 'Передать ключи гостю', due: '13:45', property: 'Студия на Лиговском', status: 'todo', action: 'Начать' },
-  { id: 't-301', title: 'Уборка после выезда', due: '14:30', property: 'Лофт у Невы', status: 'in_progress', action: 'Отправить отчёт' },
-  { id: 't-304', title: 'Купить средства для уборки', due: '19:00', status: 'todo', action: 'Начать' },
+  { id: 't-307', title: 'Передать ключи гостю', due: '13:45', property: 'Студия на Лиговском', action: 'Начать' },
+  { id: 't-301', title: 'Уборка после выезда', due: '14:30', property: 'Лофт у Невы', inProgress: true, action: 'Отправить отчёт' },
+  { id: 't-304', title: 'Купить средства для уборки', due: '19:00', action: 'Начать' },
 ]
 
-const TASK_STATUS: Record<MyTask['status'], { tone: StatusTone; icon: LucideIcon; label: string }> = {
-  todo: { tone: 'neutral', icon: CircleDashedIcon, label: 'К выполнению' },
-  in_progress: { tone: 'inverse', icon: LoaderIcon, label: 'В работе' },
-  overdue: { tone: 'danger', icon: AlarmClockIcon, label: 'Просрочено' },
-}
-
-const REVIEW = [
-  { id: 't-305', title: 'Уборка после выезда', property: 'Апартаменты на Мойке', author: 'Марина Соколова', sent: '08:10', photos: 6 },
-]
+const REVIEW = [{ id: 't-305', title: 'Уборка после выезда', property: 'Апартаменты на Мойке', author: 'Марина Соколова', sent: '08:10', photos: 6 }]
 
 const SYNCS: SyncInfo[] = [
   { source: 'avito', lastSuccess: '09:32' },
   { source: 'sutochno', lastSuccess: '07:58', failed: true, error: 'Площадка не отвечает' },
 ]
 
+const SINGLE_OBJECT = 'Студия на Лиговском'
+
 // ── Блоки экрана ────────────────────────────────────────────────────────────
 
-const StatTile = ({ label, value, note, to: href }: { label: string; value: number; note: string; to: string }) => (
-  <Link to={href} className="group/stat flex flex-col justify-between gap-6 rounded-3xl bg-mist p-4 transition-colors hover:bg-ash/40">
-    <span className="mono-label text-smoke">{label}</span>
-    <span className="flex items-end justify-between gap-2">
-      {/* Цифра сводки — единственное место, где condensed стоит на 48px внутри карточки */}
-      <span className="display-heading text-heading-lg tabular-nums">{value}</span>
-      <span className="mono-label pb-1 text-right text-slate">{note}</span>
-    </span>
-  </Link>
+// Frost-панель: вторая ступень поверхностей после белого холста
+const Panel = ({ title, count, action, children, className }: { title: string; count?: React.ReactNode; action?: React.ReactNode; children: React.ReactNode; className?: string }) => (
+  <section className={cn('flex min-w-0 flex-col gap-5 rounded-card bg-card p-6 shadow-card md:p-8', className)}>
+    <div className="flex items-baseline justify-between gap-3">
+      <h2 className="section-heading text-subheading-lg">
+        {title}
+        {count != null && <span className="ml-2 text-smoke">{count}</span>}
+      </h2>
+      {action}
+    </div>
+    {children}
+  </section>
 )
 
-const MovementList = ({ items, kind, singleObject, canSeeMoney }: { items: Movement[]; kind: 'in' | 'out'; singleObject: boolean; canSeeMoney: boolean }) => {
-  if (items.length === 0) {
-    return <p className="rounded-3xl bg-mist p-4 text-body-sm text-slate">{kind === 'in' ? 'Заездов сегодня нет' : 'Выездов сегодня нет'}</p>
-  }
-  return (
-    <div className="-mx-3 flex flex-col">
-      {items.map((item) => {
-        const readiness = READINESS[item.readiness]
-        return (
-          <EventCard
-            key={item.id}
-            to={to.booking(item.id)}
-            time={item.time}
-            timeNote={DEMO_TZ}
-            title={singleObject ? item.guest : item.property}
-            subtitle={
-              <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                {!singleObject && <span>{item.guest}</span>}
-                <span className="mono-label">{item.number}</span>
-                <span className="mono-label">{item.guests} гост.</span>
-                <SourceTag source={item.source} />
-              </span>
-            }
-            badges={
-              <>
-                {canSeeMoney && (
-                  <span className={cn('mono-label rounded-full px-2 py-1', item.money == null ? 'bg-mist text-slate' : 'bg-mist text-foreground')}>
-                    {item.moneyNote}: {formatMoney(item.money)}
-                  </span>
-                )}
-                {kind === 'in' && (
-                  <StatusBadge tone={readiness.tone} icon={readiness.icon} size="sm">
-                    {readiness.label}
-                  </StatusBadge>
-                )}
-              </>
-            }
-          />
-        )
-      })}
+// Сводка дня одной фразой вместо плиток-счётчиков: число без подписи «что с ним делать» — шум
+const Hero = ({ summary, context, actions }: { summary: React.ReactNode; context: React.ReactNode; actions: React.ReactNode }) => (
+  <header className="flex flex-col gap-6 pt-4 md:pt-10">
+    <p className="text-caption text-smoke">Четверг, 8 октября · {DEMO_TZ_FULL}</p>
+    <div className="flex flex-col gap-4">
+      <h1 className="text-heading font-semibold tracking-[-0.03em] md:text-heading-lg">Сегодня</h1>
+      <p className="max-w-2xl text-subheading-lg text-slate">{summary}</p>
     </div>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap gap-2">{actions}</div>
+      <div className="text-caption text-smoke">{context}</div>
+    </div>
+  </header>
+)
+
+// Свежесть обмена — тихой строкой; громко только сбой, и то без заливки
+const SyncLine = () => {
+  const refresh = useSyncRefresh(SYNCS, '09:32')
+  return (
+    <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
+      {refresh.syncs.map((sync) =>
+        sync.failed ? (
+          <span key={sync.source} className="inline-flex items-center gap-1.5 text-foreground" title={sync.error}>
+            <TriangleAlertIcon className="size-3.5" aria-hidden />
+            {SOURCE_LABEL[sync.source]}: сбой, данные на {sync.lastSuccess}
+          </span>
+        ) : (
+          <span key={sync.source}>
+            {SOURCE_LABEL[sync.source]}: обмен {sync.lastSuccess} {DEMO_TZ}
+          </span>
+        ),
+      )}
+      <SyncRefresh sync={refresh} label="Обновить данные дня" />
+    </span>
   )
 }
 
-const TaskList = ({ items }: { items: MyTask[] }) => (
-  <ul className="-mx-3 flex flex-col">
-    {items.map((task) => {
-      const status = TASK_STATUS[task.status]
-      return (
-        <li key={task.id}>
-          <div className="flex items-center gap-3 rounded-3xl p-3 transition-colors hover:bg-mist md:gap-4">
-            <div className="flex w-14 shrink-0 flex-col">
-              <span className="text-subheading font-medium tabular-nums">{task.due}</span>
-              <span className="mono-label text-smoke">срок</span>
-            </div>
-            <Link to={to.task(task.id)} className="flex min-w-0 flex-1 flex-col gap-1 outline-none focus-visible:underline">
-              <span className="truncate text-body font-medium">{task.title}</span>
-              <span className="mono-label truncate text-smoke">{task.property ?? 'Без объекта · личная'}</span>
-            </Link>
-            <StatusBadge tone={status.tone} icon={status.icon} size="sm" className="hidden sm:inline-flex">
-              {status.label}
-            </StatusBadge>
-            <Button size="sm" variant={task.status === 'in_progress' ? 'default' : 'outline'} className="shrink-0">
-              {task.action}
-            </Button>
-          </div>
+// Единственная ink-зона экрана: сюда смотрят первым, поэтому только она контрастная
+const AttentionBlock = ({ items }: { items: Attention[] }) => (
+  <section className="flex flex-col gap-6 rounded-card bg-foreground p-6 text-background shadow-card md:p-8 dark:bg-mist dark:text-foreground">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <h2 className="section-heading text-subheading-lg">
+        Требует решения
+        <span className="ml-2 text-smoke">{items.length}</span>
+      </h2>
+      {items[0] && (
+        <Button variant="accent" size="sm" asChild className="self-start shadow-control sm:self-auto">
+          <Link to={items[0].href}>
+            Начать с первого <ArrowRightIcon />
+          </Link>
+        </Button>
+      )}
+    </div>
+    <ol className="-mx-3 flex flex-col">
+      {items.map((item) => (
+        <li key={item.id}>
+          <Link
+            to={item.href}
+            className="group/row grid grid-cols-[1fr_auto] items-baseline gap-x-6 gap-y-1 rounded-2xl p-3 outline-none transition-colors hover:bg-background/8 focus-visible:bg-background/8 dark:hover:bg-foreground/5 dark:focus-visible:bg-foreground/5"
+          >
+            <span className="text-body font-medium">{item.title}</span>
+            <span className={cn('inline-flex items-center gap-1.5 text-caption', item.danger ? 'text-[#ff8a7a]' : 'text-smoke')}>
+              {item.danger && <span className="size-1.5 rounded-full bg-current" aria-hidden />}
+              {item.label}
+            </span>
+            <span className="col-span-2 flex flex-wrap items-center gap-x-1.5 text-body-sm text-smoke">
+              {item.subtitle}
+              {item.person && (
+                <>
+                  <span aria-hidden>·</span>
+                  <PersonName name={item.person} tone="inverse" />
+                </>
+              )}
+            </span>
+          </Link>
         </li>
-      )
-    })}
-  </ul>
+      ))}
+    </ol>
+  </section>
 )
 
-const QuickActions = ({ isEmployee }: { isEmployee: boolean }) => (
-  <SectionCard title="Быстрые действия">
-    <div className="flex flex-wrap gap-2">
-      {/* Личную задачу сотрудник создаёт независимо от командных прав (§2) */}
-      <Button variant="outline" size="sm">
-        <ClipboardPlusIcon /> {isEmployee ? 'Личная задача' : 'Создать задачу'}
-      </Button>
-      {!isEmployee && (
-        <>
-          <Button variant="outline" size="sm">
-            <CalendarPlusIcon /> Ручная бронь
-          </Button>
-          <Button variant="outline" size="sm">
-            <HousePlusIcon /> Добавить объект
-          </Button>
-        </>
-      )}
-      <Button variant="ghost" size="sm">
-        <LifeBuoyIcon /> Помощь
-      </Button>
-    </div>
-  </SectionCard>
+const MovementRow = ({ item, singleObject, canSeeMoney }: { item: Movement; singleObject: boolean; canSeeMoney: boolean }) => (
+  <li>
+    <Link to={to.booking(item.id)} className="-mx-3 flex gap-4 rounded-2xl p-3 outline-none transition-colors hover:bg-background/70 focus-visible:bg-background/70 md:gap-6">
+      <span className="flex w-14 shrink-0 flex-col">
+        <span className="text-subheading-lg font-medium">{item.time}</span>
+        <span className="text-caption text-smoke">{item.kind === 'in' ? 'заезд' : 'выезд'}</span>
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate text-body font-medium">{singleObject ? item.guest : item.property}</span>
+        <span className="truncate text-body-sm text-slate">
+          {!singleObject && `${item.guest} · `}
+          {pluralize(item.guests, ['гость', 'гостя', 'гостей'])} · {SOURCE_LABEL[item.source]}
+        </span>
+      </span>
+      <span className="flex shrink-0 flex-col items-end gap-0.5 text-right">
+        {item.readiness && (
+          <span className={cn('text-body-sm', item.readiness === 'not_ready' ? 'font-medium text-foreground' : 'text-slate')}>
+            {READINESS[item.readiness]}
+          </span>
+        )}
+        {canSeeMoney && (
+          <span className="text-caption text-smoke">
+            {item.moneyNote}: {formatMoney(item.money).toLowerCase()}
+          </span>
+        )}
+      </span>
+    </Link>
+  </li>
+)
+
+const TaskRow = ({ task }: { task: MyTask }) => (
+  <li className="-mx-3 flex items-center gap-4 rounded-2xl p-3 transition-colors hover:bg-background/70 md:gap-6">
+    <span className="flex w-14 shrink-0 flex-col">
+      <span className="text-subheading-lg font-medium">{task.due}</span>
+      <span className="text-caption text-smoke">{task.inProgress ? 'в работе' : 'срок'}</span>
+    </span>
+    <Link to={to.task(task.id)} className="flex min-w-0 flex-1 flex-col gap-0.5 outline-none focus-visible:underline">
+      <span className="truncate text-body font-medium">{task.title}</span>
+      <span className="truncate text-body-sm text-slate">{task.property ?? 'Личная задача'}</span>
+    </Link>
+    <Button size="sm" variant={task.inProgress ? 'default' : 'outline'} className={cn('shrink-0 shadow-control', !task.inProgress && 'bg-canvas')}>
+      {task.action}
+    </Button>
+  </li>
+)
+
+const TasksPanel = ({ tasks, orgId, withReview, className }: { tasks: MyTask[]; orgId: string; withReview: boolean; className?: string }) => (
+  <Panel
+    title="Мои задачи"
+    count={tasks.length}
+    className={className}
+    action={
+      <Link to={to.tasks(orgId)} className="text-body-sm text-slate underline-offset-4 hover:text-foreground hover:underline">
+        Все задачи
+      </Link>
+    }
+  >
+    <ul className="flex flex-col">
+      {tasks.map((task) => (
+        <TaskRow key={task.id} task={task} />
+      ))}
+    </ul>
+    {withReview && REVIEW.length > 0 && (
+      <div className="flex flex-col gap-2 pt-2">
+        <h3 className="text-caption text-smoke">Ждёт вашей проверки</h3>
+        <ul className="flex flex-col">
+          {REVIEW.map((item) => (
+            <li key={item.id} className="-mx-3 flex items-center gap-4 rounded-2xl p-3 transition-colors hover:bg-background/70 md:gap-6">
+              <span className="flex w-14 shrink-0">
+                <PersonAvatar name={item.author} size="sm" />
+              </span>
+              <Link to={to.task(item.id)} className="flex min-w-0 flex-1 flex-col gap-0.5 outline-none focus-visible:underline">
+                <span className="truncate text-body font-medium">{item.title}</span>
+                <span className="truncate text-body-sm text-slate">
+                  {item.author} · {item.property} · {item.photos} фото
+                </span>
+              </Link>
+              <Button size="sm" variant="outline" className="shrink-0 bg-canvas shadow-control" asChild>
+                <Link to={to.task(item.id)}>Проверить</Link>
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </Panel>
 )
 
 // ── Страница ────────────────────────────────────────────────────────────────
@@ -255,50 +259,31 @@ const TodayPage = () => {
   const { state, isEmployee, canSeeMoney, singleObject } = useDemoState()
 
   // В режиме одного объекта события других объектов не показываются
-  const filterOne = <T extends { property?: string }>(items: T[]) =>
-    singleObject ? items.filter((item) => !item.property || item.property === 'Студия на Лиговском') : items
-  const checkIns = filterOne(CHECK_INS)
-  const checkOuts = filterOne(CHECK_OUTS)
-  const attention = ATTENTION.filter((item) => (canSeeMoney || !item.money) && (!singleObject || !/Невы|Мойке|Репино/.test(item.subtitle)))
+  const movements = singleObject ? MOVEMENTS.filter((item) => item.property === SINGLE_OBJECT) : MOVEMENTS
+  const tasks = singleObject ? MY_TASKS.filter((task) => !task.property || task.property === SINGLE_OBJECT) : MY_TASKS
+  const attention = ATTENTION.filter((item) => (canSeeMoney || !item.money) && (!singleObject || item.subtitle.startsWith(SINGLE_OBJECT)))
 
-  const header = (
-    <PageHeader
-      eyebrow={`Четверг · 8 октября 2026 · ${DEMO_TZ_FULL}`}
-      title="Сегодня"
-      meta={
-        isEmployee ? (
-          <span>Ваши задачи на сегодня</span>
-        ) : singleObject ? (
-          <span className="rounded-full bg-card px-2.5 py-1 text-foreground">Студия на Лиговском</span>
-        ) : (
-          <>
-            <span className="rounded-full bg-card px-2.5 py-1 text-foreground">Все объекты · 4</span>
-            {SYNCS.map((sync) => (
-              <SyncFreshness key={sync.source} sync={sync} compact className="bg-card" />
-            ))}
-          </>
-        )
-      }
-      actions={
-        <Button asChild>
-          <Link to={to.tasks(orgId)}>
-            <PlusIcon /> {isEmployee ? 'Личная задача' : 'Создать задачу'}
-          </Link>
-        </Button>
-      }
-    />
+  const checkIns = movements.filter((item) => item.kind === 'in').length
+  const checkOuts = movements.length - checkIns
+
+  const createTask = (
+    <Button asChild className="shadow-control">
+      <Link to={to.tasks(orgId)}>
+        <PlusIcon /> {isEmployee ? 'Личная задача' : 'Создать задачу'}
+      </Link>
+    </Button>
   )
 
   if (state === 'loading' || state === 'denied' || state === 'empty') {
     return (
-      <div className="flex flex-col gap-8">
-        {header}
+      <div className="flex flex-col gap-12 pb-8">
+        <Hero summary="Сводка дня по вашим объектам." context={null} actions={createTask} />
         <StateView
           state={state}
           skeleton="cards"
           empty={{
             title: 'Сегодня спокойно',
-            description: 'Нет заездов, выездов, задач и событий, требующих внимания. Новые события с площадок появятся здесь сами.',
+            description: 'Нет заездов, выездов, задач и событий, требующих решения. Новые события с площадок появятся здесь сами.',
             action: (
               <>
                 <Button variant="outline" size="sm">
@@ -314,7 +299,7 @@ const TodayPage = () => {
             title: 'Сводка недоступна',
             description: 'Доступ к организации «Волна» отозван владельцем 8 окт в 09:05 МСК. Записи организации скрыты.',
             action: (
-              <Button variant="secondary" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild>
                 <Link to="/workspaces">Другая организация</Link>
               </Button>
             ),
@@ -326,34 +311,66 @@ const TodayPage = () => {
 
   // Сотрудник видит только свою работу и помощь (§10 п.1)
   if (isEmployee) {
+    const inProgress = tasks.filter((task) => task.inProgress).length
     return (
-      <div className="flex flex-col gap-8">
-        {header}
-        <div className="grid gap-4 lg:grid-cols-3">
-          <SectionCard title="Мои задачи" count={`${MY_TASKS.length} на сегодня`} className="lg:col-span-2">
-            <TaskList items={MY_TASKS} />
-          </SectionCard>
-          <div className="flex flex-col gap-4">
-            <SectionCard inverted title="Нужна помощь?">
-              <p className="text-body-sm text-smoke">Напишите управляющему из карточки задачи — сообщение уйдёт вместе с её номером.</p>
-              <div className="mt-4 flex items-center gap-3">
-                <PersonAvatar name="Игорь Петров" tone="inverse" />
-                <span className="flex flex-col">
-                  <span className="text-body-sm font-medium">Игорь Петров</span>
-                  <span className="mono-label text-smoke">Управляющий · отвечает до 21:00</span>
-                </span>
-              </div>
-            </SectionCard>
-            <QuickActions isEmployee />
-          </div>
+      <div className="flex flex-col gap-12 pb-8">
+        <Hero
+          summary={`${pluralize(tasks.length, ['задача', 'задачи', 'задач'])} на сегодня${inProgress ? `, ${inProgress} уже в работе` : ''}.`}
+          context={null}
+          actions={createTask}
+        />
+        <div className="grid items-start gap-4 lg:grid-cols-[1fr_340px]">
+          <TasksPanel tasks={tasks} orgId={orgId} withReview={false} />
+          <section className="flex flex-col gap-5 rounded-card bg-foreground p-6 text-background shadow-card md:p-8 dark:bg-mist dark:text-foreground">
+            <h2 className="section-heading text-subheading-lg">Нужна помощь?</h2>
+            <div className="flex items-center gap-3">
+              <PersonAvatar name="Игорь Петров" tone="inverse" />
+              <span className="flex flex-col">
+                <span className="text-body-sm font-medium">Игорь Петров</span>
+                <span className="text-caption text-smoke">Управляющий · до 21:00</span>
+              </span>
+            </div>
+            <p className="text-body-sm text-smoke">Сообщение уйдёт вместе с номером задачи.</p>
+            <Button variant="accent" size="sm" className="self-start shadow-control">
+              <MessageCircleIcon /> Написать
+            </Button>
+          </section>
         </div>
       </div>
     )
   }
 
+  const summary = (
+    <>
+      {pluralize(checkIns, ['заезд', 'заезда', 'заездов'])}, {pluralize(checkOuts, ['выезд', 'выезда', 'выездов'])}
+      {attention.length > 0 && (
+        <>
+          {' '}и <span className="text-foreground">{pluralize(attention.length, ['вопрос', 'вопроса', 'вопросов'])}, которые ждут вашего решения</span>
+        </>
+      )}
+      .
+    </>
+  )
+
   return (
-    <div className="flex flex-col gap-8">
-      {header}
+    <div className="flex flex-col gap-12 pb-8 md:gap-16">
+      <Hero
+        summary={summary}
+        context={singleObject ? SINGLE_OBJECT : <SyncLine />}
+        actions={
+          <>
+            {createTask}
+            <BookingFormSheet
+              kind="booking"
+              trigger={
+                <Button variant="outline" className="bg-canvas shadow-control">
+                  <CalendarPlusIcon /> Ручная бронь
+                </Button>
+              }
+            />
+          </>
+        }
+      />
 
       {/* Ошибка интеграции не прячет экран: показываем последние данные и их актуальность (§9 «Канал недоступен») */}
       {state === 'error' && (
@@ -372,84 +389,29 @@ const TodayPage = () => {
         />
       )}
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <SectionCard
-          inverted
-          title="Требует внимания"
-          count={attention.length}
-          className="lg:col-span-2"
-          action={<span className="mono-label hidden text-smoke sm:inline">только по вашим правам</span>}
-        >
-          <div className="-mx-3 flex flex-col">
-            {attention.map((item) => (
-              <EventCard
-                key={item.id}
-                inverted
-                to={item.href}
-                icon={item.icon}
-                title={item.title}
-                subtitle={item.subtitle}
-                badges={
-                  <StatusBadge tone={item.tone === 'danger' ? 'danger' : item.tone} icon={item.tone === 'danger' ? MessageSquareWarningIcon : HourglassIcon} size="sm" className={item.tone === 'danger' ? 'bg-destructive text-white dark:bg-destructive' : undefined}>
-                    {item.label}
-                  </StatusBadge>
-                }
-              />
-            ))}
-          </div>
-        </SectionCard>
+      {attention.length > 0 && <AttentionBlock items={attention} />}
 
-        <SectionCard title="День в цифрах">
-          <div className="grid grid-cols-2 gap-2">
-            <StatTile label="Заезды" value={checkIns.length} note="до 15:00" to={to.bookings(orgId)} />
-            <StatTile label="Выезды" value={checkOuts.length} note="до 12:00" to={to.bookings(orgId)} />
-            <StatTile label="Мои задачи" value={MY_TASKS.length} note="1 в работе" to={to.tasks(orgId)} />
-            <StatTile label="На проверке" value={REVIEW.length} note="фото 6" to={to.tasks(orgId)} />
-          </div>
-        </SectionCard>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Заезды" count={checkIns.length} action={<ArrowDownToLineIcon className="size-5 text-smoke" aria-hidden />}>
-          <MovementList items={checkIns} kind="in" singleObject={singleObject} canSeeMoney={canSeeMoney} />
-        </SectionCard>
-        <SectionCard title="Выезды" count={checkOuts.length} action={<ArrowUpFromLineIcon className="size-5 text-smoke" aria-hidden />}>
-          <MovementList items={checkOuts} kind="out" singleObject={singleObject} canSeeMoney={canSeeMoney} />
-        </SectionCard>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <SectionCard
-          title="Мои задачи"
-          count={MY_TASKS.length}
-          className="lg:col-span-2"
+      <div className="grid items-start gap-4 lg:grid-cols-2">
+        <Panel
+          title="Заезды и выезды"
+          count={movements.length}
           action={
-            <Link to={to.tasks(orgId)} className="mono-label text-slate hover:text-foreground">
-              Все задачи →
+            <Link to={to.calendar(orgId)} className="text-body-sm text-slate underline-offset-4 hover:text-foreground hover:underline">
+              Календарь
             </Link>
           }
         >
-          <TaskList items={filterOne(MY_TASKS)} />
-        </SectionCard>
-        <div className="flex flex-col gap-4">
-          <SectionCard title="На проверке" count={REVIEW.length}>
-            {REVIEW.map((item) => (
-              <Link key={item.id} to={to.task(item.id)} className="-mx-3 flex items-center gap-3 rounded-3xl p-3 transition-colors hover:bg-mist">
-                <PersonAvatar name={item.author} size="sm" />
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="truncate text-body-sm font-medium">{item.title}</span>
-                  <span className="mono-label truncate text-smoke">
-                    {item.property} · {item.sent} · фото {item.photos}
-                  </span>
-                </span>
-                <StatusBadge tone="attention" icon={ClipboardCheckIcon} size="sm">
-                  Проверить
-                </StatusBadge>
-              </Link>
-            ))}
-          </SectionCard>
-          <QuickActions isEmployee={false} />
-        </div>
+          {movements.length > 0 ? (
+            <ul className="flex flex-col">
+              {movements.map((item) => (
+                <MovementRow key={item.id} item={item} singleObject={singleObject} canSeeMoney={canSeeMoney} />
+              ))}
+            </ul>
+          ) : (
+            <p className="text-body-sm text-slate">Сегодня никто не заезжает и не выезжает.</p>
+          )}
+        </Panel>
+        <TasksPanel tasks={tasks} orgId={orgId} withReview />
       </div>
     </div>
   )

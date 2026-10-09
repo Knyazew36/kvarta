@@ -45,12 +45,12 @@ export const NAV_MAIN: NavItem[] = [
 ]
 
 export const NAV_SETTINGS: NavItem[] = [
-  { key: 'team', label: 'Команда и доступ', icon: UsersIcon, href: (o) => to.settings('team', o), roles: ['owner'] },
-  { key: 'channels', label: 'Подключения площадок', icon: PlugIcon, href: (o) => to.settings('channels', o), roles: TEAM },
-  { key: 'page', label: 'Страница владельца', icon: BuildingIcon, href: (o) => to.settings('page', o), roles: ['owner'] },
+  { key: 'team', label: 'Команда', icon: UsersIcon, href: (o) => to.settings('team', o), roles: ['owner'] },
+  { key: 'channels', label: 'Площадки', icon: PlugIcon, href: (o) => to.settings('channels', o), roles: TEAM },
+  { key: 'page', label: 'Моя страница', icon: BuildingIcon, href: (o) => to.settings('page', o), roles: ['owner'] },
   { key: 'requisites', label: 'Реквизиты', icon: KeyRoundIcon, href: (o) => to.settings('requisites', o), roles: ['owner'] },
-  { key: 'notifications', label: 'Уведомления и MAX', icon: BellIcon, href: (o) => to.settings('notifications', o), roles: TEAM },
-  { key: 'export', label: 'Данные и выгрузки', icon: DatabaseIcon, href: (o) => to.settings('export', o), roles: ['owner'] },
+  { key: 'notifications', label: 'Уведомления', icon: BellIcon, href: (o) => to.settings('notifications', o), roles: TEAM },
+  { key: 'export', label: 'Выгрузки', icon: DatabaseIcon, href: (o) => to.settings('export', o), roles: ['owner'] },
 ]
 
 // У сотрудника своя короткая навигация: стартовая — «Мои задачи» (§2)

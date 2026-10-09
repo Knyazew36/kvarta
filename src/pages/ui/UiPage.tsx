@@ -1,4 +1,5 @@
 import AnimateShowcase from './ui/AnimateShowcase'
+import BadgesShowcase from './ui/BadgesShowcase'
 import ShadcnShowcase from './ui/ShadcnShowcase'
 import ShellShowcase from './ui/ShellShowcase'
 
@@ -18,6 +19,14 @@ const UiPage = () => {
           <span className="mono-label text-slate">00</span>
         </div>
         <ShellShowcase />
+      </section>
+
+      <section className="flex flex-col gap-10">
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="display-heading text-heading-lg md:text-display">Шильдики</h2>
+          <span className="mono-label text-slate">00.1</span>
+        </div>
+        <BadgesShowcase />
       </section>
 
       <section className="flex flex-col gap-10">

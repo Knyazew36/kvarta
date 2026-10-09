@@ -112,7 +112,7 @@ export const StateView = ({ state, empty, error, denied, skeleton = 'list', clas
       <div
         className={cn(
           'flex size-16 shrink-0 items-center justify-center rounded-full',
-          state === 'error' && 'bg-attention text-black',
+          state === 'error' && 'bg-attention text-background',
           state === 'empty' && 'bg-mist text-slate',
           state === 'denied' && 'bg-background/10',
         )}

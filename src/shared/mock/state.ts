@@ -45,6 +45,13 @@ export const useDemoStore = create<DemoStore>()(
   ),
 )
 
+// Кто «я» в макете: от этого зависят «Мои задачи» и кто может принять работу
+export const DEMO_ME: Record<DemoRole, string> = {
+  owner: 'Анна Волкова',
+  manager: 'Игорь Петров',
+  employee: 'Марина Соколова',
+}
+
 const pick = <T extends string>(value: string | null, allowed: readonly { value: T }[]): T | null =>
   allowed.some((item) => item.value === value) ? (value as T) : null
 
@@ -60,6 +67,7 @@ export const useDemoState = () => {
 
   return {
     role,
+    me: DEMO_ME[role],
     objects,
     state,
     isEmployee: role === 'employee',

@@ -8,11 +8,12 @@ const statusBadgeVariants = cva(
   {
     variants: {
       tone: {
-        // Текст на mint/voltage всегда чёрный: акцент одинаковый в обеих темах
-        success: 'bg-success text-black',
-        attention: 'bg-attention text-black',
+        // «Внимание» — инверсия ink, «успех» — frost: второго акцентного цвета в системе нет
+        // Обводка вместо заливки: бейдж читается и на белом холсте, и на frost-карточке
+        success: 'text-foreground ring-1 ring-foreground/20 ring-inset',
+        attention: 'bg-attention text-background',
         danger: 'bg-destructive/10 text-destructive dark:bg-destructive/20',
-        neutral: 'bg-mist text-slate',
+        neutral: 'bg-foreground/5 text-slate',
         inverse: 'bg-foreground text-background',
         outline: 'border border-foreground text-foreground',
       },

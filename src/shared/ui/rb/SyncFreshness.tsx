@@ -15,7 +15,7 @@ export const SyncFreshness = ({ sync, className, compact }: { sync: SyncInfo; cl
   <span
     className={cn(
       'mono-label inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1',
-      sync.failed ? 'bg-attention text-black' : 'bg-mist text-slate',
+      sync.failed ? 'bg-attention text-background' : 'bg-mist text-slate',
       className,
     )}
     title={sync.error}

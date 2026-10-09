@@ -78,22 +78,22 @@ const OrgSwitcher = () => {
 const NavLinks = ({ items, orgId }: { items: NavItem[]; orgId: string }) => {
   const { pathname } = useLocation()
   return (
-  <SidebarMenu className="gap-0.5">
-    {items.map((item) => (
-      <SidebarMenuItem key={item.key}>
-        {/* Активен и вложенный маршрут: карточка брони подсвечивает «Брони» */}
-        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href(orgId))}>
-          <Link to={item.href(orgId)}>
-            <item.icon />
-            <span>{item.label}</span>
-          </Link>
-        </SidebarMenuButton>
-        {item.badge != null && (
-          <SidebarMenuBadge className="mono-label rounded-full bg-attention px-1.5 text-black">{item.badge}</SidebarMenuBadge>
-        )}
-      </SidebarMenuItem>
-    ))}
-  </SidebarMenu>
+    <SidebarMenu className="gap-0.5">
+      {items.map((item) => (
+        <SidebarMenuItem key={item.key}>
+          {/* Активен и вложенный маршрут: карточка брони подсвечивает «Брони» */}
+          <SidebarMenuButton asChild isActive={pathname.startsWith(item.href(orgId))}>
+            <Link to={item.href(orgId)}>
+              <item.icon />
+              <span>{item.label}</span>
+            </Link>
+          </SidebarMenuButton>
+          {item.badge != null && (
+            <SidebarMenuBadge className="mono-label top-1/2 -translate-y-1/2 rounded-full bg-attention px-1.5 text-background">{item.badge}</SidebarMenuBadge>
+          )}
+        </SidebarMenuItem>
+      ))}
+    </SidebarMenu>
   )
 }
 
@@ -103,11 +103,16 @@ export const AppSidebar = () => {
   const nav = navFor(role)
 
   return (
-    <Sidebar variant="floating" collapsible="offcanvas">
+    <Sidebar
+      variant="floating"
+      collapsible="offcanvas"
+      // Тень только в светлой теме: в тёмной панель и так отделена фоном
+      className="[&_[data-slot=sidebar-inner]]:shadow-[0_2px_4px_rgb(10_18_23/0.06),0_16px_40px_-12px_rgb(10_18_23/0.22)] dark:[&_[data-slot=sidebar-inner]]:shadow-none"
+    >
       <SidebarHeader className="gap-5 p-4 pb-2">
         <Link to={ROUTES.PAGES} className="flex items-baseline gap-2 px-2 pt-1">
           <span className="section-heading text-subheading-lg font-medium tracking-tight">Rentybot</span>
-          <span className="size-2 rounded-full bg-success" aria-hidden />
+          <span className="size-2 rounded-full bg-foreground" aria-hidden />
         </Link>
         <OrgSwitcher />
       </SidebarHeader>

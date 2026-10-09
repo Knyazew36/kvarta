@@ -35,7 +35,7 @@ export const PersonAvatar = ({ name, src, size = 'default', tone = 'default', cl
         'font-medium tracking-tight',
         tone === 'default' && 'bg-mist text-foreground',
         tone === 'inverse' && 'bg-background/15 text-background',
-        tone === 'accent' && 'bg-success text-black',
+        tone === 'accent' && 'bg-success text-foreground',
       )}
     >
       {initials(name)}
@@ -61,5 +61,21 @@ export const PersonLine = ({
       <span className="truncate text-body-sm font-medium">{name}</span>
       {caption && <span className="mono-label truncate text-smoke">{caption}</span>}
     </span>
+  </span>
+)
+
+// Имя в строке текста — подсказки, факты, мета-строки: аватар не должен ломать высоту строки
+export const PersonName = ({
+  name,
+  tone,
+  className,
+}: {
+  name: string
+  tone?: PersonAvatarProps['tone']
+  className?: string
+}) => (
+  <span className={cn('inline-flex min-w-0 items-center gap-1.5 align-middle', className)}>
+    <PersonAvatar name={name} size="xs" tone={tone} className="size-5 text-[9px]" />
+    <span className="truncate">{name}</span>
   </span>
 )

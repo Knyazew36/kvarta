@@ -1,71 +1,50 @@
-# AI for Business — Style Reference
-> Brutalist editorial showroom on warm gray
+# Sana Agents — Style Reference
+> Lime spark on editorial white
 
 **Theme:** light
 
 Source measurements are normalized; roles and recommendations are interpreted. Font summary lists are independent, not paired by position. HTML examples are reconstructions, not source components.
 
-Dayos runs on a brutalist-editorial logic: near-monochrome canvas (#e5e5e5 page, #ffffff cards, #000000 blocks), oversized uppercase display type squeezed into 0.9 line-height, and zero shadows or gradients. The single chromatic accent is a pale mint green (#d1ffca) used sparingly on tags and links, with yellow (#fff100) as a near-neon highlight on small elements. Components are heavy on border-radius (24-64px on cards, 48px on nav pills) and light on decoration — flat surfaces, thin or zero borders, no elevation effects. Typography does all the emotional work: compressed condensed headlines at 130px tower over 16px body text, creating a dramatic scale ratio. The hero pairs a massive black headline with a 3D physical object render (textured cubes with brand labels), establishing a tactile, material-product feel against the clinical canvas.
+Sana's design system is an editorial-grade monochrome canvas with a single electric accent — a Swiss-poster discipline applied to a knowledge work product. The page is overwhelmingly white and typographic, with a massive weight-400 serif headline that gives the brand a literary, almost magazine-cover authority rare in AI tooling. Dark surfaces (#0a1217) and one vivid lime (#cdfe00) appear as deliberate punctuation — full-bleed product cards, sign-up panels, and the occasional action button — never as background washes. Rounded geometry is generous: 24px for cards and inputs, full pills for buttons, which together give the system a soft, tactile quality against the otherwise austere type. Components stay flat and unshaded; depth comes from surface color contrast rather than shadows, creating a visual rhythm of white → frost → ink → lime rather than z-axis elevation.
 
 ## Tokens — Colors
 
 | Name | Value | Token | Role |
 |------|-------|-------|------|
-| Carbon Black | `#000000` | `--color-carbon-black` | Primary text, inverted card surfaces, filled blocks — the structural dark that anchors the monochrome system |
-| Paper White | `#ffffff` | `--color-paper-white` | Card surfaces, inverted text on dark blocks, icon fills — the bright counterpoint to carbon black |
-| Warm Canvas | `#e5e5e5` | `--color-warm-canvas` | Page background, hero backdrop, section dividers — the slightly warm gray that distinguishes this from a clinical white canvas |
-| Mist Gray | `#f3f3f3` | `--color-mist-gray` | Secondary surface, nav pill backgrounds, subtle panels — one step lighter than canvas for quiet layering |
-| Ash | `#c6c6c6` | `--color-ash` | Borders, hairlines, disabled states — mid-tone neutral for structural lines |
-| Smoke | `#979797` | `--color-smoke` | Body text secondary, meta labels, icon strokes — the muted text level for non-emphasized content |
-| Slate | `#444444` | `--color-slate` | Secondary body text, navigation labels, and subdued headings. Do not promote it to the primary CTA color |
-| Graphite | `#2f2f2f` | `--color-graphite` | Deep surface for code blocks or heavy accents — near-black alternative |
-| Mint Chip | `#d1ffca` | `--color-mint-chip` | Link backgrounds, tag pills, accent highlights — the signature pale green that punctuates the monochrome system |
-| Voltage Yellow | `#fff100` | `--color-voltage-yellow` | Email highlights, small accent dots, decorative bursts — the high-energy chromatic note on micro-elements |
+| Ink Black | `#0a1217` | `--color-ink-black` | Primary text, dark card surfaces, sign-up panel, filled primary buttons on light backgrounds |
+| Paper White | `#ffffff` | `--color-paper-white` | Light supporting surface for subtle backgrounds and section separation. Do not promote it to the primary CTA color |
+| Frost Wash | `#e4eff7` | `--color-frost-wash` | Soft tinted surface for light product cards and secondary panels — the only chromatic step between paper white and ink black |
+| Stone Gray | `#85898b` | `--color-stone-gray` | Muted helper text, footer labels, and desaturated secondary copy |
+| Obsidian | `#000000` | `--color-obsidian` | Hairline borders, nav text, and input outlines where the sharpest contrast edge is required |
+| Electric Lime | `#cdfe00` | `--color-electric-lime` | Green supporting accent for decorative details and low-frequency emphasis. Do not promote it to the primary CTA color |
 
 ## Tokens — Typography
 
-### SuisseIntlCond — Display headlines — massive uppercase condensed at extreme sizes with tight 0.9 line-height creates the editorial brutalist voice; all-caps treatment amplifies authority · `--font-suisseintlcond`
-- **Substitute:** Anton, Bebas Neue, Barlow Condensed Bold
-- **Weights:** 700
-- **Sizes:** 48px, 64px, 80px, 130px
-- **Line height:** 0.90
-- **Letter spacing:** -0.0300em
-- **Role:** Display headlines — massive uppercase condensed at extreme sizes with tight 0.9 line-height creates the editorial brutalist voice; all-caps treatment amplifies authority
-
-### SuisseIntl — Body text, nav, subheads, buttons, cards — the workhorse neo-grotesque that handles 90% of UI; weight 450 (a non-standard intermediate) carries mid-emphasis; 40px/450 uppercase serves as secondary headlines · `--font-suisseintl`
-- **Substitute:** Inter, Söhne, Neue Haas Grotesk
-- **Weights:** 400, 450, 500
-- **Sizes:** 14px, 16px, 18px, 20px, 28px, 40px
-- **Line height:** 1.10, 1.14, 1.20, 1.25, 1.30, 1.33
-- **Letter spacing:** -0.0300em, -0.0200em, -0.0110em, -0.0100em
-- **Role:** Body text, nav, subheads, buttons, cards — the workhorse neo-grotesque that handles 90% of UI; weight 450 (a non-standard intermediate) carries mid-emphasis; 40px/450 uppercase serves as secondary headlines
-
-### SuisseIntlMono — Labels, tags, technical meta, small captions — monospace at 12px for system-level micro-copy and numbered annotations · `--font-suisseintlmono`
-- **Substitute:** JetBrains Mono, IBM Plex Mono, Geist Mono
+### Sana Serif — Hero display headline only. A weight-400 serif at 72px is the system's signature move: most AI brands shout with bold sans, Sana whispers with editorial type and lets the scale carry authority. The serif counterforms and bracket serifs give the wordmark a literary, humanist quality absent from typical product UI. · `--font-sana-serif`
+- **Substitute:** GT Super, Tiempos Headline, or Source Serif 4 at weight 400
 - **Weights:** 400
-- **Sizes:** 12px
-- **Line height:** 1.30, 1.60
-- **Letter spacing:** -0.0300em
-- **Role:** Labels, tags, technical meta, small captions — monospace at 12px for system-level micro-copy and numbered annotations
+- **Sizes:** 72px
+- **Line height:** 1.10
+- **Role:** Hero display headline only. A weight-400 serif at 72px is the system's signature move: most AI brands shout with bold sans, Sana whispers with editorial type and lets the scale carry authority. The serif counterforms and bracket serifs give the wordmark a literary, humanist quality absent from typical product UI.
+
+### Sana Sans — All UI, body, navigation, buttons, and subheadings. The 450 weight is a distinctive mid-step between regular and medium — used for button labels and nav links instead of jumping to 500, producing quieter emphasis. Tabular numerals (tnum) and lining figures (lnum) are always on, giving all numeric data a consistent grid. · `--font-sana-sans`
+- **Substitute:** Söhne, Inter, or Untitled Sans
+- **Weights:** 400, 450, 500
+- **Sizes:** 13px, 14px, 16px, 20px
+- **Line height:** 1.20, 1.40, 1.43, 1.50
+- **OpenType features:** `"lnum" on, "tnum" on`
+- **Role:** All UI, body, navigation, buttons, and subheadings. The 450 weight is a distinctive mid-step between regular and medium — used for button labels and nav links instead of jumping to 500, producing quieter emphasis. Tabular numerals (tnum) and lining figures (lnum) are always on, giving all numeric data a consistent grid.
 
 ### Type Scale
 
 | Role | Family | Weight | Size | Line Height | Letter Spacing | Token |
 |------|--------|--------|------|-------------|----------------|-------|
-| caption | — | — | 12px | 1.6 | -0.36px | `--text-caption` |
-| body-sm | — | — | 14px | 1.3 | -0.154px | `--text-body-sm` |
-| body | — | — | 16px | 1.25 | — | `--text-body` |
-| subheading | — | — | 18px | 1.33 | — | `--text-subheading` |
-| subheading-lg | — | — | 20px | 1.2 | — | `--text-subheading-lg` |
-| heading-sm | — | — | 28px | 1.3 | -0.84px | `--text-heading-sm` |
-| heading | — | — | 40px | 1.1 | -0.8px | `--text-heading` |
-| heading-lg | — | — | 48px | 0.9 | -1.44px | `--text-heading-lg` |
-| display | — | — | 80px | 0.9 | -2.4px | `--text-display` |
-| display-xl | — | — | 130px | 0.9 | -3.9px | `--text-display-xl` |
+| caption | — | — | 13px | 1.5 | — | `--text-caption` |
+| body | — | — | 16px | 1.43 | — | `--text-body` |
+| heading | — | — | 20px | 1.2 | — | `--text-heading` |
+| display | — | — | 72px | 1.1 | — | `--text-display` |
 
 ## Tokens — Spacing & Shapes
-
-**Base unit:** 8px
 
 **Density:** comfortable
 
@@ -73,167 +52,168 @@ Dayos runs on a brutalist-editorial logic: near-monochrome canvas (#e5e5e5 page,
 
 | Name | Value | Token |
 |------|-------|-------|
+| 6 | 6px | `--spacing-6` |
 | 8 | 8px | `--spacing-8` |
+| 10 | 10px | `--spacing-10` |
+| 12 | 12px | `--spacing-12` |
 | 16 | 16px | `--spacing-16` |
+| 18 | 18px | `--spacing-18` |
+| 20 | 20px | `--spacing-20` |
 | 24 | 24px | `--spacing-24` |
-| 40 | 40px | `--spacing-40` |
-| 64 | 64px | `--spacing-64` |
-| 80 | 80px | `--spacing-80` |
-| 96 | 96px | `--spacing-96` |
+| 25 | 25px | `--spacing-25` |
+| 32 | 32px | `--spacing-32` |
+| 62 | 62px | `--spacing-62` |
 
 ### Border Radius
 
 | Element | Value |
 |---------|-------|
-| tags | 64px |
-| cards | 24-32px |
-| buttons | 4-8px |
-| nav-pill | 48px |
-| large-cards | 64px |
+| cards | 24px |
+| inputs | 24px |
+| buttons | 9999px |
 
 ### Layout
 
 - **Page max-width:** 1200px
-- **Section gap:** 80px
-- **Card padding:** 24px
-- **Element gap:** 16-24px
+- **Section gap:** 64px
+- **Card padding:** 24-32px
+- **Element gap:** 8-16px
 
 ## Components
 
-### Filled Dark Button
-**Role:** Primary CTA — schedule demo, book intro
+### Hero Headline (Sana Serif Display)
+**Role:** The 72px serif display that opens the page
 
-Black (#000000) background, white (#ffffff) text, 8px radius, 16px 24px padding. SuisseIntl 16px/500. The high-contrast inverted treatment makes it the strongest interactive element on any page.
+Weight 400 Sana Serif at 72px, line-height 1.10, color #0a1217 on #ffffff canvas. Centered alignment, used exactly once per page in the hero. The massive scale of a weight-400 serif — not bold, not light — is the system's defining typographic statement.
 
-### Ghost Border Button
-**Role:** Secondary navigation action
+### Product Card — Dark (Sana Agents)
+**Role:** Full-bleed dark product showcase card
 
-Transparent background, 1.5px solid border in #444444, #444444 text, 4px radius, 16px horizontal padding. SuisseIntl 16px/500. Restrained outlined variant for less critical actions.
+Background #0a1217, border-radius 24px, padding 24-32px. Title in Sana Sans 20px weight 500 at #ffffff, subtitle at 16px weight 400 in #85898b. Contains a product screenshot. Houses two pill buttons: a dark-on-dark 'Explore' (but actually the Explore button is a dark pill which is hard to see — likely has a white outline or is actually a different style) and a green 'Book an intro' accent button in #cdfe00.
 
-### Text Link Button
-**Role:** Inline navigation, tertiary actions
+### Product Card — Light (Sana Learn)
+**Role:** Full-bleed light product showcase card
 
-No background, no border, #000000 text, 0-4px radius, underline on hover. SuisseIntl 16px/500. Used for 'More details' and similar low-weight navigation.
+Background #e4eff7 (Frost Wash), border-radius 24px, padding 24-32px. Title in Sana Sans 20px weight 500 at #0a1217, subtitle at 16px weight 400. Contains a product screenshot on the frost surface. Buttons: 'Explore' in #0a1217 filled pill, 'Book an intro' as ghost/white pill with #0a1217 border.
 
-### Nav Pill
-**Role:** Top navigation container
+### Pill Button — Filled Dark
+**Role:** Primary action on light backgrounds
 
-#ffffff background, 48px border-radius, wraps nav links in a floating capsule. Creates a physical 'pill' shape that separates nav from the canvas.
+Background #0a1217, text #ffffff, Sana Sans 16px weight 450, border-radius 9999px (full pill), padding 10px 18px. Used for 'Explore', 'Sign in', and 'Enter your work email' CTAs on white or frost surfaces.
 
-### Standard Card
-**Role:** Content blocks, feature containers
+### Pill Button — Accent Lime
+**Role:** Highlighted action on dark surfaces
 
-#ffffff background, 24-32px border-radius, no shadow, no border. Padding 24px. The flat white surface against the warm gray canvas creates natural separation without elevation.
+Background #cdfe00 (Electric Lime), text #0a1217, Sana Sans 16px weight 450, border-radius 9999px, padding 10px 18px. Only ever used on #0a1217 dark surfaces — the contrast against ink black is the point.
 
-### Inverted Card
-**Role:** Dark feature blocks, dramatic contrast zones
+### Pill Button — Ghost/White
+**Role:** Secondary action on dark surfaces, or outlined action on light surfaces
 
-#000000 background, 32px border-radius, white text. No shadow. Used for high-impact sections that need to break the light canvas pattern.
+Background #ffffff with 1px border #ffffff on dark cards; or background transparent with border #0a1217 on light cards. Text matches surface logic: #0a1217 on white, #0a1217 on frost. Border-radius 9999px, padding 10px 18px.
 
-### Top-Arc Card
-**Role:** Hero-bottom rounded cards, section openers
+### OAuth Button (Google)
+**Role:** Third-party authentication action
 
-64px 64px 0px 0px border-radius (top corners rounded, bottom corners flat). Creates a 'dome' shape that suggests the card emerges from below. Used in #000000 and #ffffff variants.
+Full-width pill, background #ffffff, border-radius 9999px, padding 10px 18px. Google 'G' logo on the left, label 'Continue con Google' in Sana Sans 16px weight 450 at #0a1217, centered. Used inside the dark sign-up card.
 
-### Mint Tag
-**Role:** Category labels, status indicators
+### Sign-Up CTA Card
+**Role:** Conversion panel for account creation
 
-#d1ffca background, #000000 text, 64px radius (fully pill-shaped), small padding. The pale green pill is the signature accent element — used sparingly for taxonomy.
+Background #0a1217, border-radius 24px, padding 32-62px. Centered heading 'Try for free with your work email' in Sana Sans weight 500 at #ffffff. Contains OAuth button, 'or' divider in #85898b, email input + submit button stack, and terms text in #85898b at 13px. The 62px padding token appears here for generous internal breathing room.
 
-### Voltage Highlight
-**Role:** Email addresses, accent text, decorative bursts
+### Email Input
+**Role:** Text input for email capture
 
-#fff100 background or text on select elements. Applied to email links and small accent marks. The high-saturation yellow against monochrome creates visual sparks.
+Background #ffffff, border 1px #000000 or #0a1217, border-radius 24px, padding 10px 18px. Placeholder text 'name@work-email.com' in #85898b. Full-width within its container. No focus ring color change observed — the solid border is the visual anchor.
 
-### 3D Product Render
-**Role:** Hero imagery, product illustration
+### Navigation Bar
+**Role:** Top-level site navigation
 
-Textured concrete cubes with wood-grain and colored geometric protrusions, branded with SAP/Oracle/Workday logos. Photorealistic 3D renders on clean canvas. The physical/tactile material treatment contrasts with the flat UI.
+Background #ffffff, horizontal layout with 'Sana' wordmark left, centered nav links (Sana Agents, Sana Learn, Mission, Careers) in Sana Sans 16px weight 400 at #0a1217, and 'Sign in' pill button (#0a1217 filled, #ffffff text) on the far right. No background, no border, no shadow — the nav sits directly on the white canvas.
 
-### Uppercase Display Heading
-**Role:** Hero, section titles
+### Product Section Label
+**Role:** Small section-introducing label
 
-SuisseIntlCond 700 at 80-130px, line-height 0.9, letter-spacing -0.03em, uppercase. The extreme size + tight leading + condensed width creates massive visual blocks of text that dominate the page.
+Sana Sans 13px weight 400 at #85898b, left-aligned, sits above the product cards. Extremely quiet — the section label is barely louder than the background.
 
-### Secondary Heading
-**Role:** Sub-sections, card titles
+### Footer
+**Role:** Site-wide footer with link columns
 
-SuisseIntl 450 at 40px, uppercase, line-height 1.1, letter-spacing -0.02em. Lighter weight than display but still uppercase, bridging the brutalist display voice with readable content.
-
-### Mono Label
-**Role:** Technical annotations, slide indicators, numbered markers
-
-SuisseIntlMono 400 at 12px, letter-spacing -0.03em. Used for 'Slide 1/2/3' indicators, metadata, and system labels. The monospace creates a technical/editorial counterpoint to the neo-grotesque body.
+Background #ffffff, padding 32-62px. 'Sana' wordmark on the left, three columns of text links (Sana Agents, Sana Learn, Company) in Sana Sans 14px weight 400 at #0a1217. Column headers at 16px weight 450. Copyright line at 13px in #85898b. No dividers, no background tint — the footer is pure typographic structure.
 
 ## Do's and Don'ts
 
 ### Do
-- Use SuisseIntlCond 700 at 48-130px with 0.9 line-height for all display headings — always uppercase, always tightly tracked
-- Apply the warm canvas (#e5e5e5) as the page background, never pure white — the gray is the canvas tone that makes white cards feel lifted
-- Use radius between 24-64px on cards; 48px on nav pills; 4-8px on buttons — the radius scale is large and deliberate
-- Reserve #d1ffca (mint) for tags and link backgrounds; reserve #fff100 (yellow) for email highlights and micro-accents only
-- Keep all cards flat — no shadows, no gradients. Depth comes from surface color contrast between canvas, white, and black
-- Set nav height to 8rem with a floating pill-shaped container at 48px radius centered in the bar
-- Use 16px/500 SuisseIntl for body text and button labels; 14px/500 for meta and list items
+- Use Sana Serif exclusively for the 72px hero headline at weight 400 — it is the system's only serif, and diluting it to smaller sizes destroys its editorial authority
+- Apply 24px border-radius to all cards, inputs, and panel containers; use 9999px exclusively for pill-shaped buttons and tags
+- Restrict #cdfe00 (Electric Lime) to filled action buttons sitting on #0a1217 (Ink Black) surfaces — the lime-on-ink contrast is the entire purpose of the accent
+- Use Sana Sans weight 450 for button labels and nav links rather than 500 — the 450 step is what makes the body type feel quiet and considered
+- Set font-feature-settings to "lnum" on, "tnum" on for all Sana Sans usage — tabular numerals ensure numeric data aligns cleanly in tables, prices, and timestamps
+- Create depth through surface color shifts (white → frost → ink) rather than box-shadows — the system is flat by design
+- Keep the hero headline centered and the rest of the layout left-aligned — centering is reserved for the single editorial moment
 
 ### Don't
-- Never add box-shadows to cards or buttons — the system is explicitly flat
-- Avoid pure white (#ffffff) as the page background — always use #e5e5e5 canvas beneath content
-- Do not use chromatic colors for large surface fills — mint and yellow are accent-only, used on small elements
-- Never set display heading line-height above 0.95 — the tight leading is what creates the compressed editorial block
-- Do not use mixed-case for headings — all display and secondary headings are uppercase
-- Avoid using SuisseIntlCond below 48px — the condensed face is designed for oversized display, not body text
-- Never use subtle gray borders on cards — prefer surface color contrast over 1px borders for separation
+- Do not use Sana Serif below 56px — weight 400 at small sizes loses its authority and reads as thin/generic
+- Do not place #cdfe00 on #ffffff or #e4eff7 surfaces — the contrast is insufficient and the lime loses its electric quality
+- Do not introduce a second accent color — the system is monochromatic with exactly one chromatic note, adding more dilutes the poster-like discipline
+- Do not apply drop shadows to cards or panels — depth comes from the white → frost → ink surface stack, not elevation
+- Do not use sharp corners (0px radius) on any container — the 24px radius defines the system's soft, tactile personality
+- Do not center-align body text, card content, or navigation links — only the hero display headline gets centered treatment
+- Do not add gradients, patterns, or background imagery to surfaces — the design language is pure flat color blocks
 
 ## Surfaces
 
 | Level | Name | Value | Purpose |
 |-------|------|-------|---------|
-| 0 | Canvas | `#e5e5e5` | Page background — warm gray that separates content from pure white |
-| 1 | Card | `#ffffff` | Content cards, feature blocks — clean white lifted from canvas |
-| 2 | Inverted | `#000000` | Dark feature blocks, inverted cards — dramatic contrast zones |
-| 3 | Mist | `#f3f3f3` | Subtle panel layering, nav pill backgrounds |
+| 0 | Paper White | `#ffffff` | Page canvas, default background for all sections and footer |
+| 1 | Frost Wash | `#e4eff7` | Light product cards and secondary panels — subtle cool tint to separate from the white canvas |
+| 2 | Ink Black | `#0a1217` | Dark product cards, sign-up CTA panels, and filled button fills — the strongest contrast surface in the system |
+| 3 | Electric Lime | `#cdfe00` | Accent action surface, used only as filled button on ink-black backgrounds |
 
 ## Elevation
 
-Flat by design — zero shadows detected across all card variants. Depth is created through surface color contrast (canvas gray → white cards → black inverted blocks) and radius, not elevation. This is a deliberate editorial-print influence, not minimalism by omission.
+The system deliberately avoids drop shadows. Depth and hierarchy are created entirely through surface color contrast — white → frost → ink black — rather than z-axis elevation. Components sit flat against their containers, and the 24px border radius is the only softening agent. This produces a poster-like, Swiss-graphic-design quality where every surface edge is a deliberate color boundary, not a diffuse shadow.
 
 ## Imagery
 
-Photorealistic 3D renders of physical objects — textured concrete cubes with wood-grain elements, protruding colored geometric shapes (green, yellow, pink), and branded labels (SAP, Oracle, Workday logos printed on surfaces). The renders sit on the warm gray canvas like product photography in a gallery. No lifestyle photography, no stock imagery, no abstract gradients. The material/tactile treatment (concrete texture, wood grain) creates a physical-product feel that contrasts with the flat typographic UI. Icons are minimal — mostly monoline strokes in black or white. No decorative illustrations or iconography beyond functional UI markers.
+Product photography is the only imagery present: tight device crops showing the Sana Agents mobile app on a hand-held phone (dark card) and the Sana Learn platform on a laptop screen (light card). No lifestyle photography, no abstract illustrations, no decorative graphics. The product screenshot IS the hero within each card — devices are photographed at a slight angle with shallow depth of field, bleeding off the card edges. The imagery treatment is documentary and utilitarian: show the actual product, not a stylized version of it.
 
 ## Layout
 
-Full-bleed warm gray (#e5e5e5) canvas with max-width ~1200px centered content. Hero is a split: massive 130px condensed headline on the left occupying ~50% width, 3D product render on the right. Nav is a floating pill centered in the 8rem top bar. Sections alternate between light canvas, white card surfaces, and full-width black inverted blocks. Content is primarily single-column or 2-column splits. Use case library is a card grid (2-3 columns). Footer is a compact dark band. Vertical rhythm uses 80px section gaps with 24px element spacing. No sidebar navigation. No sticky elements beyond the header.
+The page is a centered, max-width contained layout (approximately 1200px) on a pure white canvas. The hero is a single centered serif headline with no accompanying image — pure typographic. Below the hero, the layout shifts to a two-column product card grid with both cards at equal width and identical height, each containing a device photograph that bleeds past the card's right edge. The sign-up CTA panel is a single contained dark card centered within the page width. The footer is a four-column text grid (wordmark + three link columns) aligned to the same max-width. Navigation is a minimal top bar: wordmark left, centered links, single pill button right. No sidebar, no mega-menu, no sticky elements visible.
 
 ## Agent Prompt Guide
 
-Quick Color Reference:
-- text: #000000
-- background (canvas): #e5e5e5
-- card surface: #ffffff
-- border/hairline: #c6c6c6
-- accent: #d1ffca (mint)
-- primary action: no distinct CTA color
+primary action: no distinct CTA color
+## Quick Color Reference
 
-3 Example Component Prompts:
+- text: #0a1217
+- background: #ffffff
+- dark surface: #0a1217
+- light surface / frost: #e4eff7
+- border: #000000
+- accent / primary action on dark surfaces: #cdfe00 (Electric Lime)
+- primary action on light surfaces: #0a1217 (Ink Black filled pill)
 
-1. Create a hero headline: 130px SuisseIntlCond weight 700, uppercase, line-height 0.9, letter-spacing -3.9px, #000000 text on #e5e5e5 canvas background. The headline should read as 3-4 lines of compressed uppercase text occupying the left 50% of the viewport.
+## Example Component Prompts
 
-2. Create a content card: #ffffff background, 32px border-radius, no shadow, 24px padding, containing a 40px SuisseIntl weight 450 uppercase heading in #000000 and 16px body text in #444444. Place on #e5e5e5 canvas.
+**1. Hero section:** White #ffffff background. Centered headline 'Superintelligence for work' at 72px Sana Serif weight 400, color #0a1217, line-height 1.10. No accompanying image. Below at 13px Sana Sans weight 400, color #85898b, the label 'Our products', left-aligned.
 
-3. Create a mint tag pill: #d1ffca background, #000000 text, 64px border-radius, 8px 16px padding, 12px SuisseIntlMono weight 400 text. Use as a category label above card titles.
+**2. Dark product card:** Background #0a1217, border-radius 24px, padding 32px. Title 'Sana Agents' in Sana Sans 20px weight 500 at #ffffff. Subtitle 'AI agents for every team' in Sana Sans 16px weight 400 at #85898b. Two pill buttons: 'Explore' as filled #0a1217 with white border (or surface-elevation style), 'Book an intro' as filled #cdfe00 with #0a1217 text. Both at 9999px radius, 10px 18px padding, Sana Sans 16px weight 450.
 
-4. Create a top navigation bar: 8rem height, transparent #e5e5e5 background, containing a centered white pill at 48px border-radius with horizontal nav links in 16px SuisseIntl weight 500 #444444 text, 24px gap between links. Include a filled black 'Schedule a Demo' button (8px radius, #ffffff text) aligned right.
+**3. Light product card:** Background #e4eff7, border-radius 24px, padding 32px. Title 'Sana Learn' in Sana Sans 20px weight 500 at #0a1217. Subtitle 'AI-native learning platform' in Sana Sans 16px weight 400. Buttons: 'Explore' as filled #0a1217 pill with #ffffff text, 'Book an intro' as ghost pill with #ffffff background and #0a1217 text.
 
-5. Create an inverted dark section: full-width #000000 background, 80px vertical padding, containing white text — a 80px SuisseIntlCond 700 uppercase headline followed by 16px #979797 body text. No shadows or gradients.
+No distinct primary action color was observed; use the extracted neutral button treatments instead of inventing a filled CTA color.
+
+**5. Footer:** White #ffffff background, no dividers. 'Sana' wordmark left in Sana Serif or Sans. Three columns of links in Sana Sans 14px weight 400 at #0a1217, column headers at 16px weight 450. Copyright 'Sana Labs © 2026' at 13px in #85898b.
 
 ## Similar Brands
 
-- **Linear** — Same approach of oversized condensed display type, monochrome canvas with single accent color, flat surfaces with zero shadows
-- **Vercel** — Similar full-bleed hero with massive headline, monochromatic palette, and large-radius card surfaces
-- **Cursor** — Same editorial-brutalist typographic voice with uppercase condensed headings and minimal color palette
-- **Arc Browser** — Shared warm-gray canvas approach, oversized display type, and accent color used sparingly on small functional elements
+- **Linear** — Same monochrome-first discipline with a single restrained accent, generous border-radius, pill-shaped buttons, and flat surfaces with no shadows — both systems treat white space as a primary design element
+- **Vercel** — Identical typographic confidence: custom geometric sans at compressed sizes, monochrome canvas, generous letter-spacing, and zero decorative chrome — both let type and spacing do the heavy lifting
+- **Anthropic** — Same editorial instinct: serif used for brand-defining moments, sans for utility, white canvas with deliberate dark-surface panels, and a warm-accent restraint that reads as considered rather than corporate
+- **Stripe** — Same poster-design heritage: massive editorial type, two-color surface contrast (white + near-black), and the absence of shadows or gradients in favor of flat geometric panels with generous radius
+- **Notion** — Same soft-tactile feel through generous border-radius on cards and inputs, but Sana pushes further into monochrome and editorial type where Notion stays neutral and utilitarian
 
 ## Quick Start
 
@@ -242,96 +222,65 @@ Quick Color Reference:
 ```css
 :root {
   /* Colors */
-  --color-carbon-black: #000000;
+  --color-ink-black: #0a1217;
   --color-paper-white: #ffffff;
-  --color-warm-canvas: #e5e5e5;
-  --color-mist-gray: #f3f3f3;
-  --color-ash: #c6c6c6;
-  --color-smoke: #979797;
-  --color-slate: #444444;
-  --color-graphite: #2f2f2f;
-  --color-mint-chip: #d1ffca;
-  --color-voltage-yellow: #fff100;
+  --color-frost-wash: #e4eff7;
+  --color-stone-gray: #85898b;
+  --color-obsidian: #000000;
+  --color-electric-lime: #cdfe00;
 
   /* Typography — Font Families */
-  --font-suisseintlcond: 'SuisseIntlCond', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-suisseintl: 'SuisseIntl', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-suisseintlmono: 'SuisseIntlMono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sana-serif: 'Sana Serif', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sana-sans: 'Sana Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Typography — Scale */
-  --text-caption: 12px;
-  --leading-caption: 1.6;
-  --tracking-caption: -0.36px;
-  --text-body-sm: 14px;
-  --leading-body-sm: 1.3;
-  --tracking-body-sm: -0.154px;
+  --text-caption: 13px;
+  --leading-caption: 1.5;
   --text-body: 16px;
-  --leading-body: 1.25;
-  --text-subheading: 18px;
-  --leading-subheading: 1.33;
-  --text-subheading-lg: 20px;
-  --leading-subheading-lg: 1.2;
-  --text-heading-sm: 28px;
-  --leading-heading-sm: 1.3;
-  --tracking-heading-sm: -0.84px;
-  --text-heading: 40px;
-  --leading-heading: 1.1;
-  --tracking-heading: -0.8px;
-  --text-heading-lg: 48px;
-  --leading-heading-lg: 0.9;
-  --tracking-heading-lg: -1.44px;
-  --text-display: 80px;
-  --leading-display: 0.9;
-  --tracking-display: -2.4px;
-  --text-display-xl: 130px;
-  --leading-display-xl: 0.9;
-  --tracking-display-xl: -3.9px;
+  --leading-body: 1.43;
+  --text-heading: 20px;
+  --leading-heading: 1.2;
+  --text-display: 72px;
+  --leading-display: 1.1;
 
   /* Typography — Weights */
   --font-weight-regular: 400;
   --font-weight-w450: 450;
   --font-weight-medium: 500;
-  --font-weight-bold: 700;
 
   /* Spacing */
-  --spacing-unit: 8px;
+  --spacing-6: 6px;
   --spacing-8: 8px;
+  --spacing-10: 10px;
+  --spacing-12: 12px;
   --spacing-16: 16px;
+  --spacing-18: 18px;
+  --spacing-20: 20px;
   --spacing-24: 24px;
-  --spacing-40: 40px;
-  --spacing-64: 64px;
-  --spacing-80: 80px;
-  --spacing-96: 96px;
+  --spacing-25: 25px;
+  --spacing-32: 32px;
+  --spacing-62: 62px;
 
   /* Layout */
   --page-max-width: 1200px;
-  --section-gap: 80px;
-  --card-padding: 24px;
-  --element-gap: 16-24px;
+  --section-gap: 64px;
+  --card-padding: 24-32px;
+  --element-gap: 8-16px;
 
   /* Border Radius */
-  --radius-md: 4px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 20px;
   --radius-3xl: 24px;
-  --radius-3xl-2: 32px;
-  --radius-full: 48px;
-  --radius-full-2: 64px;
-  --radius-full-3: 9999px;
+  --radius-full: 9999px;
 
   /* Named Radii */
-  --radius-tags: 64px;
-  --radius-cards: 24-32px;
-  --radius-buttons: 4-8px;
-  --radius-nav-pill: 48px;
-  --radius-large-cards: 64px;
+  --radius-cards: 24px;
+  --radius-inputs: 24px;
+  --radius-buttons: 9999px;
 
   /* Surfaces */
-  --surface-canvas: #e5e5e5;
-  --surface-card: #ffffff;
-  --surface-inverted: #000000;
-  --surface-mist: #f3f3f3;
+  --surface-paper-white: #ffffff;
+  --surface-frost-wash: #e4eff7;
+  --surface-ink-black: #0a1217;
+  --surface-electric-lime: #cdfe00;
 }
 ```
 
@@ -340,69 +289,42 @@ Quick Color Reference:
 ```css
 @theme {
   /* Colors */
-  --color-carbon-black: #000000;
+  --color-ink-black: #0a1217;
   --color-paper-white: #ffffff;
-  --color-warm-canvas: #e5e5e5;
-  --color-mist-gray: #f3f3f3;
-  --color-ash: #c6c6c6;
-  --color-smoke: #979797;
-  --color-slate: #444444;
-  --color-graphite: #2f2f2f;
-  --color-mint-chip: #d1ffca;
-  --color-voltage-yellow: #fff100;
+  --color-frost-wash: #e4eff7;
+  --color-stone-gray: #85898b;
+  --color-obsidian: #000000;
+  --color-electric-lime: #cdfe00;
 
   /* Typography */
-  --font-suisseintlcond: 'SuisseIntlCond', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-suisseintl: 'SuisseIntl', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-suisseintlmono: 'SuisseIntlMono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sana-serif: 'Sana Serif', ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sana-sans: 'Sana Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /* Typography — Scale */
-  --text-caption: 12px;
-  --leading-caption: 1.6;
-  --tracking-caption: -0.36px;
-  --text-body-sm: 14px;
-  --leading-body-sm: 1.3;
-  --tracking-body-sm: -0.154px;
+  --text-caption: 13px;
+  --leading-caption: 1.5;
   --text-body: 16px;
-  --leading-body: 1.25;
-  --text-subheading: 18px;
-  --leading-subheading: 1.33;
-  --text-subheading-lg: 20px;
-  --leading-subheading-lg: 1.2;
-  --text-heading-sm: 28px;
-  --leading-heading-sm: 1.3;
-  --tracking-heading-sm: -0.84px;
-  --text-heading: 40px;
-  --leading-heading: 1.1;
-  --tracking-heading: -0.8px;
-  --text-heading-lg: 48px;
-  --leading-heading-lg: 0.9;
-  --tracking-heading-lg: -1.44px;
-  --text-display: 80px;
-  --leading-display: 0.9;
-  --tracking-display: -2.4px;
-  --text-display-xl: 130px;
-  --leading-display-xl: 0.9;
-  --tracking-display-xl: -3.9px;
+  --leading-body: 1.43;
+  --text-heading: 20px;
+  --leading-heading: 1.2;
+  --text-display: 72px;
+  --leading-display: 1.1;
 
   /* Spacing */
+  --spacing-6: 6px;
   --spacing-8: 8px;
+  --spacing-10: 10px;
+  --spacing-12: 12px;
   --spacing-16: 16px;
+  --spacing-18: 18px;
+  --spacing-20: 20px;
   --spacing-24: 24px;
-  --spacing-40: 40px;
-  --spacing-64: 64px;
-  --spacing-80: 80px;
-  --spacing-96: 96px;
+  --spacing-25: 25px;
+  --spacing-32: 32px;
+  --spacing-62: 62px;
 
   /* Border Radius */
-  --radius-md: 4px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 20px;
   --radius-3xl: 24px;
-  --radius-3xl-2: 32px;
-  --radius-full: 48px;
-  --radius-full-2: 64px;
-  --radius-full-3: 9999px;
+  --radius-full: 9999px;
 }
 ```

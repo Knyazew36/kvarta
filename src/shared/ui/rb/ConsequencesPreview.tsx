@@ -21,7 +21,7 @@ export const ConsequencesPreview = ({
           <span
             className={cn(
               'flex size-8 shrink-0 items-center justify-center rounded-full',
-              severity === 'warn' ? 'bg-attention text-black' : 'bg-card',
+              severity === 'warn' ? 'bg-attention text-background' : 'bg-card',
             )}
           >
             <Icon className="size-4" aria-hidden />
