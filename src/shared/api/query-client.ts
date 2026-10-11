@@ -14,11 +14,15 @@ type ApiMeta = {
   inlineFieldErrors?: boolean
   /** Текст тоста вместо сообщения бэка */
   errorMessage?: string
+  /** Текст тоста по самой ошибке — когда бэк отвечает кодом, а объяснение собирается на фронте */
+  getErrorMessage?: (error: unknown) => string
 }
 
 type ApiMutationMeta = ApiMeta & {
-  /** Текст тоста об успехе. Ставим каждой мутации, которая что-то создаёт, меняет или удаляет */
+  /** Текст тоста об успехе. Ставим каждой мутации; без него покажется общий «Готово» */
   successMessage?: string
+  /** Не показывать тост об успехе: результат и так виден на экране. Причину пишем комментарием у мутации */
+  skipSuccessToast?: boolean
 }
 
 declare module '@tanstack/react-query' {
@@ -50,15 +54,18 @@ const showErrorToast = (error: unknown, meta: ApiMeta | undefined) => {
   toast.add({
     type: 'error',
     title: 'Ошибка',
-    description: meta?.errorMessage ?? getErrorMessage(error),
+    description: meta?.errorMessage ?? meta?.getErrorMessage?.(error) ?? getErrorMessage(error),
   })
 }
 
 // Единая точка показа успеха: хуки не пишут свой onSuccess ради тоста, только meta.successMessage
-const showSuccessToast = (meta: ApiMutationMeta | undefined) => {
-  if (!meta?.successMessage) return
+// Тост есть у любой мутации: молчит только та, где он выключен явно через skipSuccessToast
+const DEFAULT_SUCCESS_MESSAGE = 'Готово'
 
-  toast.add({ type: 'success', title: meta.successMessage })
+const showSuccessToast = (meta: ApiMutationMeta | undefined) => {
+  if (meta?.skipSuccessToast) return
+
+  toast.add({ type: 'success', title: meta?.successMessage ?? DEFAULT_SUCCESS_MESSAGE })
 }
 
 export const queryClient = new QueryClient({

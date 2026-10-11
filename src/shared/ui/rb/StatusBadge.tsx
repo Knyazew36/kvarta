@@ -11,6 +11,8 @@ const statusBadgeVariants = cva(
         // «Внимание» — инверсия ink, «успех» — frost: второго акцентного цвета в системе нет
         // Обводка вместо заливки: бейдж читается и на белом холсте, и на frost-карточке
         success: 'text-foreground ring-1 ring-foreground/20 ring-inset',
+        // Зелёный — только для завершённого дела: итог должен читаться с первого взгляда, обводки «успеха» для этого мало
+        positive: 'bg-positive/10 text-positive dark:bg-positive/20',
         attention: 'bg-attention text-background',
         danger: 'bg-destructive/10 text-destructive dark:bg-destructive/20',
         neutral: 'bg-foreground/5 text-slate',

@@ -75,18 +75,20 @@ export const TASK_STATUS: Record<TaskStatus, StatusMeta> = {
   in_progress: { tone: 'inverse', icon: CirclePlayIcon, label: 'В работе' },
   review: { tone: 'attention', icon: EyeIcon, label: 'На проверке' },
   returned: { tone: 'danger', icon: RotateCcwIcon, label: 'Возвращена' },
-  accepted: { tone: 'success', icon: CircleCheckIcon, label: 'Принята' },
+  accepted: { tone: 'positive', icon: CircleCheckIcon, label: 'Принята' },
   overdue: { tone: 'danger', icon: TriangleAlertIcon, label: 'Просрочена' },
   cancelled: { tone: 'neutral', icon: CircleSlashIcon, label: 'Отменена' },
 }
 
 // ── Серия задач ─────────────────────────────────────────────────────────────
 
-export type SeriesStatus = 'active' | 'paused' | 'ended'
+export type SeriesStatus = 'active' | 'paused' | 'blocked' | 'ended'
 
 export const SERIES_STATUS: Record<SeriesStatus, StatusMeta> = {
   active: { tone: 'success', icon: RefreshCwIcon, label: 'Активна' },
   paused: { tone: 'neutral', icon: PauseIcon, label: 'Приостановлена' },
+  // Генерация остановлена самим бэком: лимит незавершённых, пропуск периодов или потерянный доступ
+  blocked: { tone: 'danger', icon: TriangleAlertIcon, label: 'Остановлена' },
   ended: { tone: 'neutral', icon: CircleSlashIcon, label: 'Завершена' },
 }
 

@@ -59,7 +59,7 @@ export const BalancesTab = () => {
               className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-3 border-t border-foreground/8 py-4 first:border-t-0 md:grid-cols-[1.3fr_1fr_auto_auto]"
             >
               <span className="flex min-w-0 flex-col gap-0.5">
-                <Link to={to.booking(row.bookingId, 'payments')} className="truncate text-body-sm font-medium hover:underline">
+                <Link to={to.mockBooking(row.bookingId, 'payments')} className="truncate text-body-sm font-medium hover:underline">
                   {row.guest} · {row.number}
                 </Link>
                 <span className="truncate text-caption text-smoke">
@@ -88,7 +88,7 @@ export const BalancesTab = () => {
               <span className="hidden md:block">
                 {row.total == null ? (
                   <Button variant="outline" size="sm" className="bg-canvas" asChild>
-                    <Link to={to.booking(row.bookingId, 'payments')}>
+                    <Link to={to.mockBooking(row.bookingId, 'payments')}>
                       <PencilIcon /> Указать сумму
                     </Link>
                   </Button>

@@ -121,7 +121,7 @@ export const IncomingTab = () => {
                     <td className="px-3 py-3.5 text-body-sm tabular-nums">{row.at}</td>
                     <td className="px-3 py-3.5">
                       <span className="flex flex-col gap-0.5">
-                        <Link to={to.booking(row.bookingId, 'payments')} className="text-body-sm font-medium hover:underline">
+                        <Link to={to.mockBooking(row.bookingId, 'payments')} className="text-body-sm font-medium hover:underline">
                           {row.guest} · {row.number}
                         </Link>
                         <span className="text-caption text-smoke">{row.property}</span>
@@ -151,7 +151,7 @@ export const IncomingTab = () => {
               {rows.map((row) => (
                 <li key={row.id} className="flex items-start justify-between gap-3 border-t border-foreground/8 py-3.5 first:border-t-0 first:pt-0">
                   <span className="flex min-w-0 flex-col gap-0.5">
-                    <Link to={to.booking(row.bookingId, 'payments')} className="truncate text-body-sm font-medium">
+                    <Link to={to.mockBooking(row.bookingId, 'payments')} className="truncate text-body-sm font-medium">
                       {row.guest} · {row.number}
                     </Link>
                     <span className="text-caption text-smoke">
@@ -178,7 +178,7 @@ export const IncomingTab = () => {
               <span className="flex min-w-0 items-center gap-3">
                 <SourceTag source={payout.source} />
                 <span className="flex min-w-0 flex-col">
-                  <Link to={to.booking(payout.bookingId, 'payments')} className="truncate text-body-sm hover:underline">
+                  <Link to={to.mockBooking(payout.bookingId, 'payments')} className="truncate text-body-sm hover:underline">
                     {payout.guest} · {payout.number}
                   </Link>
                   <span className="text-caption text-smoke">{payout.note}</span>

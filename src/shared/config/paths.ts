@@ -27,7 +27,7 @@ export const ROUTES = {
   PROPERTY: '/app/:orgId/properties/:propertyId',
   MONEY: '/app/:orgId/money/:tab?',
   NOTIFICATIONS: '/app/:orgId/notifications',
-  SETTINGS: '/app/:orgId/settings/:section?',
+  SETTINGS: '/app/:orgId/settings',
   HELP: '/app/:orgId/help',
   SPECIALISTS: '/app/:orgId/specialists',
   SPECIALIST: '/app/:orgId/specialists/:specialistId',
@@ -58,13 +58,17 @@ export const to = {
   today: (orgId = DEMO_ORG_ID) => `/app/${orgId}/today`,
   calendar: (orgId = DEMO_ORG_ID) => `/app/${orgId}/calendar`,
   bookings: (orgId = DEMO_ORG_ID) => `/app/${orgId}/bookings`,
-  booking: (bookingId: string, tab = 'overview', orgId = DEMO_ORG_ID) =>
+  // Бронь из API: числовой id и своя организация, без демо-значения по умолчанию
+  booking: (bookingId: number, orgId: string, tab = 'overview') => `/app/${orgId}/bookings/${bookingId}/${tab}`,
+  // Ссылки на бронь из страниц, которые ещё на моках: строковые id макетов, карточка по ним ответит «не найдена».
+  // Уходит вместе с переводом этих страниц на API
+  mockBooking: (bookingId: string, tab = 'overview', orgId = DEMO_ORG_ID) =>
     `/app/${orgId}/bookings/${bookingId}/${tab}`,
   request: (requestId: string, orgId = DEMO_ORG_ID) => `/app/${orgId}/requests/${requestId}`,
   tasks: (orgId = DEMO_ORG_ID) => `/app/${orgId}/tasks`,
-  task: (taskId: string, orgId = DEMO_ORG_ID) => `/app/${orgId}/tasks/${taskId}`,
+  task: (taskId: number | string, orgId = DEMO_ORG_ID) => `/app/${orgId}/tasks/${taskId}`,
   taskSeries: (orgId = DEMO_ORG_ID) => `/app/${orgId}/task-series`,
-  taskSeriesItem: (seriesId: string, orgId = DEMO_ORG_ID) => `/app/${orgId}/task-series/${seriesId}`,
+  taskSeriesItem: (seriesId: number | string, orgId = DEMO_ORG_ID) => `/app/${orgId}/task-series/${seriesId}`,
   properties: (orgId = DEMO_ORG_ID) => `/app/${orgId}/properties`,
   property: (propertyId: string, tab = 'info', orgId = DEMO_ORG_ID) =>
     `/app/${orgId}/properties/${propertyId}/${tab}`,

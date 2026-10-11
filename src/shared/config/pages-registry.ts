@@ -81,7 +81,7 @@ export const SCREENS: Screen[] = [
     title: 'Карточка брони',
     contour: 'cabinet',
     phase: 2,
-    href: to.booking('b-1044', 'overview', DEMO_ORG_ID),
+    href: to.mockBooking('b-1044', 'overview', DEMO_ORG_ID),
     status: 'ready',
     variants: [{ label: 'сотрудник', query: 'role=employee' }, ...STATES],
   },
@@ -90,7 +90,7 @@ export const SCREENS: Screen[] = [
     title: 'Бронь: неизвестная оплата',
     contour: 'cabinet',
     phase: 2,
-    href: to.booking('b-1050', 'payments', DEMO_ORG_ID),
+    href: to.mockBooking('b-1050', 'payments', DEMO_ORG_ID),
     status: 'ready',
   },
   {
@@ -98,7 +98,7 @@ export const SCREENS: Screen[] = [
     title: 'Бронь: конфликт',
     contour: 'cabinet',
     phase: 2,
-    href: to.booking('b-1042', 'overview', DEMO_ORG_ID),
+    href: to.mockBooking('b-1042', 'overview', DEMO_ORG_ID),
     status: 'ready',
   },
   {

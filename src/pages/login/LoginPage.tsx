@@ -16,7 +16,7 @@ const LoginPage = () => {
   const navigate = useNavigate()
   // Почта в state — когда человек вернулся со страницы кода поправить адрес
   const { from, email: initialEmail } = useAuthFlowState()
-  const requestCode = useRequestLoginCode()
+  const requestCode = useRequestLoginCode({ silent: true })
   const {
     register,
     handleSubmit,

@@ -64,7 +64,7 @@ export const DepositsTab = () => {
             )}
           >
             <span className="flex min-w-0 flex-col gap-0.5">
-              <Link to={to.booking(row.bookingId, 'payments')} className="truncate text-body-sm font-medium hover:underline">
+              <Link to={to.mockBooking(row.bookingId, 'payments')} className="truncate text-body-sm font-medium hover:underline">
                 {row.guest} · {row.number}
               </Link>
               <span className="text-caption text-smoke">

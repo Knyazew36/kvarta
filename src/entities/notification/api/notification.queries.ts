@@ -26,7 +26,7 @@ export const useUpdateNotificationSettings = () => {
 
   return useMutation({
     mutationFn: (body: NotificationSettingsUpdate) => updateNotificationSettings(body),
-    meta: { inlineFieldErrors: true },
+    meta: { inlineFieldErrors: true, successMessage: 'Настройки уведомлений сохранены' },
     onSuccess: ({ data }) => queryClient.setQueryData(notificationSettingsQueryOptions.queryKey, data),
     onError: (error) => {
       // 409 — настройки изменили в другой вкладке: перечитываем, форма получит свежую версию
@@ -67,7 +67,7 @@ export const useReadNotification = (organizationId: number) => {
   return useMutation({
     mutationFn: ({ id, version }: { id: number; version: number }) => readTaskNotification(organizationId, id, { version }),
     // Клик уводит на задачу — тост поверх перехода не нужен; при 409/404 лента просто перечитается
-    meta: { skipErrorToast: true },
+    meta: { skipErrorToast: true, skipSuccessToast: true },
     onSettled: () => queryClient.invalidateQueries({ queryKey: notificationKeys.feed(organizationId) }),
   })
 }

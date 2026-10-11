@@ -41,7 +41,7 @@ const KIND_CLASS: Record<Kind, string> = {
   block: 'hatch bg-mist',
 }
 
-const hrefOf = (stay: Stay) => (stay.kind === 'hold' ? to.request(stay.id) : stay.kind === 'block' ? null : to.booking(stay.id))
+const hrefOf = (stay: Stay) => (stay.kind === 'hold' ? to.request(stay.id) : stay.kind === 'block' ? null : to.mockBooking(stay.id))
 
 // ── День ────────────────────────────────────────────────────────────────────
 

@@ -13,11 +13,23 @@ const PAGES_WITHOUT_DEMO_TOOLS: string[] = [
   ROUTES.OTP,
   ROUTES.WORKSPACES,
   ROUTES.ORG_NEW,
+  ROUTES.INVITE,
   ROUTES.ONBOARDING,
   ROUTES.NOTIFICATIONS,
+  ROUTES.BOOKINGS,
+  // Со всеми вкладками брони (:tab? в самом шаблоне)
+  ROUTES.BOOKING,
   ROUTES.PROPERTIES,
   // Со всеми вкладками объекта
   `${ROUTES.PROPERTY}/*`,
+  // Из настроек на API «Команда» и «Приглашения»; «Команда» открывается и по адресу без раздела
+  ROUTES.SETTINGS,
+  `${ROUTES.SETTINGS}/team`,
+  `${ROUTES.SETTINGS}/invitations`,
+  ROUTES.TASKS,
+  ROUTES.TASK,
+  ROUTES.TASK_SERIES,
+  ROUTES.TASK_SERIES_ITEM,
 ]
 
 const LayoutRoot = () => {

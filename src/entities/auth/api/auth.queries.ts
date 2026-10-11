@@ -30,10 +30,11 @@ const FORM_MUTATION_META = { inlineFieldErrors: true }
 
 // mutationFn обёрнуты стрелкой: вторым аргументом react-query передаёт свой контекст,
 // а сгенерированные функции ждут там axios-конфиг
-export const useRequestLoginCode = () =>
+// silent — для входа и регистрации: после запроса сразу уходим на экран кода, тост там лишний
+export const useRequestLoginCode = ({ silent = false }: { silent?: boolean } = {}) =>
   useMutation({
     mutationFn: (body: RequestLoginCodeBody) => requestLoginCode(body),
-    meta: { ...FORM_MUTATION_META, successMessage: 'Код отправлен' },
+    meta: silent ? { ...FORM_MUTATION_META, skipSuccessToast: true } : { ...FORM_MUTATION_META, successMessage: 'Код отправлен' },
   })
 
 export const useLogin = () => {
@@ -41,7 +42,7 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: (body: LoginBody) => login(body),
-    meta: FORM_MUTATION_META,
+    meta: { ...FORM_MUTATION_META, successMessage: 'Вы вошли' },
     onSuccess: (response) => {
       queryClient.setQueryData(authKeys.me(), response.data)
     },
@@ -53,7 +54,7 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: (body: RegisterBody) => register(body),
-    meta: FORM_MUTATION_META,
+    meta: { ...FORM_MUTATION_META, successMessage: 'Аккаунт создан' },
     onSuccess: (response) => {
       queryClient.setQueryData(authKeys.me(), response.data)
     },

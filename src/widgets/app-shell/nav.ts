@@ -60,7 +60,7 @@ export const NAV_MAIN: NavItem[] = [
 ]
 
 export const NAV_SETTINGS: NavItem[] = [
-  { key: 'team', label: 'Команда', icon: UsersIcon, href: (o) => to.settings('team', o), roles: ['owner'] },
+  { key: 'team', label: 'Команда', icon: UsersIcon, href: (o) => to.settings('team', o), roles: TEAM },
   { key: 'channels', label: 'Площадки', icon: PlugIcon, href: (o) => to.settings('channels', o), roles: TEAM },
   { key: 'page', label: 'Моя страница', icon: BuildingIcon, href: (o) => to.settings('page', o), roles: ['owner'] },
   { key: 'requisites', label: 'Реквизиты', icon: KeyRoundIcon, href: (o) => to.settings('requisites', o), roles: ['owner'] },

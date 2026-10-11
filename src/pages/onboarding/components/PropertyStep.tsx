@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 
-import { type PropertyValues, propertySchema, useCreateProperty } from '@/entities/property'
+import { getBrowserTimezone, getTimezoneOptions } from '@/entities/notification'
+import { type PropertyValues, propertySchema, TimezoneSelect, useCreateProperty } from '@/entities/property'
 import { getFieldErrors } from '@/shared/api/model/getFieldErrors'
 import { ErrorText } from '@/shared/ui/rb/ErrorText'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -9,25 +10,30 @@ import { Input } from '@/shared/ui/shadcn/input'
 import { Label } from '@/shared/ui/shadcn/label'
 import { Spinner } from '@/shared/ui/shadcn/spinner'
 
-// Для старта нужно только внутреннее название: адрес, вместимость и время заезда заполняются позже в карточке объекта
+// Для старта нужны внутреннее название и часовой пояс: адрес, вместимость и время заезда заполняются позже в карточке объекта
 export const PropertyStep = ({ organizationId, onDone }: { organizationId: number; onDone: () => void }) => {
   const createProperty = useCreateProperty(organizationId)
+  // По умолчанию — пояс браузера; пояс не из списка добавляется в него
+  const defaultValues: PropertyValues = { name: '', timezone: getBrowserTimezone() }
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<PropertyValues>({ resolver: zodResolver(propertySchema), defaultValues: { name: '' } })
+  } = useForm<PropertyValues>({ resolver: zodResolver(propertySchema), defaultValues })
 
-  const submit = handleSubmit(({ name }) => {
+  const submit = handleSubmit((values) => {
     createProperty.mutate(
-      { name },
+      values,
       {
         onSuccess: onDone,
         onError: (error) => {
-          // Ошибки бэка по полю — под тем же инпутом; остальное показывает общий тост
-          const nameErrors = getFieldErrors(error).name
-          if (nameErrors?.length) setError('name', { message: nameErrors.join(', ') })
+          // Ошибки бэка по полям — под формой; остальное показывает общий тост
+          const fieldErrors = getFieldErrors(error)
+          for (const field of ['name', 'timezone'] as const) {
+            if (fieldErrors[field]?.length) setError(field, { message: fieldErrors[field].join(', ') })
+          }
         },
       },
     )
@@ -48,6 +54,24 @@ export const PropertyStep = ({ organizationId, onDone }: { organizationId: numbe
             {...register('name')}
           />
         </div>
+        <div className="flex flex-col gap-2 sm:w-60">
+          <Label htmlFor="ob-timezone" className="text-body-sm font-medium">
+            Часовой пояс
+          </Label>
+          <Controller
+            control={control}
+            name="timezone"
+            render={({ field }) => (
+              <TimezoneSelect
+                id="ob-timezone"
+                items={getTimezoneOptions(defaultValues.timezone)}
+                value={field.value}
+                onValueChange={field.onChange}
+                invalid={!!errors.timezone}
+              />
+            )}
+          />
+        </div>
         <Button type="submit" className="shadow-control" disabled={createProperty.isPending}>
           {createProperty.isPending ? (
             <>
@@ -58,7 +82,7 @@ export const PropertyStep = ({ organizationId, onDone }: { organizationId: numbe
           )}
         </Button>
       </div>
-      <ErrorText id="ob-property-error" errors={errors.name} />
+      <ErrorText id="ob-property-error" errors={[errors.name, errors.timezone]} />
     </form>
   )
 }

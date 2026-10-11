@@ -44,7 +44,7 @@ const CLAIMS: Claim[] = [
   {
     id: 'c-1',
     number: 'Бронь #1044',
-    href: to.booking('b-1044', 'payments'),
+    href: to.mockBooking('b-1044', 'payments'),
     propertyId: 'neva',
     property: 'Лофт у Невы',
     guest: 'Елена Кравец',

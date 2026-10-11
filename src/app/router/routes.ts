@@ -38,7 +38,14 @@ import PropertyPrepPage from '@/pages/property/property-prep/PropertyPrepPage'
 import PropertyTasksPage from '@/pages/property/property-tasks/PropertyTasksPage'
 import RegisterPage from '@/pages/register/RegisterPage'
 import RequestPage from '@/pages/request/RequestPage'
-import SettingsPage from '@/pages/settings/SettingsPage'
+import LayoutSettings from '@/pages/settings/LayoutSettings'
+import SettingsChannelsPage from '@/pages/settings/settings-channels/SettingsChannelsPage'
+import SettingsExportPage from '@/pages/settings/settings-export/SettingsExportPage'
+import SettingsInvitationsPage from '@/pages/settings/settings-invitations/SettingsInvitationsPage'
+import SettingsNotificationsPage from '@/pages/settings/settings-notifications/SettingsNotificationsPage'
+import SettingsPagePage from '@/pages/settings/settings-page/SettingsPagePage'
+import SettingsRequisitesPage from '@/pages/settings/settings-requisites/SettingsRequisitesPage'
+import SettingsTeamPage from '@/pages/settings/settings-team/SettingsTeamPage'
 import SpecialistInboxPage from '@/pages/specialist/SpecialistInboxPage'
 import SpecialistProfilePage from '@/pages/specialist/SpecialistProfilePage'
 import SpecialistReviewsPage from '@/pages/specialist/SpecialistReviewsPage'
@@ -77,6 +84,9 @@ export const privateRoutes: AppRoute[] = [
   // Выбор организации — тем, у кого их несколько
   { path: ROUTES.WORKSPACES, Component: WorkspacesPage },
   { path: ROUTES.ORG_NEW, Component: OrgCreatePage },
+  // Приглашение в команду: бэк отдаёт его только вошедшему (team-invitations/{token} под auth:web).
+  // Гард запоминает ссылку и возвращает на неё после входа
+  { path: ROUTES.INVITE, Component: InvitePage },
 ]
 
 // ── После входа и в своей организации (/app/:orgId/*), без оболочки кабинета ─
@@ -90,6 +100,10 @@ export const orgRoutes: AppRoute[] = [
 export const appRoutes: AppRoute[] = [
   // Лента на API; кнопка «Прочитать всё» ждёт ручку на бэке (обведена красным)
   { path: ROUTES.NOTIFICATIONS, Component: NotificationsPage },
+  // Ручные брони (тег Bookings): список, создание, карточка, правка, отмена и история — на API.
+  // Блокировка дат, оплаты, подготовка, инструкции и всё про площадки пока моки (обведены красным)
+  { path: ROUTES.BOOKINGS, Component: BookingsPage },
+  { path: ROUTES.BOOKING, Component: BookingPage },
   // Список и создание — на API. Заезды, площадки, публичность и ответственный в карточках пока моки (обведены красным)
   { path: ROUTES.PROPERTIES, Component: PropertiesPage },
   // Объект: LayoutProperty грузит объект, держит шапку и вкладки, вкладки — отдельные страницы.
@@ -121,15 +135,28 @@ export const appRoutes: AppRoute[] = [
 export const mockAppRoutes: AppRoute[] = [
   { path: ROUTES.TODAY, Component: TodayPage },
   { path: ROUTES.CALENDAR, Component: CalendarPage },
-  { path: ROUTES.BOOKINGS, Component: BookingsPage },
-  { path: ROUTES.BOOKING, Component: BookingPage },
   { path: ROUTES.REQUEST, Component: RequestPage },
   { path: ROUTES.TASKS, Component: TasksPage },
   { path: ROUTES.TASK, Component: TaskPage },
   { path: ROUTES.TASK_SERIES, Component: TaskSeriesPage },
   { path: ROUTES.TASK_SERIES_ITEM, Component: TaskSeriesItemPage },
   { path: ROUTES.MONEY, Component: MoneyPage },
-  { path: ROUTES.SETTINGS, Component: SettingsPage },
+  // Настройки: LayoutSettings держит шапку и вкладки, разделы — отдельные страницы, как в профиле.
+  // «Команда» и «Приглашения» уже на API; остальные пять разделов — моки, поэтому настройки целиком пока здесь
+  {
+    path: ROUTES.SETTINGS,
+    Component: LayoutSettings,
+    children: [
+      { index: true, Component: SettingsTeamPage },
+      { path: 'team', Component: SettingsTeamPage },
+      { path: 'invitations', Component: SettingsInvitationsPage },
+      { path: 'channels', Component: SettingsChannelsPage },
+      { path: 'page', Component: SettingsPagePage },
+      { path: 'requisites', Component: SettingsRequisitesPage },
+      { path: 'notifications', Component: SettingsNotificationsPage },
+      { path: 'export', Component: SettingsExportPage },
+    ],
+  },
   { path: ROUTES.HELP, Component: HelpPage },
   { path: ROUTES.SPECIALISTS, Component: SpecialistsPage },
   { path: ROUTES.SPECIALIST, Component: SpecialistPage },
@@ -155,9 +182,6 @@ export const mockPrivateRoutes: AppRoute[] = [
   { path: ROUTES.SPECIALIST_PROFILE, Component: SpecialistProfilePage },
   { path: ROUTES.SPECIALIST_INBOX, Component: SpecialistInboxPage },
   { path: ROUTES.SPECIALIST_REVIEWS, Component: SpecialistReviewsPage },
-  // Приглашение в команду: бэк отдаёт его только вошедшему (team-invitations/{token} под auth:web).
-  // Гард запоминает ссылку и возвращает на неё после входа
-  { path: ROUTES.INVITE, Component: InvitePage },
   // Брони и инструкции гостя — тоже только после входа (guest/bookings под auth:web)
   { path: ROUTES.GUEST_BOOKINGS, Component: GuestBookingsPage },
   { path: ROUTES.GUEST_BOOKING, Component: GuestBookingPage },

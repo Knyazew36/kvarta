@@ -166,11 +166,11 @@ export const UX_MAPS: UxRoleMap[] = [
           { title: 'Брони', href: to.bookings(o), note: 'Список с фильтрами и конфликтами' },
           {
             title: 'Карточка брони',
-            href: to.booking('b-1044', 'overview', o),
+            href: to.mockBooking('b-1044', 'overview', o),
             note: 'Гость, оплаты, задачи, история',
             branches: [
-              { label: 'конфликт', href: to.booking('b-1042', 'overview', o) },
-              { label: 'неизвестная оплата', href: to.booking('b-1050', 'payments', o) },
+              { label: 'конфликт', href: to.mockBooking('b-1042', 'overview', o) },
+              { label: 'неизвестная оплата', href: to.mockBooking('b-1050', 'payments', o) },
             ],
           },
           { title: 'Уведомления', href: to.notifications(o), note: 'Лента событий' },
@@ -258,7 +258,7 @@ export const UX_MAPS: UxRoleMap[] = [
           { title: 'Сегодня', href: to.today(o), note: 'Что требует внимания' },
           { title: 'Календарь', href: to.calendar(o), note: 'Шахматка' },
           { title: 'Брони', href: to.bookings(o), note: 'Список' },
-          { title: 'Карточка брони', href: to.booking('b-1044', 'overview', o), note: 'Без подтверждения денег' },
+          { title: 'Карточка брони', href: to.mockBooking('b-1044', 'overview', o), note: 'Без подтверждения денег' },
           { title: 'Прямая заявка', href: to.request('r-201', o), note: 'Видит статус, деньги подтверждает владелец' },
         ],
       },

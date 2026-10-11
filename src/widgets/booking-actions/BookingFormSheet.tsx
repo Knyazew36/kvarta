@@ -1,159 +1,160 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CalendarPlusIcon, TriangleAlertIcon } from 'lucide-react'
 import { useState } from 'react'
-import { BanIcon, CalendarPlusIcon, TriangleAlertIcon } from 'lucide-react'
-import { DEMO_TZ } from '@/shared/lib/format'
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form'
+import { Link, useNavigate } from 'react-router'
+import { type BookingInput, type BookingValues, bookingSchema, useCreateBooking } from '@/entities/booking'
+import { useCurrentOrganization } from '@/entities/organization'
+import { useAllProperties } from '@/entities/property'
+import { to } from '@/shared/config/paths'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
-import { DateRangeInput, type DateRangeValue } from '@/shared/ui/shadcn/date-input'
-import { Input } from '@/shared/ui/shadcn/input'
-import { Label } from '@/shared/ui/shadcn/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/shadcn/select'
 import { Sheet, SheetBody, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/shared/ui/shadcn/sheet'
-import { Textarea } from '@/shared/ui/shadcn/textarea'
+import { Spinner } from '@/shared/ui/shadcn/spinner'
+import { getBookingFieldErrors, isOverCapacity } from './booking-field-errors'
+import { BookingField, BookingFields, BookingFormError } from './BookingFields'
 
-// ── Макетные данные формы ───────────────────────────────────────────────────
-
-const PROPERTIES = [
-  { value: 'ligovsky', label: 'Студия на Лиговском' },
-  { value: 'neva', label: 'Лофт у Невы' },
-  { value: 'moika', label: 'Апартаменты на Мойке' },
-  { value: 'repino', label: 'Дом в Репино' },
-]
-
-const BLOCK_REASONS = [
-  { value: 'repair', label: 'Ремонт' },
-  { value: 'owner', label: 'Проживает владелец' },
-  { value: 'other', label: 'Другое' },
-]
-
-// ── Поля ────────────────────────────────────────────────────────────────────
-
-const FormField = ({ id, label, hint, children }: { id: string; label: string; hint?: string; children: React.ReactNode }) => (
-  <div className="flex flex-col gap-2">
-    <Label htmlFor={id} className="text-body-sm font-medium">
-      {label}
-    </Label>
-    {children}
-    {hint && <span className="text-caption text-smoke">{hint}</span>}
-  </div>
-)
-
-const PropertySelect = ({ id, defaultValue }: { id: string; defaultValue?: string }) => (
-  <Select items={PROPERTIES} defaultValue={defaultValue ?? PROPERTIES[0].value}>
-    <SelectTrigger id={id} className="w-full">
-      <SelectValue />
-    </SelectTrigger>
-    <SelectContent>
-      {PROPERTIES.map((item) => (
-        <SelectItem key={item.value} value={item.value}>
-          {item.label}
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-)
-
-// ── Форма ───────────────────────────────────────────────────────────────────
-
-type BookingFormSheetProps = {
-  kind: 'booking' | 'block'
-  trigger: React.ReactElement
-  propertyId?: string
+const EMPTY_VALUES: BookingInput = {
+  property_id: '',
+  dates: { from: '', to: '' },
+  guest_name: '',
+  guests_count: '2',
+  guest_phone: '',
+  guest_email: '',
+  amount: '',
+  notes: '',
 }
 
-// Ручная бронь и блокировка — одна форма: обе занимают даты, различаются только гостем и причиной
-export const BookingFormSheet = ({ kind, trigger, propertyId }: BookingFormSheetProps) => {
-  const [dates, setDates] = useState<DateRangeValue>({ from: '2026-10-12', to: '2026-10-14' })
-  // Пересечение показываем до сохранения: после — это уже конфликт, который придётся разбирать
-  const overlaps = Boolean(dates.from && dates.to && dates.from <= '2026-10-13' && dates.to >= '2026-10-12')
-  const isBooking = kind === 'booking'
+type BookingFormSheetProps = {
+  trigger: React.ReactElement
+  // Объект, выбранный заранее (например, из карточки объекта)
+  propertyId?: number
+}
+
+// Ручная бронь: гость позвонил или написал напрямую. Создают владелец, управляющий и администратор
+export const BookingFormSheet = ({ trigger, propertyId }: BookingFormSheetProps) => {
+  const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
+  const { organization } = useCurrentOrganization()
+  const orgId = String(organization.id)
+  // Только активные: на архивном объекте бронь не создать (409)
+  const { data: properties, isPending: propertiesPending } = useAllProperties(organization.id)
+  const createBooking = useCreateBooking(organization.id)
+  const form = useForm<BookingInput, unknown, BookingValues>({ resolver: zodResolver(bookingSchema), defaultValues: EMPTY_VALUES })
+  const {
+    control,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors },
+  } = form
+
+  const selectedId = useWatch({ control, name: 'property_id' })
+  const property = properties?.find((item) => String(item.id) === selectedId)
+  // Без пояса, вместимости и времён заезда/выезда бэк бронь не примет (422) — говорим об этом до отправки
+  const notConfigured = !!property && (!property.timezone || !property.capacity || !property.check_in_time || !property.check_out_time)
+  const propertyItems = (properties ?? []).map((item) => ({ value: String(item.id), label: item.name }))
+
+  const submit = handleSubmit((values) => {
+    // Превышение вместимости уже подсвечено под полем «Гостей»
+    if (isOverCapacity(values.guests_count, property?.capacity)) return
+
+    createBooking.mutate(values, {
+      onSuccess: ({ data }) => {
+        setOpen(false)
+        navigate(to.booking(data.id, orgId))
+      },
+      onError: (error) => getBookingFieldErrors(error).forEach(({ name, message }) => setError(name, { message })),
+    })
+  })
 
   return (
-    <Sheet>
+    <Sheet
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next)
+        if (next) {
+          // Форма каждый раз открывается пустой; единственный объект выбираем сразу
+          const preset = propertyId ?? (properties?.length === 1 ? properties[0].id : undefined)
+          reset({ ...EMPTY_VALUES, property_id: preset ? String(preset) : '' })
+          createBooking.reset()
+        }
+      }}
+    >
       <SheetTrigger render={trigger} />
       <SheetContent>
         <SheetHeader className="border-b border-mist">
-          <span className="mono-label text-smoke">{isBooking ? 'Новая запись · вручную' : 'Новая запись · закрыть даты'}</span>
-          <SheetTitle className="text-heading-sm">{isBooking ? 'Ручная бронь' : 'Блокировка дат'}</SheetTitle>
-          <SheetDescription>
-            {isBooking
-              ? 'Бронь не с площадки: гость позвонил или написал напрямую. Даты закроются на всех подключённых площадках.'
-              : 'Даты станут недоступны для гостей на всех площадках. Это не бронь: денег и гостя у блокировки нет.'}
-          </SheetDescription>
+          <span className="mono-label text-smoke">Новая запись · вручную</span>
+          <SheetTitle className="text-heading-sm">Ручная бронь</SheetTitle>
+          <SheetDescription>Бронь не с площадки: гость позвонил или написал напрямую. Пересечения с другими бронями и блокировками не допускаются.</SheetDescription>
         </SheetHeader>
 
         <SheetBody className="pt-6">
-          <form id={`${kind}-form`} className="flex flex-col gap-5" onSubmit={(event) => event.preventDefault()}>
-            <FormField id={`${kind}-property`} label="Объект">
-              <PropertySelect id={`${kind}-property`} defaultValue={propertyId} />
-            </FormField>
+          <FormProvider {...form}>
+            <form id="booking-create-form" className="flex flex-col gap-5" onSubmit={submit} noValidate>
+              <BookingField id="booking-create-property" label="Объект" error={errors.property_id}>
+                <Controller
+                  control={control}
+                  name="property_id"
+                  render={({ field }) => (
+                    <Select items={propertyItems} value={field.value || null} onValueChange={(next) => field.onChange(next ?? '')} disabled={propertiesPending}>
+                      <SelectTrigger id="booking-create-property" className="w-full" aria-invalid={!!errors.property_id || undefined}>
+                        <SelectValue placeholder={propertiesPending ? 'Загружаем объекты…' : 'Выберите объект'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {propertyItems.map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </BookingField>
 
-            <FormField
-              id={`${kind}-dates`}
-              label={isBooking ? 'Заезд и выезд' : 'Даты'}
-              hint={isBooking ? `Заезд с 14:00, выезд до 12:00 ${DEMO_TZ}` : 'Последний день включительно'}
-            >
-              <DateRangeInput
-                id={`${kind}-dates`}
-                value={dates}
-                onValueChange={setDates}
-                min="2026-10-08"
-                showNights={isBooking}
-                numberOfMonths={2}
+              {properties?.length === 0 && (
+                <p className="flex items-start gap-2 rounded-2xl bg-mist p-3 text-body-sm text-slate">
+                  <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
+                  <span>
+                    Активных объектов нет.{' '}
+                    <Link to={to.properties(orgId)} className="text-foreground underline">
+                      К объектам
+                    </Link>
+                  </span>
+                </p>
+              )}
+
+              {notConfigured && (
+                <p role="alert" className="flex items-start gap-2 rounded-2xl bg-mist p-3 text-body-sm text-slate">
+                  <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
+                  <span>
+                    У объекта не заполнены часовой пояс, вместимость или время заезда и выезда — без них бронь не создать.{' '}
+                    <Link to={to.property(String(property.id), 'info', orgId)} className="text-foreground underline">
+                      Заполнить сведения
+                    </Link>
+                  </span>
+                </p>
+              )}
+
+              <BookingFields
+                idPrefix="booking-create"
+                checkInTime={property?.check_in_time}
+                checkOutTime={property?.check_out_time}
+                timezone={property?.timezone}
+                capacity={property?.capacity}
               />
-            </FormField>
 
-            {overlaps && (
-              <p role="alert" className="bg-destructive/10 text-body-sm text-destructive flex items-start gap-2 rounded-2xl p-3">
-                <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
-                12–13 окт уже заняты бронью #1042 с Авито. Сохранение создаст конфликт.
-              </p>
-            )}
-
-            {isBooking ? (
-              <>
-                <div className="grid grid-cols-[1fr_96px] gap-3">
-                  <FormField id="booking-guest" label="Гость">
-                    <Input id="booking-guest" placeholder="Имя и фамилия" />
-                  </FormField>
-                  <FormField id="booking-guests" label="Гостей">
-                    <Input id="booking-guests" type="number" min={1} defaultValue={2} />
-                  </FormField>
-                </div>
-                <FormField id="booking-phone" label="Телефон" hint="Нужен для инструкций по заселению">
-                  <Input id="booking-phone" type="tel" />
-                </FormField>
-                <FormField id="booking-amount" label="Сумма, ₽" hint="Можно оставить пустой — в карточке будет «Нет данных», а не 0">
-                  <Input id="booking-amount" inputMode="numeric" placeholder="Не известна" />
-                </FormField>
-              </>
-            ) : (
-              <FormField id="block-reason" label="Причина" hint="Видна только команде">
-                <Select items={BLOCK_REASONS} defaultValue="repair">
-                  <SelectTrigger id="block-reason" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BLOCK_REASONS.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
-            )}
-
-            <FormField id={`${kind}-note`} label="Комментарий">
-              <Textarea id={`${kind}-note`} rows={3} placeholder={isBooking ? 'Договорённости с гостем' : 'Например, замена смесителя'} />
-            </FormField>
-          </form>
+              <BookingFormError error={createBooking.error} />
+            </form>
+          </FormProvider>
         </SheetBody>
 
-        <SheetFooter className="border-mist flex-row-reverse justify-start border-t">
-          <Button type="submit" form={`${kind}-form`} className="shadow-control">
-            {isBooking ? <CalendarPlusIcon /> : <BanIcon />}
-            {isBooking ? 'Создать бронь' : 'Закрыть даты'}
+        <SheetFooter className="flex-row-reverse justify-start border-t border-mist">
+          <Button type="submit" form="booking-create-form" className="shadow-control" disabled={createBooking.isPending || notConfigured}>
+            {createBooking.isPending ? <Spinner /> : <CalendarPlusIcon />} Создать бронь
           </Button>
-          <SheetClose render={<Button variant="ghost" />}>Отмена</SheetClose>
+          <SheetClose render={<Button type="button" variant="ghost" />}>Отмена</SheetClose>
         </SheetFooter>
       </SheetContent>
     </Sheet>

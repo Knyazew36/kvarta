@@ -29,7 +29,7 @@ const ROWS: Row[] = [
   { id: 'b-1050', number: '#1050', status: 'confirmed', propertyId: 'repino', guest: 'Глеб Соколов', guests: 5, dates: '24–28 окт', nights: 4, source: 'direct', amount: null },
 ]
 
-const rowHref = (row: Row) => (row.status === 'hold' ? to.request(row.id) : to.booking(row.id))
+const rowHref = (row: Row) => (row.status === 'hold' ? to.request(row.id) : to.mockBooking(row.id))
 
 // ── Вкладка ─────────────────────────────────────────────────────────────────
 
@@ -50,8 +50,6 @@ export const BookingsTab = ({ property, canSeeMoney }: { property: PropertyBrief
               В общем списке <ArrowUpRightIcon className="size-3.5" aria-hidden />
             </Link>
             <BookingFormSheet
-              kind="booking"
-              propertyId={property.id}
               trigger={
                 <Button size="sm" variant="outline" className="bg-canvas">
                   <CalendarPlusIcon /> Ручная бронь

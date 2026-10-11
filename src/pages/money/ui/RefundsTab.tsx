@@ -55,7 +55,7 @@ export const RefundsTab = () => {
           <li key={row.id} className="flex flex-col gap-3 border-t border-foreground/8 py-4 first:border-t-0 sm:flex-row sm:items-center sm:justify-between">
             <span className="flex min-w-0 flex-col gap-1">
               <span className="flex flex-wrap items-center gap-2">
-                <Link to={to.booking(row.bookingId, 'payments')} className="text-body-sm font-medium hover:underline">
+                <Link to={to.mockBooking(row.bookingId, 'payments')} className="text-body-sm font-medium hover:underline">
                   {row.guest} · {row.number}
                 </Link>
                 <SourceTag source={row.source} />

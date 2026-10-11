@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { CheckIcon, ImageIcon, LoaderIcon, RotateCwIcon, TriangleAlertIcon, UploadIcon } from 'lucide-react'
+import { CheckIcon, ImageIcon, LoaderIcon, RotateCwIcon, TriangleAlertIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
+import { FileDropzone } from '@/shared/ui/rb/FileDropzone'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 export type UploadFile = {
@@ -30,17 +31,13 @@ export const FileUploader = ({ files: initial, required, hint, readOnly, classNa
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       {!readOnly && (
-        <label className="flex cursor-pointer flex-col items-center gap-2 rounded-3xl border-[1.5px] border-dashed border-ash px-6 py-8 text-center transition-colors focus-within:border-foreground hover:border-foreground hover:bg-mist">
-          <input type="file" accept="image/*" multiple className="sr-only" />
-          <span className="flex size-12 items-center justify-center rounded-full bg-mist">
-            <UploadIcon className="size-5" aria-hidden />
-          </span>
-          <span className="text-body-sm font-medium">Добавить фото</span>
-          <span className="mono-label text-smoke">
-            {hint ?? 'JPG, PNG, HEIC'}
-            {required && ' · фото обязательно для сдачи'}
-          </span>
-        </label>
+        <FileDropzone
+          kind="images"
+          hint={[hint, required && 'фото обязательно для сдачи'].filter(Boolean).join(' · ') || undefined}
+          onFiles={(added) =>
+            setFiles((prev) => [...prev, ...added.map((file) => ({ id: crypto.randomUUID(), name: file.name, size: `${(file.size / 1024 / 1024).toFixed(1)} МБ`, state: 'uploaded' as const }))])
+          }
+        />
       )}
       {files.length > 0 && (
         <ul className="flex flex-col gap-1.5">

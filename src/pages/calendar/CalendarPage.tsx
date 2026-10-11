@@ -15,6 +15,7 @@ import { SyncRefresh, useSyncRefresh } from '@/shared/ui/rb/SyncRefresh'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/shadcn/animate-ui/components/animate/tabs'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/ui/shadcn/animate-ui/components/animate/tooltip'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { BlockFormSheet } from '@/widgets/booking-actions/BlockFormSheet'
 import { BookingFormSheet } from '@/widgets/booking-actions/BookingFormSheet'
 import { ConflictBanner } from '@/widgets/booking-actions/ConflictBanner'
 
@@ -262,7 +263,7 @@ const pct = (value: number, span: number) => `${(value / span) * 100}%`
 const weekday = (day: number) => (day - 1 + FIRST_WEEKDAY) % 7
 const isWeekend = (day: number) => weekday(day) >= 5
 
-const stayHref = (stay: Stay) => (stay.kind === 'hold' ? to.request(stay.id) : to.booking(stay.id))
+const stayHref = (stay: Stay) => (stay.kind === 'hold' ? to.request(stay.id) : to.mockBooking(stay.id))
 
 const propertyName = (id: string) => PROPERTIES.find((property) => property.id === id)?.name
 const stayNumber = (stay: Stay) => `#${stay.id.replace(/^\D+-/, '')}`
@@ -867,15 +868,13 @@ const CalendarPage = () => {
         {!isEmployee && state !== 'denied' && (
           <div className="flex flex-wrap gap-2">
             <BookingFormSheet
-              kind="booking"
               trigger={
                 <Button className="shadow-control">
                   <CalendarPlusIcon /> Ручная бронь
                 </Button>
               }
             />
-            <BookingFormSheet
-              kind="block"
+            <BlockFormSheet
               trigger={
                 <Button variant="outline" className="bg-canvas shadow-control">
                   <BanIcon /> Закрыть даты

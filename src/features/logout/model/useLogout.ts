@@ -8,7 +8,8 @@ import { clearAccessToken } from '@/shared/api/model/access-token'
 import { ROUTES } from '@/shared/config/paths'
 
 // Весь выход в одном месте: запрос, токен, кэш, редирект. Кнопкам «Выйти» достаточно вызвать logout()
-export const useLogout = () => {
+// from — куда вернуть после входа с другой учётной записью (страница приглашения)
+export const useLogout = ({ from }: { from?: string } = {}) => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
@@ -22,12 +23,14 @@ export const useLogout = () => {
         throw error
       }
     },
+    // Тоста об успехе нет: результат выхода — сам переход на экран входа
+    meta: { skipSuccessToast: true },
     onSuccess: () => {
       clearAccessToken()
       queryClient.setQueryData(authKeys.me(), null)
       // Данные прошлого пользователя не должны достаться следующему в этой же вкладке
       queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== authKeys.all[0] })
-      navigate(ROUTES.LOGIN, { replace: true })
+      navigate(ROUTES.LOGIN, { replace: true, state: from ? { from } : undefined })
     },
   })
 

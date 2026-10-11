@@ -18,9 +18,9 @@ type Attention = { id: string; title: string; subtitle: string; href: string; la
 
 // Порядок — по срочности: первым идёт то, что сгорит раньше
 const ATTENTION: Attention[] = [
-  { id: 'a2', title: 'Пересечение дат 12–14 окт', subtitle: 'Студия на Лиговском · Авито и Суточно', href: to.booking('b-1045'), label: 'Конфликт', danger: true },
+  { id: 'a2', title: 'Пересечение дат 12–14 окт', subtitle: 'Студия на Лиговском · Авито и Суточно', href: to.mockBooking('b-1045'), label: 'Конфликт', danger: true },
   { id: 'a4', title: 'Заменить смеситель на кухне', subtitle: 'Апартаменты на Мойке · срок был вчера', person: 'Олег Ким', href: to.task('t-303'), label: 'Просрочено', danger: true },
-  { id: 'a3', title: 'Окно подготовки 3 часа', subtitle: 'Лофт у Невы · уборка ещё не начата', href: to.booking('b-1044', 'prep'), label: 'Мало времени' },
+  { id: 'a3', title: 'Окно подготовки 3 часа', subtitle: 'Лофт у Невы · уборка ещё не начата', href: to.mockBooking('b-1044', 'prep'), label: 'Мало времени' },
   { id: 'a1', title: 'Гость сообщил о переводе 14 000 ₽', subtitle: 'Дом в Репино · удержание до 18:00', href: to.request('r-201'), label: 'Проверить', money: true },
 ]
 
@@ -166,7 +166,7 @@ const AttentionBlock = ({ items }: { items: Attention[] }) => (
 
 const MovementRow = ({ item, singleObject, canSeeMoney }: { item: Movement; singleObject: boolean; canSeeMoney: boolean }) => (
   <li>
-    <Link to={to.booking(item.id)} className="-mx-3 flex gap-4 rounded-2xl p-3 outline-none transition-colors hover:bg-background/70 focus-visible:bg-background/70 md:gap-6">
+    <Link to={to.mockBooking(item.id)} className="-mx-3 flex gap-4 rounded-2xl p-3 outline-none transition-colors hover:bg-background/70 focus-visible:bg-background/70 md:gap-6">
       <span className="flex w-14 shrink-0 flex-col">
         <span className="text-subheading-lg font-medium">{item.time}</span>
         <span className="text-caption text-smoke">{item.kind === 'in' ? 'заезд' : 'выезд'}</span>
@@ -362,7 +362,6 @@ const TodayPage = () => {
           <>
             {createTask}
             <BookingFormSheet
-              kind="booking"
               trigger={
                 <Button variant="outline" className="bg-canvas shadow-control">
                   <CalendarPlusIcon /> Ручная бронь

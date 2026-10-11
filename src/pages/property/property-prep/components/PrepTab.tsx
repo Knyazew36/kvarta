@@ -130,7 +130,7 @@ const ArrivalCard = ({ arrival }: { arrival: Arrival }) => {
       </div>
 
       <div className="flex min-w-0 flex-col gap-5">
-        <Link to={arrival.bookingId.startsWith('r-') ? to.request(arrival.bookingId) : to.booking(arrival.bookingId, 'prep')} className="self-start text-body font-medium hover:underline">
+        <Link to={arrival.bookingId.startsWith('r-') ? to.request(arrival.bookingId) : to.mockBooking(arrival.bookingId, 'prep')} className="self-start text-body font-medium hover:underline">
           {arrival.guest}
         </Link>
 

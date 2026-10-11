@@ -18,27 +18,27 @@ const SIZE: Record<NonNullable<PersonAvatarProps['size']>, string> = {
   xl: 'size-20 text-heading-sm',
 }
 
-export const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('')
+// Силуэт рисуется цветом текста подложки, поэтому подходит всем тонам и обеим темам
+const DefaultAvatar = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="size-full opacity-40" aria-hidden>
+    <circle cx="12" cy="9.5" r="4" />
+    <path d="M4 22c0-4.4 3.6-7 8-7s8 2.6 8 7z" />
+  </svg>
+)
 
-// Без фото — инициалы на монохромной подложке: цветом людей не различаем, акцент только у «я»
+// Без фото — один силуэт по умолчанию на монохромной подложке: цветом людей не различаем, акцент только у «я»
 export const PersonAvatar = ({ name, src, size = 'default', tone = 'default', className }: PersonAvatarProps) => (
-  <Avatar className={cn(SIZE[size], className)}>
+  <Avatar className={cn(SIZE[size], className)} title={name}>
     {src && <AvatarImage src={src} alt={name} />}
     <AvatarFallback
       className={cn(
-        'font-medium tracking-tight',
+        'overflow-hidden',
         tone === 'default' && 'bg-mist text-foreground',
         tone === 'inverse' && 'bg-background/15 text-background',
         tone === 'accent' && 'bg-success text-foreground',
       )}
     >
-      {initials(name)}
+      <DefaultAvatar />
     </AvatarFallback>
   </Avatar>
 )
