@@ -33,7 +33,7 @@ const FORM_MUTATION_META = { inlineFieldErrors: true }
 export const useRequestLoginCode = () =>
   useMutation({
     mutationFn: (body: RequestLoginCodeBody) => requestLoginCode(body),
-    meta: FORM_MUTATION_META,
+    meta: { ...FORM_MUTATION_META, successMessage: 'Код отправлен' },
   })
 
 export const useLogin = () => {

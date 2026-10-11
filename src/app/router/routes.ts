@@ -20,9 +20,22 @@ import OnboardingPage from '@/pages/onboarding/OnboardingPage'
 import OtpPage from '@/pages/otp/OtpPage'
 import OrgCreatePage from '@/pages/org-create/OrgCreatePage'
 import PagesIndexPage from '@/pages/pages-index/PagesIndexPage'
-import ProfilePage from '@/pages/profile/ProfilePage'
+import LayoutProfile from '@/pages/profile/LayoutProfile'
+import ProfileAboutPage from '@/pages/profile/profile-about/ProfileAboutPage'
+import ProfileNotificationsPage from '@/pages/profile/profile-notifications/ProfileNotificationsPage'
+import ProfileSecurityPage from '@/pages/profile/profile-security/ProfileSecurityPage'
+import ProfileWorkspacesPage from '@/pages/profile/profile-workspaces/ProfileWorkspacesPage'
 import PropertiesPage from '@/pages/properties/PropertiesPage'
-import PropertyPage from '@/pages/property/PropertyPage'
+import LayoutProperty from '@/pages/property/LayoutProperty'
+import PropertyBookingsPage from '@/pages/property/property-bookings/PropertyBookingsPage'
+import PropertyCalendarPage from '@/pages/property/property-calendar/PropertyCalendarPage'
+import PropertyDirectPage from '@/pages/property/property-direct/PropertyDirectPage'
+import PropertyHistoryPage from '@/pages/property/property-history/PropertyHistoryPage'
+import PropertyInfoPage from '@/pages/property/property-info/PropertyInfoPage'
+import PropertyInstructionsPage from '@/pages/property/property-instructions/PropertyInstructionsPage'
+import PropertyListingsPage from '@/pages/property/property-listings/PropertyListingsPage'
+import PropertyPrepPage from '@/pages/property/property-prep/PropertyPrepPage'
+import PropertyTasksPage from '@/pages/property/property-tasks/PropertyTasksPage'
 import RegisterPage from '@/pages/register/RegisterPage'
 import RequestPage from '@/pages/request/RequestPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
@@ -43,7 +56,8 @@ import UxMapPage from '@/pages/ux-map/UxMapPage'
 import WorkspacesPage from '@/pages/workspaces/WorkspacesPage'
 
 // Страницы подключаются сразу, без lazy: макеты лёгкие, а переходы между ними должны быть мгновенными
-export type AppRoute = { path: string; Component: ComponentType }
+// children — вложенные страницы внутри своего лейаута; index — страница по адресу самого лейаута
+export type AppRoute = { path?: string; index?: boolean; Component: ComponentType; children?: AppRoute[] }
 
 // ════════════════════════════════════════════════════════════════════════════
 // ГОТОВО: страницы на настоящей логике (запросы к API)
@@ -72,6 +86,32 @@ export const orgRoutes: AppRoute[] = [
   { path: ROUTES.ONBOARDING, Component: OnboardingPage },
 ]
 
+// ── После входа, в своей организации, внутри оболочки AppShell (/app/:orgId/*) ─
+export const appRoutes: AppRoute[] = [
+  // Лента на API; кнопка «Прочитать всё» ждёт ручку на бэке (обведена красным)
+  { path: ROUTES.NOTIFICATIONS, Component: NotificationsPage },
+  // Список и создание — на API. Заезды, площадки, публичность и ответственный в карточках пока моки (обведены красным)
+  { path: ROUTES.PROPERTIES, Component: PropertiesPage },
+  // Объект: LayoutProperty грузит объект, держит шапку и вкладки, вкладки — отдельные страницы.
+  // На API шапка (кроме обведённого красным), «Сведения», архив и восстановление; остальные вкладки — моки
+  {
+    path: ROUTES.PROPERTY,
+    Component: LayoutProperty,
+    children: [
+      { index: true, Component: PropertyInfoPage },
+      { path: 'info', Component: PropertyInfoPage },
+      { path: 'calendar', Component: PropertyCalendarPage },
+      { path: 'bookings', Component: PropertyBookingsPage },
+      { path: 'listings', Component: PropertyListingsPage },
+      { path: 'tasks', Component: PropertyTasksPage },
+      { path: 'prep', Component: PropertyPrepPage },
+      { path: 'instructions', Component: PropertyInstructionsPage },
+      { path: 'direct', Component: PropertyDirectPage },
+      { path: 'history', Component: PropertyHistoryPage },
+    ],
+  },
+]
+
 // ════════════════════════════════════════════════════════════════════════════
 // НЕ ОБРАБОТАНО: статичные макеты на моках. Доступ уже разведён по гардам,
 // но данных API на страницах нет. Перевели страницу на запросы — переносим её наверх
@@ -88,17 +128,25 @@ export const mockAppRoutes: AppRoute[] = [
   { path: ROUTES.TASK, Component: TaskPage },
   { path: ROUTES.TASK_SERIES, Component: TaskSeriesPage },
   { path: ROUTES.TASK_SERIES_ITEM, Component: TaskSeriesItemPage },
-  { path: ROUTES.PROPERTIES, Component: PropertiesPage },
-  { path: ROUTES.PROPERTY, Component: PropertyPage },
   { path: ROUTES.MONEY, Component: MoneyPage },
-  { path: ROUTES.NOTIFICATIONS, Component: NotificationsPage },
   { path: ROUTES.SETTINGS, Component: SettingsPage },
   { path: ROUTES.HELP, Component: HelpPage },
   { path: ROUTES.SPECIALISTS, Component: SpecialistsPage },
   { path: ROUTES.SPECIALIST, Component: SpecialistPage },
   { path: ROUTES.SPECIALIST_FAVORITES, Component: SpecialistFavoritesPage },
   { path: ROUTES.SPECIALIST_REQUESTS, Component: SpecialistRequestsPage },
-  { path: ROUTES.PROFILE, Component: ProfilePage },
+  // Профиль: LayoutProfile держит шапку и вкладки, вкладки — отдельные страницы
+  {
+    path: ROUTES.PROFILE,
+    Component: LayoutProfile,
+    children: [
+      { index: true, Component: ProfileAboutPage },
+      { path: 'about', Component: ProfileAboutPage },
+      { path: 'security', Component: ProfileSecurityPage },
+      { path: 'notifications', Component: ProfileNotificationsPage },
+      { path: 'workspaces', Component: ProfileWorkspacesPage },
+    ],
+  },
 ]
 
 // ── После входа, вне организации ────────────────────────────────────────────

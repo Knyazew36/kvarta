@@ -16,10 +16,15 @@ type ApiMeta = {
   errorMessage?: string
 }
 
+type ApiMutationMeta = ApiMeta & {
+  /** Текст тоста об успехе. Ставим каждой мутации, которая что-то создаёт, меняет или удаляет */
+  successMessage?: string
+}
+
 declare module '@tanstack/react-query' {
   interface Register {
     queryMeta: ApiMeta
-    mutationMeta: ApiMeta
+    mutationMeta: ApiMutationMeta
   }
 }
 
@@ -49,6 +54,13 @@ const showErrorToast = (error: unknown, meta: ApiMeta | undefined) => {
   })
 }
 
+// Единая точка показа успеха: хуки не пишут свой onSuccess ради тоста, только meta.successMessage
+const showSuccessToast = (meta: ApiMutationMeta | undefined) => {
+  if (!meta?.successMessage) return
+
+  toast.add({ type: 'success', title: meta.successMessage })
+}
+
 export const queryClient = new QueryClient({
   // Кэши вызывают onError один раз на запрос — после всех повторов, а не на каждого подписчика
   queryCache: new QueryCache({
@@ -56,6 +68,7 @@ export const queryClient = new QueryClient({
   }),
   mutationCache: new MutationCache({
     onError: (error, _variables, _context, mutation) => showErrorToast(error, mutation.meta),
+    onSuccess: (_data, _variables, _context, mutation) => showSuccessToast(mutation.meta),
   }),
   defaultOptions: {
     queries: {

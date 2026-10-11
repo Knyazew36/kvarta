@@ -14,10 +14,10 @@ export const AppFooter = ({ className }: { className?: string }) => {
       )}
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-        <span className="flex items-center gap-1.5 text-foreground">
+        {/* <span className="flex items-center gap-1.5 text-foreground">
           <span className="size-1.5 rounded-full bg-foreground" aria-hidden />
           Rentybot
-        </span>
+        </span> */}
         {/* <span>Макет · итерация 1</span> */}
       </div>
       <nav aria-label="Служебные ссылки" className="flex flex-wrap items-center gap-x-4 gap-y-1">

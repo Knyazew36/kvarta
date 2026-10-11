@@ -154,6 +154,12 @@ export const OPERATION_STATUS: Record<OperationStatus, StatusMeta> = {
   archived: { tone: 'neutral', icon: ArchiveIcon, label: 'В архиве' },
 }
 
+// Статус объекта из бэка (Property.status): активен, пока не в архиве. Сдаётся ли он на деле, бэк не знает
+export const PROPERTY_STATUS: Record<'active' | 'archived', StatusMeta> = {
+  active: { tone: 'inverse', icon: CircleCheckIcon, label: 'Активен' },
+  archived: { tone: 'neutral', icon: ArchiveIcon, label: 'В архиве' },
+}
+
 // ── Канал MAX пользователя ──────────────────────────────────────────────────
 
 // Связь подтверждена ≠ сообщения доходят (NTF-10): сбой доставки показываем отдельным статусом

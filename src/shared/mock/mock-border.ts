@@ -1,3 +1,3 @@
 // Красная рамка на всём, что ещё работает на моках: такие блоки должны бросаться в глаза на экране.
 // Снимается вместе с переводом блока на данные API; поиск по MOCK_BORDER показывает, что осталось
-export const MOCK_BORDER = 'border-2 border-red-500'
+export const MOCK_BORDER = 'border-2 border-red-500 border-dashed'

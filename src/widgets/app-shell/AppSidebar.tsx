@@ -16,7 +16,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/shared/ui/shadcn/animate-ui/components/radix/sidebar'
-import { NAV_DEV, NAV_HELP, navFor, type NavItem } from './nav'
+import { NAV_ACCOUNT, NAV_DEV, NAV_HELP, navFor, type NavItem } from './nav'
 
 // Организация у пользователя одна — переключатель отключён до появления нескольких
 // // Макетные организации: заменятся списком рабочих областей из API
@@ -92,6 +92,7 @@ export const AppSidebar = () => {
   const { orgId = DEMO_ORG_ID } = useParams()
   const { role } = useDemoState()
   const nav = navFor(role)
+  const personal = [nav.settingsEntry, NAV_ACCOUNT.roles.includes(role) ? NAV_ACCOUNT : null].filter((item) => item !== null)
 
   return (
     <Sidebar
@@ -114,10 +115,10 @@ export const AppSidebar = () => {
             <NavLinks items={nav.main} orgId={orgId} />
           </SidebarGroupContent>
         </SidebarGroup>
-        {nav.settingsEntry && (
+        {personal.length > 0 && (
           <SidebarGroup>
             <SidebarGroupContent>
-              <NavLinks items={[nav.settingsEntry]} orgId={orgId} />
+              <NavLinks items={personal} orgId={orgId} />
             </SidebarGroupContent>
           </SidebarGroup>
         )}

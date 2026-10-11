@@ -8,6 +8,7 @@ import OrganizationRedirect from './guards/OrganizationRedirect'
 import OrganizationRoute from './guards/OrganizationRoute'
 import PrivateRoute from './guards/PrivateRoute'
 import {
+  appRoutes,
   guestRoutes,
   mockAppRoutes,
   mockPrivateRoutes,
@@ -18,7 +19,8 @@ import {
   type AppRoute,
 } from './routes'
 
-const toRouteObject = ({ path, Component }: AppRoute): RouteObject => ({ path, Component })
+const toRouteObject = ({ path, index, Component, children }: AppRoute): RouteObject =>
+  index ? { index: true, Component } : { path, Component, children: children?.map(toRouteObject) }
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +40,7 @@ export const router = createBrowserRouter([
                 Component: AppShell,
                 children: [
                   { index: true, loader: ({ params }) => redirect(`/app/${params.orgId}/today`) },
+                  ...appRoutes.map(toRouteObject),
                   ...mockAppRoutes.map(toRouteObject),
                 ],
               },

@@ -1,22 +1,33 @@
 import { BellIcon } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
-import { DEMO_ORG_ID, to } from '@/shared/config/paths'
+import { Link } from 'react-router'
+import {
+  getNotificationHref,
+  getNotificationText,
+  NOTIFICATION_KIND_META,
+  useNotifications,
+  useReadNotification,
+  useUnreadNotificationsCount,
+} from '@/entities/notification'
+import { useCurrentOrganization } from '@/entities/organization'
+import { to } from '@/shared/config/paths'
+import { formatTime } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
-import { useDemoState } from '@/shared/mock/state'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/shadcn/popover'
-import { DELIVERY, noticesFor, useNoticesRead } from './notices'
 
 // В колокольчике — только свежие события, остальное на странице уведомлений
 const PREVIEW = 4
 
+// Работает только под OrganizationRoute: лента у каждой организации своя
 export const NotificationsPopover = () => {
-  const { orgId = DEMO_ORG_ID } = useParams()
+  const { organization } = useCurrentOrganization()
+  const orgId = String(organization.id)
   const [open, setOpen] = useState(false)
-  const { isEmployee } = useDemoState()
-  const { read, markRead } = useNoticesRead()
-  const own = noticesFor(isEmployee)
-  const unread = own.filter((notice) => !read[notice.id]).length
+  const { data: unread = 0 } = useUnreadNotificationsCount(organization.id)
+  // Тот же кэш, что у страницы уведомлений: прочитанное в одном месте сразу прочитано в другом
+  const { data } = useNotifications(organization.id)
+  const readNotification = useReadNotification(organization.id)
+  const preview = data?.pages[0]?.data.slice(0, PREVIEW) ?? []
   const close = () => setOpen(false)
 
   return (
@@ -27,8 +38,8 @@ export const NotificationsPopover = () => {
       >
         <BellIcon className="size-5" aria-hidden />
         {unread > 0 && (
-          <span className="mono-label absolute -top-0.5 -right-0.5 flex size-5 items-center justify-center rounded-full bg-attention text-background">
-            {unread}
+          <span className="mono-label absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-attention px-1 text-background">
+            {unread > 99 ? '99+' : unread}
           </span>
         )}
       </PopoverTrigger>
@@ -39,39 +50,39 @@ export const NotificationsPopover = () => {
             Все
           </Link>
         </div>
-        <ul className="flex flex-col">
-          {own.slice(0, PREVIEW).map((notice) => (
-            <li key={notice.id}>
-              <Link
-                to={notice.href(orgId)}
-                onClick={() => {
-                  markRead(notice.id)
-                  close()
-                }}
-                className="flex gap-3 rounded-3xl p-3 outline-none transition-colors hover:bg-mist focus-visible:bg-mist"
-              >
-                <span
-                  className={cn(
-                    'flex size-9 shrink-0 items-center justify-center rounded-full',
-                    !read[notice.id] ? 'bg-foreground text-background' : 'bg-mist',
-                  )}
-                >
-                  <notice.icon className="size-4" aria-hidden />
-                </span>
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="flex items-baseline justify-between gap-2">
-                    <span className={cn('truncate text-body-sm', read[notice.id] ? 'text-slate' : 'font-medium')}>{notice.title}</span>
-                    <span className="mono-label shrink-0 text-smoke">{notice.at}</span>
-                  </span>
-                  <span className="truncate text-body-sm text-slate">{notice.text}</span>
-                  <span className={cn('mono-label', DELIVERY[notice.max].className)}>
-                    {DELIVERY[notice.max].label}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {preview.length === 0 ? (
+          <p className="px-3 pb-3 text-body-sm text-slate">Событий пока нет</p>
+        ) : (
+          <ul className="flex flex-col">
+            {preview.map((notification) => {
+              const { title, icon: Icon } = NOTIFICATION_KIND_META[notification.kind]
+              const read = notification.read_at !== null
+              return (
+                <li key={notification.id}>
+                  <Link
+                    to={getNotificationHref(notification, orgId)}
+                    onClick={() => {
+                      if (!read) readNotification.mutate({ id: notification.id, version: notification.version })
+                      close()
+                    }}
+                    className="flex gap-3 rounded-3xl p-3 outline-none transition-colors hover:bg-mist focus-visible:bg-mist"
+                  >
+                    <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-full', read ? 'bg-mist' : 'bg-foreground text-background')}>
+                      <Icon className="size-4" aria-hidden />
+                    </span>
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="flex items-baseline justify-between gap-2">
+                        <span className={cn('truncate text-body-sm', read ? 'text-slate' : 'font-medium')}>{title}</span>
+                        {notification.published_at && <span className="mono-label shrink-0 text-smoke">{formatTime(notification.published_at)}</span>}
+                      </span>
+                      <span className="truncate text-body-sm text-slate">{getNotificationText(notification)}</span>
+                    </span>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </PopoverContent>
     </Popover>
   )

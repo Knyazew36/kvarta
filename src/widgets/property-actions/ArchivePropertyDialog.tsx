@@ -1,54 +1,69 @@
-import { ArchiveIcon, CalendarX2Icon, ClipboardListIcon, EyeOffIcon, LinkIcon } from 'lucide-react'
+import { errorCatch } from '@front-cmdt/utils/error-catch'
+import { isAxiosError } from 'axios'
+import { ArchiveIcon, CalendarX2Icon, HistoryIcon, UsersIcon } from 'lucide-react'
+import { useState } from 'react'
+import { useArchiveProperty } from '@/entities/property'
 import { type Consequence, ConsequencesPreview } from '@/shared/ui/rb/ConsequencesPreview'
+import { ErrorText } from '@/shared/ui/rb/ErrorText'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/shadcn/dialog'
+import { Spinner } from '@/shared/ui/shadcn/spinner'
 
-// ── Макетные последствия ────────────────────────────────────────────────────
-
-const UNPUBLISH: Consequence[] = [
-  { icon: EyeOffIcon, area: 'Страница владельца', text: 'Объект пропадёт из подборки, новые заявки на него не принимаются.' },
-  { icon: CalendarX2Icon, area: 'Действующие записи', text: 'Бронь #1044 и заявка 201 остаются в силе, гости ничего не заметят.' },
+// Что бэк делает при архиве (PropertyController::setArchived) — правила, а не данные объекта
+const CONSEQUENCES: Consequence[] = [
+  {
+    icon: CalendarX2Icon,
+    area: 'Текущие и будущие брони',
+    text: 'Пока по объекту есть подтверждённые брони, которые ещё не закончились, архив недоступен. Сами они не отменяются.',
+    severity: 'warn',
+  },
+  { icon: HistoryIcon, area: 'История', text: 'Прошедшие и отменённые брони, блокировки дат и сведения объекта сохраняются.' },
+  { icon: UsersIcon, area: 'Команда', text: 'Назначения участников остаются: после восстановления объект снова доступен тем же людям.' },
 ]
 
-const ARCHIVE: Consequence[] = [
-  { icon: CalendarX2Icon, area: 'Будущие брони', text: '2 подтверждённые брони (8–11 окт, 20–23 окт) — архив станет доступен после их завершения.', severity: 'warn' },
-  { icon: LinkIcon, area: 'Площадки', text: 'Связь с объявлениями Авито и Суточно будет разорвана, сами объявления не удаляются.' },
-  { icon: ClipboardListIcon, area: 'Задачи и серии', text: '3 запланированные задачи отменятся, серия «Уборка после выезда» перестанет создавать задачи для объекта.' },
-  { icon: EyeOffIcon, area: 'Прямое бронирование', text: 'Публикация снимется, страница объекта станет недоступна гостям.' },
-]
+// Конфликт архива бэк отдаёт по-английски — причину объясняем сами, остальное показываем как пришло
+const getArchiveError = (error: unknown) =>
+  isAxiosError(error) && error.response?.status === 409
+    ? 'По объекту есть текущие или будущие подтверждённые брони. Завершите, перенесите или отмените их — после этого объект можно архивировать.'
+    : String(errorCatch(error, { mode: 'all', joinSeparator: ', ' }) ?? '') || 'Не удалось архивировать объект. Попробуйте ещё раз'
 
-type Mode = 'unpublish' | 'archive'
+type ArchivePropertyDialogProps = {
+  trigger: React.ReactElement
+  organizationId: number
+  property: { id: number; name: string }
+}
 
-// Снятие публикации и архив — разные действия (§4.5): первое не трогает записи, второе ждёт их завершения
-export const ArchivePropertyDialog = ({ trigger, mode, property }: { trigger: React.ReactElement; mode: Mode; property: string }) => {
-  const isArchive = mode === 'archive'
+// Архивирует только владелец. Объект пропадает из списка активных, править его нельзя до восстановления
+export const ArchivePropertyDialog = ({ trigger, organizationId, property }: ArchivePropertyDialogProps) => {
+  const [open, setOpen] = useState(false)
+  const archiveProperty = useArchiveProperty(organizationId, property.id)
+
   return (
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next)
+        // Ошибка прошлой попытки не должна встречать при следующем открытии
+        if (!next) archiveProperty.reset()
+      }}
+    >
       <DialogTrigger render={trigger} />
       <DialogContent className="sm:max-w-lg">
         <DialogHeader className="gap-2">
-          <span className="mono-label text-smoke">Объект · {property}</span>
-          <DialogTitle className="section-heading text-heading-sm">{isArchive ? 'Архивировать объект?' : 'Снять с публикации?'}</DialogTitle>
+          <span className="mono-label text-smoke">Объект · {property.name}</span>
+          <DialogTitle className="section-heading text-heading-sm">Архивировать объект?</DialogTitle>
           <DialogDescription className="text-body-sm text-slate">
-            {isArchive
-              ? 'Архивный объект не участвует в календаре, задачах и обмене. История и отчёты сохраняются.'
-              : 'Объект продолжит работать в кабинете и на площадках, исчезнет только со страницы прямого бронирования.'}
+            Архивный объект нельзя редактировать, новые брони и блокировки на него не создаются. Вернуть его можно в любой момент.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
-          <ConsequencesPreview items={isArchive ? ARCHIVE : UNPUBLISH} />
+          <ConsequencesPreview items={CONSEQUENCES} />
+          {archiveProperty.isError && <ErrorText>{getArchiveError(archiveProperty.error)}</ErrorText>}
         </DialogBody>
         <DialogFooter className="gap-2">
           <DialogClose render={<Button variant="ghost" />}>Оставить как есть</DialogClose>
-          {/* Архив с будущими бронями недоступен: сначала их нужно завершить или перенести */}
-          <Button variant="destructive" disabled={isArchive}>
-            {isArchive ? (
-              <>
-                <ArchiveIcon /> Архивировать
-              </>
-            ) : (
-              'Снять с публикации'
-            )}
+          <Button variant="destructive" disabled={archiveProperty.isPending} onClick={() => archiveProperty.mutate(undefined, { onSuccess: () => setOpen(false) })}>
+            {archiveProperty.isPending ? <Spinner /> : <ArchiveIcon />} Архивировать
           </Button>
         </DialogFooter>
       </DialogContent>

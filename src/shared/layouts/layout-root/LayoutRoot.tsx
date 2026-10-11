@@ -14,6 +14,10 @@ const PAGES_WITHOUT_DEMO_TOOLS: string[] = [
   ROUTES.WORKSPACES,
   ROUTES.ORG_NEW,
   ROUTES.ONBOARDING,
+  ROUTES.NOTIFICATIONS,
+  ROUTES.PROPERTIES,
+  // Со всеми вкладками объекта
+  `${ROUTES.PROPERTY}/*`,
 ]
 
 const LayoutRoot = () => {

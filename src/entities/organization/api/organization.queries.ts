@@ -1,7 +1,7 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useParams } from 'react-router'
 
-import { createOrganization, getOrganization, listOrganizations } from '@/shared/api/generated'
+import { createOrganization, getOrganization, listOrganizations, renameOrganization } from '@/shared/api/generated'
 import { queryClient } from '@/shared/api/query-client'
 import type { OrganizationNameBody } from '@/shared/api/generated/models'
 
@@ -51,7 +51,19 @@ export const useCreateOrganization = () => {
   return useMutation({
     mutationFn: (body: OrganizationNameBody) => createOrganization(body),
     // Форма показывает ошибку названия под инпутом, поэтому тост для 422 не нужен
-    meta: { inlineFieldErrors: true },
+    meta: { inlineFieldErrors: true, successMessage: 'Организация создана' },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: organizationKeys.all }),
+  })
+}
+
+// Только owner (остальным бэк отвечает 403). Меняется одно название; роли и членства остаются как были
+export const useRenameOrganization = (organizationId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (body: OrganizationNameBody) => renameOrganization(organizationId, body),
+    meta: { inlineFieldErrors: true, successMessage: 'Название организации изменено' },
+    // Название показывают и список, и шапка профиля, и меню — обновляем всё разом
     onSuccess: () => queryClient.invalidateQueries({ queryKey: organizationKeys.all }),
   })
 }

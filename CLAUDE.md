@@ -20,6 +20,7 @@
 
 - orval генерирует только функции и типы (`src/shared/api/generated`). Хуки и ключи react-query пишем руками в `src/entities/<entity>`.
 - Настройки query едины — `src/shared/api/query-client.ts`. Ошибки запросов и мутаций показывает общий тост оттуда; свой `onError` ради тоста в хуках не пишем.
+- Успех мутации (создание, изменение, удаление) тоже показывает общий тост: мутации ставим `meta: { successMessage: '…' }`. Свой `onSuccess` ради тоста не пишем.
 - Ошибки полей формы (422 с `errors`) показываем под инпутом: мутации ставим `meta: { inlineFieldErrors: true }`, тогда тост для них не дублируется.
 - Текст ошибки достаём через `errorCatch` из `@front-cmdt/utils/error-catch`.
 - CSRF живёт в интерцепторах `$api` (`src/shared/api/model/csrf.ts`), в хуках про него думать не нужно.

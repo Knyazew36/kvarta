@@ -16,7 +16,7 @@ const TopbarPropertyFilter = () => {
 }
 
 export const Topbar = () => {
-  // Шапку рисует и витрина /ui — там организации в адресе нет, и фильтру не из чего грузиться
+  // Шапку рисует и витрина /ui — там организации в адресе нет, и фильтру с колокольчиком не из чего грузиться
   const { orgId } = useParams()
 
   return (
@@ -28,7 +28,7 @@ export const Topbar = () => {
       </Link>
       {orgId && <TopbarPropertyFilter />}
       <div className="ml-auto flex items-center gap-2">
-        <NotificationsPopover />
+        {orgId && <NotificationsPopover />}
         <UserDropdown className="bg-card" />
       </div>
     </header>

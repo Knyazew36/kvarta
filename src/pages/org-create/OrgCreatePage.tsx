@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeftIcon, ArrowRightIcon, LogOutIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 
 import { type OrganizationValues, organizationSchema, useCreateOrganization, useOrganizations } from '@/entities/organization'
 import { useLogout } from '@/features/logout'
@@ -23,6 +23,8 @@ const OrgCreatePage = () => {
   const { logout, isPending: isLoggingOut } = useLogout()
   // Без организаций возвращаться некуда: кабинета ещё нет, поэтому отмена — это выход из аккаунта
   const hasOrganizations = !!organizations?.data.length
+  // Откуда пришли (например, из профиля) — туда и возвращает отмена
+  const from = (useLocation().state as { from?: string } | null)?.from
   const {
     register,
     handleSubmit,
@@ -87,9 +89,9 @@ const OrgCreatePage = () => {
               </Button>
 
               {hasOrganizations ? (
-                // Корень сам решает, куда вернуть: в единственный кабинет или к списку организаций
+                // Без from корень сам решает, куда вернуть: в единственный кабинет или к списку организаций
                 <Link
-                  to={ROUTES.HOME}
+                  to={from ?? ROUTES.HOME}
                   className="text-caption text-smoke hover:text-foreground mx-auto inline-flex w-fit items-center gap-1.5 transition-colors"
                 >
                   <ArrowLeftIcon className="size-3.5" aria-hidden /> Отменить и вернуться

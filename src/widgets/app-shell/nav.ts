@@ -90,6 +90,10 @@ export const NAV_DEV: NavItem[] = [
   { key: 'dev-specialist', label: 'Кабинет специалиста', icon: ContactIcon, href: () => to.specialistProfile(), roles: ALL },
 ]
 
+// Личный профиль — не раздел организации, поэтому стоит рядом с настройками, а не в рабочих разделах.
+// У сотрудника он уже есть в основной навигации («Профиль и помощь»)
+export const NAV_ACCOUNT: NavItem = { key: 'account', label: 'Аккаунт', icon: CircleUserIcon, href: (o) => to.profile(undefined, o), roles: TEAM }
+
 export const NAV_HELP: NavItem = { key: 'help', label: 'Помощь', icon: LifeBuoyIcon, href: to.help, roles: ALL }
 
 export const navFor = (role: DemoRole) => {

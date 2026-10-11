@@ -24,7 +24,7 @@ export const ROUTES = {
   TASK_SERIES: '/app/:orgId/task-series',
   TASK_SERIES_ITEM: '/app/:orgId/task-series/:seriesId',
   PROPERTIES: '/app/:orgId/properties',
-  PROPERTY: '/app/:orgId/properties/:propertyId/:tab?',
+  PROPERTY: '/app/:orgId/properties/:propertyId',
   MONEY: '/app/:orgId/money/:tab?',
   NOTIFICATIONS: '/app/:orgId/notifications',
   SETTINGS: '/app/:orgId/settings/:section?',
@@ -33,7 +33,7 @@ export const ROUTES = {
   SPECIALIST: '/app/:orgId/specialists/:specialistId',
   SPECIALIST_FAVORITES: '/app/:orgId/specialist-favorites',
   SPECIALIST_REQUESTS: '/app/:orgId/specialist-requests',
-  PROFILE: '/app/:orgId/profile/:tab?',
+  PROFILE: '/app/:orgId/profile',
 
   HOST: '/host/:ownerSlug',
   HOST_PROPERTY: '/host/:ownerSlug/properties/:propertySlug',

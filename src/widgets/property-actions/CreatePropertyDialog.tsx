@@ -1,43 +1,106 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { HouseIcon } from 'lucide-react'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router'
+import { useCurrentOrganization } from '@/entities/organization'
+import { type PropertyValues, propertySchema, useCreateProperty } from '@/entities/property'
+import { getFieldErrors } from '@/shared/api/model/getFieldErrors'
+import { to } from '@/shared/config/paths'
+import { ErrorText } from '@/shared/ui/rb/ErrorText'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Dialog, DialogBody, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/shadcn/dialog'
 import { Input } from '@/shared/ui/shadcn/input'
 import { Label } from '@/shared/ui/shadcn/label'
+import { Spinner } from '@/shared/ui/shadcn/spinner'
 
-// Для старта нужно только внутреннее название (§3): адрес, фото и цены заполняются позже, не мешая задачам и календарю
-export const CreatePropertyDialog = ({ trigger }: { trigger: React.ReactElement }) => (
-  <Dialog>
-    <DialogTrigger render={trigger} />
-    <DialogContent className="sm:max-w-lg">
-      <DialogHeader className="gap-2">
-        <span className="mono-label text-smoke">Новый объект</span>
-        <DialogTitle className="section-heading text-heading-sm">Добавить объект</DialogTitle>
-        <DialogDescription className="text-body-sm text-slate">
-          Достаточно названия, которое понятно вам и команде. Гости его не видят.
-        </DialogDescription>
-      </DialogHeader>
-      <DialogBody>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="property-name" className="text-body-sm font-medium">
-            Внутреннее название
-          </Label>
-          <Input id="property-name" placeholder="Например, Студия на Лиговском" autoFocus />
-          <span className="text-caption text-smoke">Публичный заголовок для страницы бронирования задаётся отдельно</span>
-        </div>
-        <div className="flex items-start gap-3 rounded-3xl bg-mist p-4">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-card">
-            <HouseIcon className="size-4" aria-hidden />
-          </span>
-          <span className="text-body-sm text-slate">
-            После создания можно сразу ставить задачи и закрывать даты. Объявления площадок и прямое бронирование подключаются во вкладках
-            объекта.
-          </span>
-        </div>
-      </DialogBody>
-      <DialogFooter className="gap-2">
-        <DialogClose render={<Button variant="ghost" />}>Отмена</DialogClose>
-        <Button>Создать объект</Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-)
+// Для старта нужно только внутреннее название (§3): адрес, фото и цены заполняются позже, не мешая задачам и календарю.
+// Создаёт только владелец — кнопку остальным не показываем, бэк ответит 403
+export const CreatePropertyDialog = ({ trigger }: { trigger: React.ReactElement }) => {
+  const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
+  const { organization } = useCurrentOrganization()
+  const createProperty = useCreateProperty(organization.id)
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors },
+  } = useForm<PropertyValues>({ resolver: zodResolver(propertySchema), defaultValues: { name: '' } })
+
+  const submit = handleSubmit(({ name }) => {
+    createProperty.mutate(
+      { name },
+      {
+        onSuccess: ({ data }) => {
+          setOpen(false)
+          reset()
+          // Сразу в карточку: остальные сведения заполняются там
+          navigate(to.property(String(data.id), 'info', String(organization.id)))
+        },
+        onError: (error) => {
+          // Ошибки бэка по полю — под тем же инпутом; остальное показывает общий тост
+          const nameErrors = getFieldErrors(error).name
+          if (nameErrors?.length) setError('name', { message: nameErrors.join(', ') })
+        },
+      },
+    )
+  })
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next)
+        // Закрыли без создания — при следующем открытии форма пустая
+        if (!next) reset()
+      }}
+    >
+      <DialogTrigger render={trigger} />
+      <DialogContent className="sm:max-w-lg">
+        <form className="contents" onSubmit={submit} noValidate>
+          <DialogHeader className="gap-2">
+            <span className="mono-label text-smoke">Новый объект</span>
+            <DialogTitle className="section-heading text-heading-sm">Добавить объект</DialogTitle>
+            <DialogDescription className="text-body-sm text-slate">
+              Достаточно названия, которое понятно вам и команде. Гости его не видят.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogBody>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="property-name" className="text-body-sm font-medium">
+                Внутреннее название
+              </Label>
+              <Input
+                id="property-name"
+                placeholder="Например, Студия на Лиговском"
+                autoFocus
+                aria-invalid={!!errors.name || undefined}
+                aria-describedby={errors.name ? 'property-name-error' : undefined}
+                {...register('name')}
+              />
+              <ErrorText id="property-name-error" errors={errors.name} />
+              <span className="text-caption text-smoke">Публичный заголовок задаётся отдельно, в сведениях объекта</span>
+            </div>
+            <div className="flex items-start gap-3 rounded-3xl bg-mist p-4">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-card">
+                <HouseIcon className="size-4" aria-hidden />
+              </span>
+              <span className="text-body-sm text-slate">
+                После создания откроется карточка объекта: адрес, время заезда и вместимость заполняются там. Команде новый объект нужно
+                назначить отдельно.
+              </span>
+            </div>
+          </DialogBody>
+          <DialogFooter className="gap-2">
+            <DialogClose render={<Button type="button" variant="ghost" />}>Отмена</DialogClose>
+            <Button type="submit" disabled={createProperty.isPending}>
+              {createProperty.isPending && <Spinner />} Создать объект
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
