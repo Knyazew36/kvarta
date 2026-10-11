@@ -11,10 +11,11 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { BookingGuestTab } from './components/BookingGuestTab'
 import { BookingHeader } from './components/BookingHeader'
 import { BookingHistoryTab } from './components/BookingHistoryTab'
-import { BookingInstructionsMock, BookingPaymentsMock, BookingPrepMock } from './components/BookingMockTabs'
+import { BookingInstructionsTab } from './components/BookingInstructionsTab'
+import { BookingPaymentsMock, BookingPrepMock } from './components/BookingMockTabs'
 import { BookingOverviewTab } from './components/BookingOverviewTab'
 
-// На API: обзор (кроме обведённых карточек), «Гость и условия», «История». Оплаты, подготовка и инструкции — моки
+// На API: обзор (кроме обведённых карточек), «Гость и условия», «Инструкции», «История». Оплаты и подготовка — моки
 const TAB_LABELS = [
   { value: 'overview', label: 'Обзор' },
   { value: 'guest', label: 'Гость и условия' },
@@ -106,7 +107,7 @@ const BookingPage = () => {
       {activeTab === 'guest' && <BookingGuestTab booking={booking} />}
       {activeTab === 'payments' && <BookingPaymentsMock booking={booking} />}
       {activeTab === 'prep' && <BookingPrepMock />}
-      {activeTab === 'instructions' && <BookingInstructionsMock booking={booking} orgId={orgId} />}
+      {activeTab === 'instructions' && <BookingInstructionsTab booking={booking} orgId={orgId} />}
       {activeTab === 'history' && <BookingHistoryTab booking={booking} />}
     </div>
   )

@@ -12,6 +12,7 @@ import { SyncRefresh, useSyncRefresh } from '@/shared/ui/rb/SyncRefresh'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { BookingFormSheet } from '@/widgets/booking-actions/BookingFormSheet'
 import { TaskFormSheet } from '@/widgets/task-actions/TaskFormSheet'
+import { PendingGuestsBlock } from './components/PendingGuestsBlock'
 
 // ── Макетные данные экрана: заменятся ответом API «сводка дня» ──────────────
 
@@ -395,6 +396,8 @@ const TodayPage = () => {
           }}
         />
       )}
+
+      <PendingGuestsBlock />
 
       {attention.length > 0 && <AttentionBlock items={attention} />}
 

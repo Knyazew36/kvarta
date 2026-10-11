@@ -42,6 +42,7 @@ export const ROUTES = {
   GUEST_BOOKINGS: '/guest/bookings',
   GUEST_BOOKING: '/guest/bookings/:bookingId',
   GUEST_INSTRUCTIONS: '/guest/bookings/:bookingId/instructions',
+  GUEST_INVITATION: '/guest/invitations/:token',
 
   // Кабинет специалиста: свои права, без организации и без поиска по каталогу (CAT-06)
   SPECIALIST_PROFILE: '/specialist/profile',
@@ -92,6 +93,7 @@ export const to = {
   guestBookings: () => '/guest/bookings',
   guestBooking: (bookingId: string) => `/guest/bookings/${bookingId}`,
   guestInstructions: (bookingId: string) => `/guest/bookings/${bookingId}/instructions`,
+  guestInvitation: (token: string) => `/guest/invitations/${token}`,
   specialistProfile: () => '/specialist/profile',
   specialistInbox: () => '/specialist/requests',
   specialistReviews: () => '/specialist/reviews',

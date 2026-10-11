@@ -1,0 +1,2229 @@
+ ▐▛███▛█   Claude Code v2.1.296
+▝▜██████▀  Opus 5.5 · Claude Pro
+ ▝▝   ▝▝   E:\kvarta
+
+
+> /clear                                                                        
+
+> изучи в свагере Instructions и после чего нужно продумать как реализовать это 
+  на фронте . Также изучи на всякий случай на бекенде это                       
+
+  Searched for 3 patterns, read 14 files, listed 2 directories (ctrl+o to expand)
+
+● Я изучил контракт Instructions (16 ручек кабинета + 7 гостевых),
+  бэк-контроллер и фронтовые паттерны (queries, конфликты, формы). Теперь
+  разбираюсь с гостевой частью: сервисом доступа, гостевыми страницами и
+  вкладкой брони.
+
+  Read 7 files, ran 1 shell command (ctrl+o to expand)
+
+● User declined to answer questions
+  ⎿  · Тег Instructions — это кабинет: вкладка «Инструкции» объекта + вкладка 
+     «Инструкции» брони (предпросмотр, приглашения и привязки гостя). Гостевая 
+     сторона (тег GuestAccess: принять приглашение, свои брони, чтение 
+     инструкций) — отдельные 7 ручек и 4 моковые страницы. Что берём в план? 
+     (Только кабинет (Recommended) / Только вкладка объекта / Кабинет + гость)
+     · На вкладке объекта есть моковый блок «Глазами гостя» (за день / за час до
+     заезда). Ручка предпросмотра на бэке привязана к брони, а не к объекту — 
+     на объекте её нечем наполнить. Что с блоком? (Перенести в бронь 
+     (Recommended) / Оставить моком)
+
+✻ Cogitated for 1m 20s · done 21:55
+
+> Делаем сразу все.                                                             
+  Переносим на бронь                                                            
+                                                                                
+  Если чего то нет, то красный бордер, отклонение то желтый                     
+
+  Read 2 files, ran 2 shell commands (ctrl+o to expand)
+
+● Updated plan
+  ⎿  /plan to preview
+
+● User approved Claude's plan
+  ⎿  Plan saved to: C:\Users\knyaz\.claude\plans\instructions-sparkling-swing.md
+     · /plan to edit
+     Инструкции и гостевой доступ: перевод на API
+
+     Context
+
+     Вкладка «Инструкции» объекта, вкладка «Инструкции» брони и четыре гостевые
+     страницы — статичные моки. На бэке (../api-rentybot) готовы 16 ручек тега
+     Instructions (кабинет) и 7 ручек GuestAccess (гость), orval-функции уже
+     сгенерированы (src/shared/api/generated/instructions, .../guest-access).
+     Хуков, ключей, схем и экранов под них нет.
+
+     Решено: делаем всё сразу (кабинет + гость); предпросмотр «Глазами гостя»
+     уезжает с объекта на бронь; чего нет на бэке — MOCK_BORDER (красный),
+     работает на API, но не как в макете — DeviationNote / DEVIATION_BORDER
+     (жёлтый, src/shared/mock/).
+
+     Что важно знать про бэк (проверено по коду)
+
+     - Инструкции: максимум 5, по одной на тип (route | rules | wifi | access | 
+       checkout), удаления нет — только enabled=false. Список отдаёт метаданные
+       без текста и без даты изменения. Текст (GET :id) и предпросмотр — только
+       owner/manager; administrator видит список/историю, на текст 403.
+     - wifi/access всегда sensitive=true; sensitive:false для них → 422. type
+       неизменяем. Повтор типа → 409 instruction_exists.
+     - Update: version + хотя бы одно поле; каждый успешный POST = новая версия,
+       даже без изменений → шлём только dirty-поля, без изменений запрос не
+       шлём.
+     - Policy: до настройки version=0. Поля: opening_offset_minutes (±10080),
+       requires_ready. requires_payment_approval всегда true,
+       sensitive_delivery_available всегда false — чувствительные инструкции
+       гостю сейчас не выдаются вообще (sensitive_delivery_unavailable в
+       InstructionService::conditions). Обычные открыты активному гостю до
+       выезда, окно/оплата/готовность на них не влияют.
+     - Все мутации на архивном объекте → 409 property_archived; чтение работает.
+     - Приглашение гостя: token приходит только в ответе создания, доставки нет
+       — ссылку строит фронт. Новое приглашение на тот же email отзывает
+       прежние. Действия с grant (confirm / revoke / approve-payment) и отзыв
+       приглашения требуют version + reason.
+     - Смена дат брони сбрасывает разрешение оплаты, отмена — отзывает гранты
+       (GuestAccessService::bookingChanged) → мутации брони должны
+       инвалидировать гостевой доступ.
+     - Гость: GET guest/bookings/:id/instructions/:id пишет opened_at;
+       acknowledge требует, чтобы версию сначала открыли (иначе 409
+       instruction_not_opened). Закрыто → 409 instruction_locked +
+       locked_reasons. Текст не кешировать и не класть в localStorage.
+     - Истории (instruction_events) — 20/стр., id ASC; metadata без текстов;
+       actor_id → имена через useTeamMembers (только owner/manager, как в
+       BookingHistoryTab).
+
+     Слой данных
+
+     src/entities/instruction/ (новый)
+
+     - api/instruction.queries.ts — instructionKeys (list, detail, policy,
+       history, preview); useInstructions, useInstruction (текст; enabled только
+       owner/manager, gcTime: 0, staleTime: 0), useInstructionPolicy,
+       useInstructionHistory (обход страниц, как bookingHistoryQueryOptions),
+       useInstructionPreview(orgId, bookingId, grantId?) (gcTime: 0); мутации
+       useCreateInstruction, useUpdateInstruction, useUpdateInstructionPolicy.
+       Ответ мутации кладём в кэш detail/policy, list и history инвалидируем; на
+       version_conflict — инвалидируем detail/list (образец — useBookingSaved в
+       src/entities/booking/api/booking.queries.ts). meta: { inlineFieldErrors:
+       true, getErrorMessage, successMessage }.
+     - model/conflict.ts — getInstructionConflict, getInstructionErrorText
+       (русские тексты по кодам InstructionConflictCode), по образцу
+       src/entities/booking/model/conflict.ts. Общий для обоих entity.
+     - model/types.ts — словарь типов: порядок слотов, заголовок по умолчанию,
+       иконка, forcedSensitive.
+     - model/locked-reasons.ts — тексты locked_reasons для кабинета и для гостя.
+     - model/events.ts — describeInstructionEvent(event) для всех 15 action →
+       HistoryEntry.
+     - model/schemas.ts — zod: instructionSchema (title ≤255, content 1..10000,
+       sensitive, enabled; trim в схеме), instructionPolicySchema (смещение
+       вводится как «за/после N часов/минут» → минуты в схеме).
+     - index.ts.
+
+     src/entities/guest-access/ (новый)
+
+     - api/guest-access.queries.ts — кабинет: useGuestInvitations,
+       useGuestGrants, useGuestAccessHistory (обход страниц),
+       useCreateGuestInvitation, useRevokeGuestInvitation, useConfirmGuestGrant,
+       useRevokeGuestGrant, useApproveGuestPayment. Гость:
+       useGuestInvitationPreview(token), useAcceptGuestInvitation,
+       useGuestBookings, useGuestBooking, useGuestInstructions,
+       useGuestInstructionContent (gcTime: 0, skipErrorToast — 409 показывает
+       экран), useAcknowledgeInstruction.
+     - model/schemas.ts — guestInviteSchema (email trim/lowercase),
+       guestAccessActionSchema (reason 1..1000).
+     - model/status.ts — статусы приглашения (активно / принято / отозвано /
+       истекло по expires_at) и гранта → StatusMeta.
+     - index.ts.
+
+     Правки существующего
+
+     - src/entities/booking/api/booking.queries.ts — useBookingSaved
+       дополнительно инвалидирует ключи guest-access и preview этой брони.
+     - src/shared/config/paths.ts — GUEST_INVITATION: 
+       '/guest/invitations/:token' + to.guestInvitation(token).
+
+     Экраны
+
+     1. Объект → «Инструкции» (src/pages/property/property-instructions/)
+
+     PropertyInstructionsPage берёт useCurrentProperty + роль; canEdit = 
+     owner|manager, readOnly = !canEdit || archived (плашка как в
+     PropertyInfoPage). components/:
+     - InstructionsList.tsx — 5 слотов по типам: пустой слот → «Добавить»,
+       существующий → заголовок, бейджи «чувствительное» / «выключена», версия,
+       кнопки «Изменить» и «История». Текст в списке не показываем (бэк не
+       отдаёт) — DeviationNote; «изменено N» из макета убираем туда же.
+     - InstructionFormSheet.tsx — create/edit на RHF + zod. В edit текст
+       грузится useInstruction; values из ответа (свежая версия после
+       конфликта). Switch «Чувствительное» залочен для wifi/access; switch
+       «Включена». Шапка не скроллится (SheetBody).
+     - InstructionPolicyCard.tsx — форма условий: смещение открытия, «Только
+       после готовности объекта». Статичные строки: «подтверждение оплаты —
+       обязательно всегда», «закрываются в момент выезда». Плашка DeviationNote:
+       чувствительные сейчас гостю не выдаются
+       (sensitive_delivery_available=false). Строка «Канал: MAX» — MOCK_BORDER.
+     - InstructionHistorySheet.tsx — HistoryFeed по useInstructionHistory.
+     - Блок «Глазами гостя» удаляем; на его месте — ссылка-подсказка
+       «Предпросмотр — в карточке брони». InstructionsTab.tsx и использование
+       MOCK_PROPERTY здесь удаляются.
+
+     2. Бронь → «Инструкции» (src/pages/booking/components/)
+
+     BookingInstructionsTab.tsx заменяет BookingInstructionsMock (удалить из
+     BookingMockTabs.tsx, поправить комментарий-шапку):
+     - InstructionPreviewCard.tsx (owner/manager) — выбор гостя (grant) из
+       useGuestGrants, список инструкций с текстом, available, причинами
+       блокировки, opens_at/closes_at во времени брони. Администратору —
+       метаданные из useInstructions + пояснение. Переключатель «за день / за
+       час» из макета — нет на бэке, не переносим (DeviationNote).
+     - GuestInviteCard.tsx — форма email (предзаполнение booking.guest_email),
+       после создания — ссылка origin + to.guestInvitation(token) с CopyButton и
+       текстом «ссылка показана один раз, отправьте её гостю сами»; список
+       приглашений со статусом и «Отозвать».
+     - GuestGrantsCard.tsx — запросы/привязки: гость, статус, отметки
+       открытия/получения (receipts × список инструкций), действия
+       «Подтвердить», «Разрешить выдачу (оплата проверена)», «Отозвать».
+     - GuestAccessActionDialog.tsx — общий диалог с обязательным основанием для
+       четырёх действий.
+     - GuestAccessHistoryCard.tsx — HistoryFeed по useGuestAccessHistory.
+     - Ссылка «Изменить инструкции объекта» остаётся.
+
+     3. Гость
+
+     - src/pages/guest/GuestInvitationPage.tsx (новая, privateRoutes) —
+       previewGuestInvitation → «Принять» → экран «Запрос отправлен, ждём
+       подтверждения команды». 404 (чужой email/токен), 410 (истекло/отозвано),
+       409 guest_request_exists — отдельные состояния. Образец — страница
+       командного приглашения (ROUTES.INVITE).
+     - GuestBookingsPage.tsx — useGuestBookings: «Ближайшие»/«Прошедшие» по
+       моменту выезда в timezone брони. Сумма, статус оплаты, заявки, телефон
+       гостя — нет на бэке → убрать/MOCK_BORDER. Экран «Подтвердите номер» —
+       MOCK_BORDER.
+     - GuestBookingPage.tsx — useGuestBooking (даты, времена, public_title) +
+       сводка по useGuestInstructions. Оплаты, адрес, «Написать владельцу»,
+       «Другие даты», «Отменить бронь» — MOCK_BORDER. 404 → «Бронь не найдена
+       или доступ не подтверждён».
+     - GuestInstructionsPage.tsx — список из useGuestInstructions; доступная
+       карточка открывается по нажатию (запрос текста = отметка opened_at),
+       текст как plain text (whitespace-pre-wrap), кнопка «Получил(а)» →
+       acknowledge с version. Закрытые — причина из locked_reasons и opens_at.
+       Крупный блок с цифрами кода и отдельная карточка Wi-Fi: бэк отдаёт только
+       свободный текст → DeviationNote; «Сообщить о переводе» — MOCK_BORDER.
+     - GuestShell — счётчик броней из useGuestBookings; шапка владельца (OWNER)
+       — MOCK_BORDER.
+
+     Маршруты
+
+     - src/app/router/routes.ts — гостевые страницы и новая GUEST_INVITATION
+       переезжают из mockPrivateRoutes в privateRoutes; обновить комментарии у
+       брони и объекта.
+     - src/shared/layouts/layout-root/LayoutRoot.tsx — добавить гостевые роуты в
+       PAGES_WITHOUT_DEMO_TOOLS.
+
+     Порядок работ
+
+     1. entities/instruction + вкладка объекта.
+     2. entities/guest-access (кабинет) + вкладка брони.
+     3. Гостевые хуки + четыре гостевые страницы + маршруты.
+
+     Проверка
+
+     - npx tsc --noEmit и npm run lint.
+     - Вручную в браузере (dev-сервер + локальный бэк), сквозной сценарий:
+       a. Владелец: создать 5 инструкций, проверить 409 на дубль типа,
+          залоченный switch у wifi/access, правку с конфликтом версии (две
+          вкладки), выключение, историю, сохранение условий выдачи (version 0
+          → 1).
+       b. Администратор: список без текста, нет кнопок правки, предпросмотр
+          недоступен. Архивный объект — только чтение.
+       c. Бронь: создать приглашение, скопировать ссылку, отозвать; повторное
+          приглашение на тот же email.
+       d. Второй аккаунт с email приглашения: открыть ссылку, принять → pending.
+          Владелец подтверждает → гость видит бронь и обычные инструкции,
+          чувствительные закрыты с причиной.
+       e. Гость открывает инструкцию, жмёт «Получил(а)»; у владельца в привязках
+          и истории появляются отметки. Владелец правит текст → у гостя отметки
+          сброшены.
+       f. Отзыв привязки → у гостя 404-состояние. Перенос дат брони → разрешение
+          оплаты сброшено.
+     - Поиск по MOCK_BORDER / DeviationNote в затронутых файлах: рамки стоят
+       только там, где перечислено выше.
+
+  Read 1 file, ran 5 shell commands (ctrl+o to expand)
+
+● Write(src\entities\instruction\model\conflict.ts)
+  ⎿  Wrote 34 lines to src\entities\instruction\model\conflict.ts
+       1 import { errorCatch } from '@front-cmdt/utils/error-catch'
+       3 
+       4 import type { InstructionConflict } from '@/shared/api/generated
+       5 
+         ситуации, current_version или locked_reasons
+       7 export const getInstructionConflict = (error: unknown): Instruct
+       8   if (!isAxiosError(error) || error.response?.status !== 409) re
+         turn null
+         t> | undefined
+         ctionConflict) : null
+     … +42 lines (ctrl+o to expand)
+
+● Write(src\entities\instruction\model\types.ts)
+  ⎿  Wrote 32 lines to src\entities\instruction\model\types.ts
+       1 import { DoorOpenIcon, KeyRoundIcon, type LucideIcon, MapPinIcon
+         , ScrollTextIcon, WifiIcon } from 'lucide-react'
+       2 
+         ated/models'
+       4 
+       5 export type InstructionTypeMeta = {
+       6   type: InstructionMetadataType
+       8   label: string
+       9   icon: LucideIcon
+      10   hint: string
+     … +36 lines (ctrl+o to expand)
+
+● Write(src\entities\instruction\model\locked-reasons.ts)
+  ⎿  Wrote 33 lines to src\entities\instruction\model\locked-reasons.ts
+       1 import type { InstructionConditionsLockedReasonsItem } from '@/s
+         hared/api/generated/models'
+       2 
+       4 
+       5 // Причины глазами команды: что сделать, чтобы инструкция открыл
+         ась
+       6 const TEAM_TEXT: Record<LockedReason, string> = {
+       8   guest_not_confirmed: 'Гость не подтверждён командой',
+       9   booking_inactive: 'Бронь отменена',
+      10   property_archived: 'Объект в архиве',
+     … +29 lines (ctrl+o to expand)
+
+● Write(src\entities\instruction\model\time.ts)
+  ⎿  Wrote 14 lines to src\entities\instruction\model\time.ts
+       1 // Момент из бэка (UTC) во времени объекта: окно выдачи считаетс
+       2 // «15 окт, 13:00 UTC+3»
+       3 export const formatInstant = (iso: string, timezone?: string | n
+       4   const instant = new Date(iso)
+       6   const date = new Intl.DateTimeFormat('ru-RU', { timeZone: zone
+         , day: 'numeric', month: 'short' }).format(instant).replace('.',
+       7   const time = new Intl.DateTimeFormat('ru-RU', { timeZone: zone
+         , hour: '2-digit', minute: '2-digit' }).format(instant)
+       9 
+         ne, timeZoneName: 'shortOffset' })
+     … +10 lines (ctrl+o to expand)
+
+● Write(src\entities\instruction\model\events.ts)
+  ⎿  Wrote 71 lines to src\entities\instruction\model\events.ts
+      1 import type { InstructionEvent, InstructionEventAction } from '@/
+        shared/api/generated/models'
+      2 import { formatDate } from '@/shared/lib/format'
+      3 import type { HistoryEntry } from '@/shared/ui/rb/HistoryFeed'
+      4 
+      6 
+      7 type Metadata = InstructionEvent['metadata']
+      8 
+      9 const text = (value: unknown): string => (typeof value === 'strin
+        g' ? value : '')
+     … +86 lines (ctrl+o to expand)
+
+● Write(src\entities\instruction\model\schemas.ts)
+  ⎿  Wrote 97 lines to src\entities\instruction\model\schemas.ts
+       1 import { z } from 'zod'
+       3 import type { InstructionDetail, InstructionPolicy, InstructionU
+         pdate } from '@/shared/api/generated/models'
+       4 import { pluralize } from '@/shared/lib/format'
+       6 // ── Инструкция ───────────────────────────────────────────────
+         ───────────────
+       8 // Ограничения из бэка (InstructionCreate в OpenAPI). Тип в форм
+         у не входит: он задан слотом и не меняется
+       9 export const instructionSchema = z.object({
+         Не длиннее 255 символов'),
+     … +112 lines (ctrl+o to expand)
+
+● Готова модель entities/instruction с конфликтами, типами, причинами
+  блокировки, историей и схемами. Дальше займусь хуками запросов и экраном
+  объекта.
+
+● Write(src\entities\instruction\api\instruction.queries.ts)
+  ⎿  Wrote 150 lines to src\entities\instruction\api\instruction.queries.ts
+       1 import { queryOptions, useMutation, useQuery, useQueryClient } f
+         rom '@tanstack/react-query'
+       2 
+       3 import {
+       4   createPropertyInstruction,
+       6   getPropertyInstruction,
+       7   listInstructionHistory,
+       8   listPropertyInstructions,
+       9   previewBookingInstructions,
+      10   updateInstructionPolicy,
+     … +210 lines (ctrl+o to expand)
+
+● Write(src\entities\instruction\index.ts)
+  ⎿  Wrote 34 lines to src\entities\instruction\index.ts
+       1 export {
+       2   instructionHistoryQueryOptions,
+       3   instructionKeys,
+       4   instructionPolicyQueryOptions,
+       5   instructionPreviewQueryOptions,
+       6   instructionQueryOptions,
+       7   instructionsQueryOptions,
+       8   useCreateInstruction,
+       9   useInstruction,
+      10   useInstructionHistory,
+     … +26 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(src\pages\property\property-instructions\components\InstructionFormSheet
+       .tsx)
+  ⎿  Wrote 284 lines to src\pages\property\property-instructions\components
+     \InstructionFormSheet.tsx
+       1 import { zodResolver } from '@hookform/resolvers/zod'
+       2 import { RefreshCwIcon } from 'lucide-react'
+       3 import { useState } from 'react'
+       4 import { Controller, type UseFormReturn, useForm } from 'react-h
+         ook-form'
+       6   type InstructionTypeMeta,
+       7   type InstructionValues,
+       8   getInstructionChanges,
+       9   getInstructionFormValues,
+      10   instructionSchema,
+     … +343 lines (ctrl+o to expand)
+
+● Write(src\pages\property\property-instructions\components\InstructionHistorySh
+       eet.tsx)
+  ⎿  Wrote 67 lines to src\pages\property\property-instructions\components\
+     InstructionHistorySheet.tsx
+       1 import { RefreshCwIcon } from 'lucide-react'
+       3 import { toInstructionHistory, useInstructionHistory } from '@/e
+         ntities/instruction'
+       5 import { useTeamMembers } from '@/entities/team'
+       6 import type { InstructionMetadata } from '@/shared/api/generated
+       7 import { HistoryFeed } from '@/shared/ui/rb/HistoryFeed'
+       8 import { StateView } from '@/shared/ui/rb/StateView'
+         /buttons/button'
+      10 import { Sheet, SheetBody, SheetContent, SheetDescription, Sheet
+         t'
+     … +72 lines (ctrl+o to expand)
+● Write(src\pages\property\property-instructions\components\InstructionsList.tsx
+       )
+  ⎿  Wrote 109 lines to src\pages\property\property-instructions\components
+     \InstructionsList.tsx
+      1 import { EyeIcon, EyeOffIcon, HistoryIcon, LockIcon, PencilIcon, 
+      2 import { INSTRUCTION_TYPES } from '@/entities/instruction'
+      3 import type { InstructionMetadata } from '@/shared/api/generated/
+        models'
+      5 import { DeviationNote } from '@/shared/mock/DeviationNote'
+      6 import { SectionCard } from '@/shared/ui/rb/Section'
+        buttons/button'
+      8 import { InstructionCreateSheet, InstructionEditSheet } from './I
+        nstructionFormSheet'
+        t'
+     … +128 lines (ctrl+o to expand)
+
+● Write(src\pages\property\property-instructions\components\InstructionPolicyCar
+       d.tsx)
+  ⎿  Wrote 172 lines to src\pages\property\property-instructions\components
+     \InstructionPolicyCard.tsx
+       1 import { zodResolver } from '@hookform/resolvers/zod'
+       2 import { Controller, useForm } from 'react-hook-form'
+       3 import {
+       4   type InstructionPolicyInput,
+       5   type InstructionPolicyValues,
+       6   formatOpeningOffset,
+       7   getPolicyFormValues,
+       8   instructionPolicySchema,
+       9   OFFSET_UNITS,
+      10   useUpdateInstructionPolicy,
+     … +202 lines (ctrl+o to expand)
+
+● Write(src\pages\property\property-instructions\PropertyInstructionsPage.tsx)
+  ⎿  Added 88 lines, removed 10 lines
+       1 -import { cn } from '@/shared/lib/utils'                        
+       2 -import { MOCK_BORDER } from '@/shared/mock/mock-border'        
+       3 -import { MOCK_PROPERTY } from '../model/mock'                  
+       4 -import { InstructionsTab } from './components/InstructionsTab' 
+       1 +import { ArchiveIcon, EyeIcon, LockIcon, RefreshCwIcon } from '
+         +lucide-react'                                                  
+       2 +import { Link } from 'react-router'                            
+       3 +import { useInstructionPolicy, useInstructions } from '@/entiti
+         +es/instruction'                                                
+       4 +import { useCurrentOrganization } from '@/entities/organization
+         +'                                                              
+       5 +import { useCurrentProperty } from '@/entities/property'       
+       6 +import { to } from '@/shared/config/paths'                     
+       7 +import { StateView } from '@/shared/ui/rb/StateView'           
+       8 +import { Button } from '@/shared/ui/shadcn/animate-ui/component
+         +s/buttons/button'                                              
+       9 +import { InstructionPolicyCard } from './components/Instruction
+         +PolicyCard'                                                    
+      10 +import { InstructionsList } from './components/InstructionsList
+         +'                                                              
+      11  
+       6 -// Вкладка ещё на моках: показывает макетный объект, а не откры
+         -тый                                                            
+       7 -const PropertyInstructionsPage = () => (                       
+       8 -  <div className={cn('rounded-card p-2', MOCK_BORDER)}>        
+       9 -    <InstructionsTab property={MOCK_PROPERTY} />               
+      10 -  </div>                                                       
+      11 -)                                                              
+      12 +const PropertyInstructionsPage = () => {                       
+      13 +  const property = useCurrentProperty()                        
+      14 +  const { organization, role } = useCurrentOrganization()      
+      15 +  // Правят и читают текст владелец и управляющий; администрато
+         +р видит только список и историю                                
+      16 +  const canEdit = role === 'owner' || role === 'manager'       
+      17 +  const archived = property.status === 'archived'              
+      18 +  // Архивный объект бэк править не даёт (409)                 
+      19 +  const readOnly = !canEdit || archived                        
+      20 +  const instructions = useInstructions(property.organization_id
+         +, property.id)                                                 
+      21 +  const policy = useInstructionPolicy(property.organization_id,
+         + property.id)                                                  
+      22  
+      23 +  if (instructions.isPending || policy.isPending) return <State
+         +View state="loading" />                                        
+      24 +                                                               
+      25 +  if (instructions.isError || policy.isError) {                
+      26 +    return (                                                   
+      27 +      <StateView                                               
+      28 +        state="error"                                          
+      29 +        error={{                                               
+      30 +          title: 'Инструкции не загрузились',                  
+      31 +          description: 'Проверьте соединение и повторите попытк
+         +у.',                                                           
+      32 +          action: (                                            
+      33 +            <Button                                            
+      34 +              variant="outline"                                
+      35 +              size="sm"                                        
+      36 +              disabled={instructions.isRefetching || policy.isR
+         +efetching}                                                     
+      37 +              onClick={() => {                                 
+      38 +                void instructions.refetch()                    
+      39 +                void policy.refetch()                          
+      40 +              }}                                               
+      41 +            >                                                  
+      42 +              <RefreshCwIcon /> Повторить                      
+      43 +            </Button>                                          
+      44 +          ),                                                   
+      45 +        }}                                                     
+      46 +      />                                                       
+      47 +    )                                                          
+      48 +  }                                                            
+      49 +                                                               
+      50 +  return (                                                     
+      51 +    <div className="flex flex-col gap-4">                      
+      52 +      {readOnly && (                                           
+      53 +        <div className="flex items-start gap-3 rounded-3xl bg-c
+         +ard p-4 shadow-card">                                          
+      54 +          {archived ? <ArchiveIcon className="mt-0.5 size-4 shr
+         +ink-0 text-smoke" aria-hidden /> : <LockIcon className="mt-0.5 
+         +size-4 shrink-0 text-smoke" aria-hidden />}                    
+      55 +          <span className="text-body-sm text-slate">           
+      56 +            {archived                                          
+      57 +              ? 'Объект в архиве: инструкции доступны только дл
+         +я просмотра. Чтобы редактировать, владелец должен восстановить 
+         +объект.'                                                       
+      58 +              : 'Инструкции читают и меняют владелец и управляю
+         +щий. Вам доступны список и история изменений.'}                
+      59 +          </span>                                              
+      60 +        </div>                                                 
+      61 +      )}                                                       
+      62 +                                                               
+      63 +      <div className="grid items-start gap-4 lg:grid-cols-[1fr_
+         +380px]">                                                       
+      64 +        <InstructionsList                                      
+      65 +          organizationId={property.organization_id}            
+      66 +          propertyId={property.id}                             
+      67 +          instructions={instructions.data}                     
+      68 +          canReadContent={canEdit}                             
+      69 +          readOnly={readOnly}                                  
+      70 +        />                                                     
+      71 +                                                               
+      72 +        <div className="flex flex-col gap-4 lg:sticky lg:top-24
+         +">                                                             
+      73 +          <InstructionPolicyCard organizationId={property.organ
+         +ization_id} propertyId={property.id} policy={policy.data} readO
+         +nly={readOnly} />                                              
+      74 +                                                               
+      75 +          {/* Предпросмотр считается по датам и гостю конкретно
+         +й брони, поэтому живёт в её карточке */}                       
+      76 +          <div className="flex items-start gap-3 rounded-3xl bg
+         +-card p-4 shadow-card">                                        
+      77 +            <EyeIcon className="mt-0.5 size-4 shrink-0 text-smo
+         +ke" aria-hidden />                                             
+      78 +            <span className="flex flex-col items-start gap-2 te
+         +xt-body-sm text-slate">                                        
+      79 +              Что и когда увидит гость — во вкладке «Инструкции
+         +» карточки брони.                                              
+      80 +              <Link to={to.bookings(String(organization.id))} c
+         +lassName="text-foreground hover:underline">                    
+      81 +                К броням                                       
+      82 +              </Link>                                          
+      83 +            </span>                                            
+      84 +          </div>                                               
+      85 +        </div>                                                 
+      86 +      </div>                                                   
+      87 +    </div>                                                     
+      88 +  )                                                            
+      89 +}                                                              
+      90 +                                                               
+      91  export default PropertyInstructionsPage
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Вкладка «Инструкции» объекта готова — переведена на API и проходит typecheck.
+  Переключаюсь на этап 2: разбираюсь с entities/guest-access и вкладкой
+  «Инструкции» брони (предпросмотр, приглашения, привязки гостя).
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(src\entities\guest-access\model\schemas.ts)
+  ⎿  Wrote 15 lines to src\entities\guest-access\model\schemas.ts
+       1 import { z } from 'zod'
+       3 // Приглашение гостя на бронь (GuestInviteRequest): бэк сам прив
+         одит почту к нижнему регистру, но сравнивать удобнее уже приведё
+       4 export const guestInviteSchema = z.object({
+         остя').max(255, 'Не длиннее 255 символов').pipe(z.email('Проверь
+         те адрес почты')),
+       7 
+       8 export type GuestInviteValues = z.infer<typeof guestInviteSchema
+       9 
+         ательно и остаётся в истории
+     … +11 lines (ctrl+o to expand)
+
+● Write(src\entities\guest-access\model\status.ts)
+  ⎿  Wrote 66 lines to src\entities\guest-access\model\status.ts
+      1 import { BanIcon, CircleCheckIcon, ClockIcon, HourglassIcon, XCir
+        cleIcon } from 'lucide-react'
+      3 import type { GuestBooking, GuestGrantStatus, GuestInvitation } f
+        rom '@/shared/api/generated/models'
+      4 import { ROUTES } from '@/shared/config/paths'
+      6 
+      7 // ── Приглашение ───────────────────────────────────────────────
+        ──────────────
+      9 export type GuestInvitationStatus = 'pending' | 'accepted' | 'rev
+        oked' | 'expired'
+     … +83 lines (ctrl+o to expand)
+
+● Write(src\entities\guest-access\api\guest-access.queries.ts)
+  ⎿  Wrote 259 lines to
+     src\entities\guest-access\api\guest-access.queries.ts
+       1 import { queryOptions, useMutation, useQuery, useQueryClient } f
+         rom '@tanstack/react-query'
+       2 
+         ctionKeys } from '@/entities/instruction'
+       4 import {
+       5   acceptGuestInvitation,
+       6   acknowledgeGuestInstruction,
+       8   confirmGuestGrant,
+       9   createGuestInvitation,
+      10   getGuestBooking,
+     … +336 lines (ctrl+o to expand)
+
+● Write(src\entities\guest-access\index.ts)
+  ⎿  Wrote 37 lines to src\entities\guest-access\index.ts
+       1 export {
+       2   guestAccessHistoryQueryOptions,
+       3   guestAccessKeys,
+       4   guestBookingQueryOptions,
+       5   guestBookingsQueryOptions,
+       6   guestGrantsQueryOptions,
+       7   guestInstructionQueryOptions,
+       8   guestInstructionsQueryOptions,
+       9   guestInvitationPreviewQueryOptions,
+      10   guestInvitationsQueryOptions,
+     … +28 lines (ctrl+o to expand)
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(src\pages\booking\components\GuestAccessActionDialog.tsx)
+  ⎿  Wrote 105 lines to
+     src\pages\booking\components\GuestAccessActionDialog.tsx
+       1 import { zodResolver } from '@hookform/resolvers/zod'
+       3 import { useForm } from 'react-hook-form'
+       4 import { type GuestAccessActionValues, guestAccessActionSchema }
+       5 import { getFieldErrors } from '@/shared/api/model/getFieldError
+         s'
+       7 import { Button } from '@/shared/ui/shadcn/animate-ui/components
+         /buttons/button'
+         escription, DialogFooter, DialogHeader, DialogTitle, DialogTrigg
+         er } from '@/shared/ui/shadcn/dialog'
+      10 import { Spinner } from '@/shared/ui/shadcn/spinn
+     … +112 lines (ctrl+o to expand)
+
+● Write(src\pages\booking\components\GuestInviteCard.tsx)
+  ⎿  Wrote 149 lines to src\pages\booking\components\GuestInviteCard.tsx
+       1 import { zodResolver } from '@hookform/resolvers/zod'
+       2 import { LinkIcon } from 'lucide-react'
+       3 import { useState } from 'react'
+       4 import { useForm } from 'react-hook-form'
+       5 import {
+       6   type GuestInviteValues,
+       7   getGuestInvitationLink,
+       8   getGuestInvitationStatus,
+       9   GUEST_INVITATION_STATUS_META,
+      10   guestInviteSchema,
+     … +176 lines (ctrl+o to expand)
+
+● Write(src\pages\booking\components\GuestGrantsCard.tsx)
+  ⎿  Wrote 146 lines to src\pages\booking\components\GuestGrantsCard.tsx
+       1 import { CheckIcon, EyeIcon } from 'lucide-react'
+         firmGuestGrant, useRevokeGuestGrant } from '@/entities/guest-acc
+         ess'
+         pi/generated/models'
+       4 import { formatDate } from '@/shared/lib/format'
+       6 import { SectionCard } from '@/shared/ui/rb/Section'
+       7 import { StateView } from '@/shared/ui/rb/StateView'
+       9 import { Button } from '@/shared/ui/shadcn/animate-ui/components
+         /buttons/button'
+         og'
+     … +187 lines (ctrl+o to expand)
+
+● Write(src\pages\booking\components\InstructionPreviewCard.tsx)
+  ⎿  Wrote 144 lines to
+     src\pages\booking\components\InstructionPreviewCard.tsx
+      1 import { CircleCheckIcon, EyeOffIcon, LockIcon, RefreshCwIcon } f
+      2 import { useState } from 'react'
+      3 import { formatInstant, getInstructionTypeMeta, getLockedReasonTe
+        xt, sortByInstructionType, useInstructionPreview, useInstructions
+      4 import type { Booking, GuestGrant, InstructionMetadata, Instructi
+        onPreviewItem } from '@/shared/api/generated/models'
+      6 import { DeviationNote } from '@/shared/mock/DeviationNote'
+      7 import { StateView } from '@/shared/ui/rb/StateView'
+      8 import { Button } from '@/shared/ui/shadcn/animate-ui/components/
+      9 import { Select, SelectContent, SelectItem, SelectTrigger,
+     … +181 lines (ctrl+o to expand)
+
+● Write(src\pages\booking\components\GuestAccessHistoryCard.tsx)
+  ⎿  Wrote 41 lines to
+     src\pages\booking\components\GuestAccessHistoryCard.tsx
+      1 import { useGuestAccessHistory } from '@/entities/guest-access'
+      2 import { toInstructionHistory } from '@/entities/instruction'
+      3 import { useCurrentOrganization } from '@/entities/organization'
+      4 import { useTeamMembers } from '@/entities/team'
+      5 import type { InstructionMetadata } from '@/shared/api/generated/
+        models'
+      6 import { ErrorText } from '@/shared/ui/rb/ErrorText'
+      7 import { HistoryFeed } from '@/shared/ui/rb/HistoryFeed'
+      8 import { SectionCard } from '@/shared/ui/rb/Section'
+      9 import { StateView } from '@/shared/ui/rb/StateView'
+     … +43 lines (ctrl+o to expand)
+
+● Write(src\pages\booking\components\BookingInstructionsTab.tsx)
+  ⎿  Wrote 57 lines to
+     src\pages\booking\components\BookingInstructionsTab.tsx
+       1 import { Link } from 'react-router'
+       2 import { useGuestGrants } from '@/entities/guest-access'
+       3 import { useInstructions } from '@/entities/instruction'
+       5 import type { Booking } from '@/shared/api/generated/models'
+       6 import { to } from '@/shared/config/paths'
+       7 import { Button } from '@/shared/ui/shadcn/animate-ui/components
+         /buttons/button'
+         '
+       9 import { GuestGrantsCard } from './GuestGrantsCard'
+      10 import { GuestInviteCard } from './GuestInviteCard'
+     … +59 lines (ctrl+o to expand)
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Вкладка брони готова и компилируется. Теперь перехожу к этапу 3 — гостевым
+  страницам: приглашение, список броней, бронь, инструкции.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● Write(src\pages\guest\GuestInvitationPage.tsx)
+  ⎿  Wrote 160 lines to src\pages\guest\GuestInvitationPage.tsx
+       1 import { errorCatch } from '@front-cmdt/utils/error-catch'
+       2 import { useQueryClient } from '@tanstack/react-query'
+       3 import { isAxiosError } from 'axios'
+         LucideIcon, SearchXIcon } from 'lucide-react'
+       5 import { Link, useLocation, useParams } from 'react-router'
+       6 import { useCurrentUser } from '@/entities/auth'
+       7 import { guestAccessKeys, useAcceptGuestInvitation, useGuestInvi
+       8 import { useLogout } from '@/features/logout'
+       9 import { to } from '@/shared/config/paths'
+      10 import { formatDate } from '@/shared/lib/format'
+     … +190 lines (ctrl+o to expand)
+
+● Write(src\pages\guest\GuestBookingsPage.tsx)
+  ⎿  Added 102 lines, removed 138 lines
+        1 -import { ArrowRightIcon, CircleCheckIcon, CircleDashedIcon, Ho
+          -urglassIcon, LockIcon } from 'lucide-react'                   
+        1 +import { ArrowRightIcon, CircleCheckIcon, CircleDashedIcon, Re
+          +freshCwIcon } from 'lucide-react'                             
+        2  import { Link } from 'react-router'
+        3 +import { useCurrentUser } from '@/entities/auth'              
+        4 +import { isGuestBookingPast, useGuestBookings } from '@/entiti
+          +es/guest-access'                                              
+        5 +import type { GuestBooking } from '@/shared/api/generated/mode
+          +ls'                                                           
+        6  import { to } from '@/shared/config/paths'
+        4 -import { formatMoney } from '@/shared/lib/format'             
+        7 +import { formatDate, nights, pluralize } from '@/shared/lib/fo
+          +rmat'                                                         
+        8  import { cn } from '@/shared/lib/utils'
+        6 -import { useDemoState } from '@/shared/mock/state'            
+        9 +import { MOCK_BORDER } from '@/shared/mock/mock-border'       
+       10  import { Reveal, RevealGroup, RevealItem, SplitHeadline } from
+            '@/shared/ui/rb/motion'
+       11 +import { StateView } from '@/shared/ui/rb/StateView'          
+       12  import { type StatusMeta, StatusFromMeta } from '@/shared/ui/r
+           b/StatusBadge'
+       13  import { Button } from '@/shared/ui/shadcn/animate-ui/componen
+           ts/buttons/button'
+       10 -import { Input } from '@/shared/ui/shadcn/input'              
+       11 -import { Label } from '@/shared/ui/shadcn/label'              
+       14  import { GuestShell, PhotoTile } from '@/widgets/guest-shell/G
+           uestShell'
+       15  import { OWNER } from '@/widgets/guest-shell/owner'
+       16  
+       15 -// ── Макетные данные: только записи этого гостя ─────────────
+          -─────────────────                                             
+       17 +// Статусы глазами гостя. Бэк отдаёт только подтверждённые бро
+          +ни; «завершена» — по моменту выезда                           
+       18 +const UPCOMING: StatusMeta = { tone: 'success', icon: CircleCh
+          +eckIcon, label: 'Подтверждена' }                              
+       19 +const PAST: StatusMeta = { tone: 'neutral', icon: CircleDashed
+          +Icon, label: 'Завершена' }                                    
+       20  
+       17 -type Item = {                                                 
+       18 -  id: string                                                  
+       19 -  href: string                                                
+       20 -  property: string                                            
+       21 -  month: string                                               
+       22 -  days: string                                                
+       23 -  nights: number                                              
+       24 -  status: StatusMeta                                          
+       25 -  amount: number                                              
+       26 -  note: string                                                
+       27 -  tone: number                                                
+       28 -}                                                             
+       21 +// Публичного заголовка у объекта может не быть               
+       22 +const getTitle = (booking: GuestBooking) => booking.property.p
+          +ublic_title ?? 'Жильё без названия'                           
+       23  
+       30 -// Статусы глазами гостя — короче и мягче, чем в кабинете: «жд
+          -ёт проверки», а не «заявлен перевод»                          
+       31 -const UPCOMING: Item[] = [                                    
+       32 -  {                                                           
+       33 -    id: 'gb-1',                                               
+       34 -    href: to.guestBooking('gb-1'),                            
+       35 -    property: 'Студия у Московского вокзала',                 
+       36 -    month: 'окт',                                             
+       37 -    days: '15–18',                                            
+       38 -    nights: 3,                                                
+       39 -    status: { tone: 'success', icon: CircleCheckIcon, label: '
+          -Подтверждена' },                                              
+       40 -    amount: 13600,                                            
+       41 -    note: 'остаток 6 800 ₽ при заезде',                       
+       42 -    tone: 0,                                                  
+       43 -  },                                                          
+       44 -  {                                                           
+       45 -    id: 'r-205',                                              
+       46 -    href: `${to.guestRequest('r-205')}?step=review`,          
+       47 -    property: 'Лофт с видом на Неву',                         
+       48 -    month: 'ноя',                                             
+       49 -    days: '2–5',                                              
+       50 -    nights: 3,                                                
+       51 -    status: { tone: 'attention', icon: HourglassIcon, label: '
+          -Перевод проверяется' },                                       
+       52 -    amount: 18000,                                            
+       53 -    note: 'вы сообщили о переводе 9 000 ₽',                   
+       54 -    tone: 2,                                                  
+       55 -  },                                                          
+       56 -]                                                             
+       57 -                                                              
+       58 -const PAST: Item[] = [                                        
+       59 -  {                                                           
+       60 -    id: 'gb-0',                                               
+       61 -    href: to.guestBooking('gb-0'),                            
+       62 -    property: 'Студия у Московского вокзала',                 
+       63 -    month: 'авг',                                             
+       64 -    days: '9–12',                                             
+       65 -    nights: 3,                                                
+       66 -    status: { tone: 'neutral', icon: CircleDashedIcon, label: 
+          -'Завершена' },                                                
+       67 -    amount: 12600,                                            
+       68 -    note: 'залог возвращён 13 авг',                           
+       69 -    tone: 1,                                                  
+       70 -  },                                                          
+       71 -]                                                             
+       72 -                                                              
+       24  // ── Карточка ───────────────────────────────────────────────
+           ─────────────────
+       25  
+       75 -const BookingRow = ({ item, past }: { item: Item; past?: boole
+          -an }) => (                                                    
+       76 -  <Link                                                       
+       77 -    to={item.href}                                            
+       78 -    className={cn(                                            
+       79 -      'group grid grid-cols-[72px_1fr_auto] items-center gap-4
+          - rounded-card bg-card p-3 pr-5 shadow-card outline-none transi
+          -tion-[translate,box-shadow] duration-500 ease-[cubic-bezier(0.
+          -22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-[0_1px_2px_r
+          -gb(10_18_23/0.04),0_24px_48px_-20px_rgb(10_18_23/0.22)] focus-
+          -visible:ring-3 focus-visible:ring-ring/30 md:grid-cols-[120px_
+          -1fr_auto] md:gap-6',                                          
+       80 -      past && 'opacity-70',                                   
+       81 -    )}                                                        
+       82 -  >                                                           
+       83 -    {/* Дата — крупно на «фото»: в списке своих поездок ищут п
+          -о дате, а не по названию */}                                  
+       84 -    <PhotoTile label={item.property} tone={item.tone} classNam
+          -e="flex aspect-square flex-col items-center justify-center rou
+          -nded-[22px]">                                                 
+       85 -      <span className="brand-display relative text-[22px] tabu
+          -lar-nums md:text-[32px]">{item.days}</span>                   
+       86 -      <span className="relative text-caption text-slate">{item
+          -.month}</span>                                                
+       87 -    </PhotoTile>                                              
+       88 -    <span className="flex min-w-0 flex-col gap-2">            
+       89 -      <span className="truncate text-body font-medium">{item.p
+          -roperty}</span>                                               
+       90 -      <StatusFromMeta meta={item.status} size="sm" />         
+       91 -      <span className="truncate text-caption text-smoke">     
+       92 -        {formatMoney(item.amount)} · {item.note}              
+       26 +const BookingRow = ({ booking, past, tone }: { booking: GuestB
+          +ooking; past?: boolean; tone: number }) => {                  
+       27 +  const from = booking.start_date.slice(0, 10)                
+       28 +  const until = booking.end_date.slice(0, 10)                 
+       29 +  const sameMonth = from.slice(0, 7) === until.slice(0, 7)    
+       30 +                                                              
+       31 +  return (                                                    
+       32 +    <Link                                                     
+       33 +      to={to.guestBooking(String(booking.id))}                
+       34 +      className={cn(                                          
+       35 +        'group grid grid-cols-[72px_1fr_auto] items-center gap
+          +-4 rounded-card bg-card p-3 pr-5 shadow-card outline-none tran
+          +sition-[translate,box-shadow] duration-500 ease-[cubic-bezier(
+          +0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-[0_1px_2px
+          +_rgb(10_18_23/0.04),0_24px_48px_-20px_rgb(10_18_23/0.22)] focu
+          +s-visible:ring-3 focus-visible:ring-ring/30 md:grid-cols-[120p
+          +x_1fr_auto] md:gap-6',                                        
+       36 +        past && 'opacity-70',                                 
+       37 +      )}                                                      
+       38 +    >                                                         
+       39 +      {/* Дата — крупно на «фото»: в списке своих поездок ищут
+          + по дате, а не по названию. Самих фото на бэке нет */}        
+       40 +      <PhotoTile label={getTitle(booking)} tone={tone} classNa
+          +me={cn('flex aspect-square flex-col items-center justify-cente
+          +r rounded-[22px]', MOCK_BORDER)}>                             
+       41 +        <span className="brand-display relative text-[22px] ta
+          +bular-nums md:text-[32px]">                                   
+       42 +          {formatDate(from, 'd')}–{formatDate(until, 'd')}    
+       43 +        </span>                                               
+       44 +        <span className="relative text-caption text-slate">   
+       45 +          {sameMonth ? formatDate(from, 'MMM') : `${formatDate
+          +(from, 'MMM')} – ${formatDate(until, 'MMM')}`}                
+       46 +        </span>                                               
+       47 +      </PhotoTile>                                            
+       48 +      <span className="flex min-w-0 flex-col gap-2">          
+       49 +        <span className="truncate text-body font-medium">{getT
+          +itle(booking)}</span>                                         
+       50 +        <StatusFromMeta meta={past ? PAST : UPCOMING} size="sm
+          +" />                                                          
+       51 +        <span className="truncate text-caption text-smoke">   
+       52 +          {pluralize(nights(from, until), ['ночь', 'ночи', 'но
+          +чей'])} · заезд с {booking.check_in_time}                     
+       53 +        </span>                                               
+       54 +        {/* Суммы и оплат в гостевых ручках нет */}           
+       55 +        <span className={cn('w-fit truncate rounded-lg px-1 te
+          +xt-caption text-smoke', MOCK_BORDER)}>13 600 ₽ · остаток 6 800
+          + ₽ при заезде</span>                                          
+       56        </span>
+       94 -    </span>                                                   
+       95 -    <ArrowRightIcon className="size-5 text-smoke transition-tr
+          -ansform duration-500 group-hover:translate-x-1 group-hover:tex
+          -t-foreground" aria-hidden />                                  
+       96 -  </Link>                                                     
+       97 -)                                                             
+       57 +      <ArrowRightIcon className="size-5 text-smoke transition-
+          +transform duration-500 group-hover:translate-x-1 group-hover:t
+          +ext-foreground" aria-hidden />                                
+       58 +    </Link>                                                   
+       59 +  )                                                           
+       60 +}                                                             
+       61  
+       62  // ── Страница ───────────────────────────────────────────────
+           ─────────────────
+       63  
+       64  const GuestBookingsPage = () => {
+      102 -  const { state } = useDemoState()                            
+       65 +  const { data: user } = useCurrentUser()                     
+       66 +  const { data: bookings, isPending, isError, refetch, isRefet
+          +ching } = useGuestBookings()                                  
+       67  
+      104 -  // ?state=denied — ссылку переслали с чужого телефона: перес
+          -ланная ссылка сама по себе не открывает брони (§5)            
+      105 -  if (state === 'denied') {                                   
+      106 -    return (                                                  
+      107 -      <GuestShell>                                            
+      108 -        <div className="mx-auto flex w-full max-w-md flex-col 
+          -gap-8 pt-6">                                                  
+      109 -          <Reveal className="flex size-14 items-center justify
+          --center rounded-full bg-card">                                
+      110 -            <LockIcon className="size-6" aria-hidden />       
+      111 -          </Reveal>                                           
+      112 -          <SplitHeadline text="Подтвердите номер" className="b
+          -rand-display text-[40px] md:text-[56px]" />                   
+      113 -          <Reveal delay={0.2} className="text-body text-slate"
+          ->                                                             
+      114 -            Брони видны только с номера, на который они оформл
+          -ены. Пришлём код — и откроем ваши бронирования.               
+      115 -          </Reveal>                                           
+      116 -          <Reveal delay={0.3} className="flex flex-col gap-4">
+      117 -            <div className="flex flex-col gap-2">             
+      118 -              <Label htmlFor="gb-phone" className="text-body-s
+          -m font-medium">                                               
+      119 -                Телефон из брони                              
+      120 -              </Label>                                        
+      121 -              <Input id="gb-phone" type="tel" placeholder="+7 
+          -(___) ___-__-__" className="h-12" />                          
+      122 -            </div>                                            
+      123 -            <Button className="h-12 shadow-control">Получить к
+          -од</Button>                                                   
+      124 -          </Reveal>                                           
+      125 -        </div>                                                
+      126 -      </GuestShell>                                           
+      127 -    )                                                         
+      128 -  }                                                           
+       68 +  const upcoming = bookings?.filter((booking) => !isGuestBooki
+          +ngPast(booking)) ?? []                                        
+       69 +  // Бэк отдаёт start_date ASC; недавние поездки нужнее давних
+       70 +  const past = bookings?.filter((booking) => isGuestBookingPas
+          +t(booking)).reverse() ?? []                                   
+       71  
+       72    return (
+      131 -    <GuestShell>                                              
+       73 +    <GuestShell bookingsCount={upcoming.length} mockOwner>    
+       74        <div className="mx-auto flex w-full max-w-3xl flex-col g
+           ap-12">
+       75          <header className="flex flex-col gap-4">
+      134 -          <Reveal className="text-caption text-smoke">Ксения ·
+          - +7 (911) •••-••-17</Reveal>                                  
+       76 +          <Reveal className="text-caption text-smoke">        
+       77 +            {user?.name} · {user?.email}                      
+       78 +          </Reveal>                                           
+       79            <SplitHeadline text="Мои бронирования" delay={0.05} 
+           className="brand-display text-[44px] md:text-[72px]" />
+       80          </header>
+       81  
+      138 -        {state === 'empty' ? (                                
+       82 +        {isPending ? (                                        
+       83 +          <StateView state="loading" />                       
+       84 +        ) : isError ? (                                       
+       85 +          <StateView                                          
+       86 +            state="error"                                     
+       87 +            error={{                                          
+       88 +              title: 'Бронирования не загрузились',           
+       89 +              description: 'Проверьте соединение и повторите п
+          +опытку.',                                                     
+       90 +              action: (                                       
+       91 +                <Button variant="outline" size="sm" disabled={
+          +isRefetching} onClick={() => refetch()}>                      
+       92 +                  <RefreshCwIcon /> Повторить                 
+       93 +                </Button>                                     
+       94 +              ),                                              
+       95 +            }}                                                
+       96 +          />                                                  
+       97 +        ) : bookings.length === 0 ? (                         
+       98            <Reveal delay={0.3} className="flex flex-col items-s
+           tart gap-5 rounded-card bg-card p-6 md:p-8">
+       99              <span className="text-subheading-lg font-medium">Б
+           ронирований пока нет</span>
+      100              <span className="max-w-md text-body-sm text-slate"
+           >
+      142 -              Здесь появятся заявки и брони, оформленные на ва
+          -ш номер у {OWNER.name}. Брони с Авито и Суточно попадут сюда, 
+          -когда владелец их привяжет.                                   
+      101 +              Бронь появится здесь, когда владелец пришлёт вам
+          + ссылку-приглашение и подтвердит доступ. Если ссылку вы уже от
+          +крыли — дождитесь подтверждения.                              
+      102              </span>
+      144 -            <Button asChild className="shadow-control">       
+      103 +            {/* Витрины владельца на бэке нет */}             
+      104 +            <Button asChild className={cn('shadow-control', MO
+          +CK_BORDER)}>                                                  
+      105                <Link to={to.host(OWNER.slug)}>Выбрать жильё</Li
+           nk>
+      106              </Button>
+      107            </Reveal>
+      108          ) : (
+      109            <>
+      150 -            <section className="flex flex-col gap-4">         
+      151 -              <Reveal delay={0.2}>                            
+      152 -                <h2 className="section-heading text-subheading
+          --lg">Ближайшие</h2>                                           
+      153 -              </Reveal>                                       
+      154 -              <RevealGroup as="ul" delay={0.3} stagger={0.1} c
+          -lassName="flex flex-col gap-3">                               
+      155 -                {UPCOMING.map((item) => (                     
+      156 -                  <RevealItem as="li" key={item.id}>          
+      157 -                    <BookingRow item={item} />                
+      158 -                  </RevealItem>                               
+      159 -                ))}                                           
+      160 -              </RevealGroup>                                  
+      161 -            </section>                                        
+      162 -            <section className="flex flex-col gap-4">         
+      163 -              <Reveal delay={0.5}>                            
+      164 -                <h2 className="section-heading text-subheading
+          --lg text-slate">Прошедшие</h2>                                
+      165 -              </Reveal>                                       
+      166 -              <RevealGroup as="ul" delay={0.6} className="flex
+          - flex-col gap-3">                                             
+      167 -                {PAST.map((item) => (                         
+      168 -                  <RevealItem as="li" key={item.id}>          
+      169 -                    <BookingRow item={item} past />           
+      170 -                  </RevealItem>                               
+      171 -                ))}                                           
+      172 -              </RevealGroup>                                  
+      173 -            </section>                                        
+      110 +            {upcoming.length > 0 && (                         
+      111 +              <section className="flex flex-col gap-4">       
+      112 +                <Reveal delay={0.2}>                          
+      113 +                  <h2 className="section-heading text-subheadi
+          +ng-lg">Ближайшие</h2>                                         
+      114 +                </Reveal>                                     
+      115 +                <RevealGroup as="ul" delay={0.3} stagger={0.1}
+          + className="flex flex-col gap-3">                             
+      116 +                  {upcoming.map((booking, index) => (         
+      117 +                    <RevealItem as="li" key={booking.id}>     
+      118 +                      <BookingRow booking={booking} tone={inde
+          +x} />                                                         
+      119 +                    </RevealItem>                             
+      120 +                  ))}                                         
+      121 +                </RevealGroup>                                
+      122 +              </section>                                      
+      123 +            )}                                                
+      124 +            {past.length > 0 && (                             
+      125 +              <section className="flex flex-col gap-4">       
+      126 +                <Reveal delay={0.5}>                          
+      127 +                  <h2 className="section-heading text-subheadi
+          +ng-lg text-slate">Прошедшие</h2>                              
+      128 +                </Reveal>                                     
+      129 +                <RevealGroup as="ul" delay={0.6} className="fl
+          +ex flex-col gap-3">                                           
+      130 +                  {past.map((booking, index) => (             
+      131 +                    <RevealItem as="li" key={booking.id}>     
+      132 +                      <BookingRow booking={booking} past tone=
+          +{index + 1} />                                                
+      133 +                    </RevealItem>                             
+      134 +                  ))}                                         
+      135 +                </RevealGroup>                                
+      136 +              </section>                                      
+      137 +            )}                                                
+      138            </>
+      139          )}
+      140        </div>
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Write(src\pages\guest\GuestBookingPage.tsx)
+  ⎿  Added 125 lines, removed 105 lines
+      1 +import { isAxiosError } from 'axios'                            
+      2  import {
+      3    ArrowLeftIcon,
+      4    ArrowRightIcon,
+     ...
+      11    type LucideIcon,
+      12    MapPinIcon,
+      13    MessageCircleIcon,
+      13 -  Undo2Icon,                                                   
+      14 +  RefreshCwIcon,                                               
+      15  } from 'lucide-react'
+      16  import { Link, useParams } from 'react-router'
+      17 +import { getGuestCheckIn, isGuestBookingPast, useGuestBooking, 
+         +useGuestInstructions } from '@/entities/guest-access'          
+      18 +import type { GuestBooking, GuestInstructionMetadata } from '@/
+         +shared/api/generated/models'                                   
+      19  import { to } from '@/shared/config/paths'
+      17 -import { DEMO_TZ, formatMoney } from '@/shared/lib/format'     
+      20 +import { formatDate, formatMoney, nights, pluralize } from '@/s
+         +hared/lib/format'                                              
+      21  import { cn } from '@/shared/lib/utils'
+      19 -import { type Consequence, ConsequencesPreview } from '@/shared
+         -/ui/rb/ConsequencesPreview'                                    
+      22 +import { MOCK_BORDER } from '@/shared/mock/mock-border'        
+      23  import { Reveal, RevealGroup, RevealItem, SplitHeadline } from 
+          '@/shared/ui/rb/motion'
+      24 +import { StateView } from '@/shared/ui/rb/StateView'           
+      25  import { type StatusMeta, StatusFromMeta } from '@/shared/ui/rb
+          /StatusBadge'
+      26  import { Button } from '@/shared/ui/shadcn/animate-ui/component
+          s/buttons/button'
+      23 -import { Dialog, DialogBody, DialogClose, DialogContent, Dialog
+         -Description, DialogFooter, DialogHeader, DialogTitle, DialogTri
+         -gger } from '@/shared/ui/shadcn/dialog'                        
+      27  import { GuestShell } from '@/widgets/guest-shell/GuestShell'
+      28  
+      26 -// ── Макетные данные брони гостя ─────────────────────────────
+         -────────────────                                               
+      29 +// ── Макетные данные: оплат и адреса в гостевых ручках нет ───
+         +────────────────                                               
+      30  
+      31  type Payment = { label: string; amount: number; status: StatusM
+          eta; note: string }
+      32  
+      30 -type GuestBooking = {                                          
+      31 -  id: string                                                   
+      32 -  number: string                                               
+      33 -  property: string                                             
+      34 -  status: StatusMeta                                           
+      35 -  past: boolean                                                
+      36 -  checkIn: { date: string; time: string }                      
+      37 -  checkOut: { date: string; time: string }                     
+      38 -  countdown: string                                            
+      39 -  address: string                                              
+      40 -  payments: Payment[]                                          
+      41 -  instructions: { open: boolean; text: string }                
+      42 -}                                                              
+      43 -                                                               
+      33  const PAID: StatusMeta = { tone: 'success', icon: CircleCheckIc
+          on, label: 'Получено' }
+      34  const DUE: StatusMeta = { tone: 'neutral', icon: CircleDashedIc
+          on, label: 'При заезде' }
+      46 -const RETURNED: StatusMeta = { tone: 'neutral', icon: Undo2Icon
+         -, label: 'Возвращён' }                                         
+      35  
+      48 -const BOOKINGS: Record<string, GuestBooking> = {               
+      49 -  'gb-1': {                                                    
+      50 -    id: 'gb-1',                                                
+      51 -    number: '#1052',                                           
+      52 -    property: 'Студия у Московского вокзала',                  
+      53 -    status: { tone: 'success', icon: CircleCheckIcon, label: 'Б
+         -ронь подтверждена' },                                          
+      54 -    past: false,                                               
+      55 -    checkIn: { date: '15 окт, чт', time: '14:00' },            
+      56 -    checkOut: { date: '18 окт, вс', time: '12:00' },           
+      57 -    countdown: 'через 7 дней',                                 
+      58 -    address: 'Санкт-Петербург, Лиговский пр., 50, кв. 14',     
+      59 -    payments: [                                                
+      60 -      { label: 'Предоплата', amount: 6800, status: PAID, note: 
+         -'подтверждена владельцем 8 окт, 16:40' },                      
+      61 -      { label: 'Остаток', amount: 6800, status: DUE, note: 'пер
+         -еводом или наличными' },                                       
+      62 -      { label: 'Залог', amount: 3000, status: DUE, note: 'вернё
+         -тся после выезда' },                                           
+      63 -    ],                                                         
+      64 -    instructions: { open: false, text: `Откроются 15 окт в 13:0
+         -0 ${DEMO_TZ} — за час до заезда` },                            
+      65 -  },                                                           
+      66 -  'gb-0': {                                                    
+      67 -    id: 'gb-0',                                                
+      68 -    number: '#0987',                                           
+      69 -    property: 'Студия у Московского вокзала',                  
+      70 -    status: { tone: 'neutral', icon: CircleDashedIcon, label: '
+         -Поездка завершена' },                                          
+      71 -    past: true,                                                
+      72 -    checkIn: { date: '9 авг, сб', time: '14:00' },             
+      73 -    checkOut: { date: '12 авг, вт', time: '12:00' },           
+      74 -    countdown: 'в августе',                                    
+      75 -    address: 'Санкт-Петербург, Лиговский пр., 50, кв. 14',     
+      76 -    payments: [                                                
+      77 -      { label: 'Проживание', amount: 12600, status: PAID, note:
+         - 'оплачено полностью' },                                       
+      78 -      { label: 'Залог', amount: 3000, status: RETURNED, note: '
+         -вернули 13 авг' },                                             
+      79 -    ],                                                         
+      80 -    instructions: { open: false, text: 'Закрыты после выезда 12
+         - авг' },                                                       
+      81 -  },                                                           
+      36 +const MOCK_PAYMENTS: Payment[] = [                             
+      37 +  { label: 'Предоплата', amount: 6800, status: PAID, note: 'под
+         +тверждена владельцем 8 окт, 16:40' },                          
+      38 +  { label: 'Остаток', amount: 6800, status: DUE, note: 'перевод
+         +ом или наличными' },                                           
+      39 +  { label: 'Залог', amount: 3000, status: DUE, note: 'вернётся 
+         +после выезда' },                                               
+      40 +]                                                              
+      41 +                                                               
+      42 +const MOCK_ADDRESS = 'Санкт-Петербург, Лиговский пр., 50, кв. 1
+         +4'                                                             
+      43 +                                                               
+      44 +// ── Статусы ─────────────────────────────────────────────────
+         +────────────────                                               
+      45 +                                                               
+      46 +const CONFIRMED: StatusMeta = { tone: 'success', icon: CircleCh
+         +eckIcon, label: 'Бронь подтверждена' }                         
+      47 +const FINISHED: StatusMeta = { tone: 'neutral', icon: CircleDas
+         +hedIcon, label: 'Поездка завершена' }                          
+      48 +                                                               
+      49 +const DAY_MS = 86_400_000                                      
+      50 +                                                               
+      51 +// Плашка между заездом и выездом: сколько осталось до заезда  
+      52 +const getCountdown = (booking: GuestBooking, now = new Date()):
+         + string => {                                                   
+      53 +  if (isGuestBookingPast(booking, now)) return 'завершена'     
+      54 +  const left = getGuestCheckIn(booking).getTime() - now.getTime
+         +()                                                             
+      55 +  if (left <= 0) return 'вы на месте'                          
+      56 +  if (left < DAY_MS) return 'меньше суток'                     
+      57 +  return `через ${pluralize(Math.floor(left / DAY_MS), ['день',
+         + 'дня', 'дней'])}`                                             
+      58  }
+      59  
+      84 -// Отмена и возврат — независимые состояния (§5): отменить можн
+         -о сразу, деньги вернёт владелец отдельно                       
+      85 -const CANCEL: Consequence[] = [                                
+      86 -  { icon: CalendarClockIcon, area: 'Бронь', text: 'Отменится ср
+         -азу, даты 15–18 окт вернутся в продажу.' },                    
+      87 -  { icon: BanknoteIcon, area: 'Предоплата 6 800 ₽', text: 'До 1
+         -2 окт, 14:00 возвращается полностью. Владелец переведёт её на в
+         -аш номер — обычно в течение дня.' },                           
+      88 -  { icon: KeyRoundIcon, area: 'Инструкции', text: 'Станут недос
+         -тупны.' },                                                     
+      89 -]                                                              
+      60 +const getInstructionsSummary = (instructions: GuestInstructionM
+         +etadata[] | undefined, past: boolean): string => {             
+      61 +  if (past) return 'Закрыты после выезда'                      
+      62 +  if (!instructions) return 'Загружаем…'                       
+      63 +  if (instructions.length === 0) return 'Владелец пока не добав
+         +ил инструкции'                                                 
+      64 +  const available = instructions.filter((instruction) => instru
+         +ction.available).length                                        
+      65 +  return available === instructions.length ? `Доступны все: ${a
+         +vailable}` : `Доступно ${available} из ${instructions.length}` 
+      66 +}                                                              
+      67  
+      68  // ── Блоки ───────────────────────────────────────────────────
+          ────────────────
+      69  
+     ...
+       79    </section>
+       80  )
+       81  
+       82 +const BackLink = () => (                                      
+       83 +  <Link to={to.guestBookings()} className="inline-flex w-fit i
+          +tems-center gap-1.5 text-caption text-smoke transition-colors 
+          +hover:text-foreground">                                       
+       84 +    <ArrowLeftIcon className="size-3.5" aria-hidden /> Мои бро
+          +нирования                                                     
+       85 +  </Link>                                                     
+       86 +)                                                             
+       87 +                                                              
+       88  // ── Страница ───────────────────────────────────────────────
+           ─────────────────
+       89  
+       90  const GuestBookingPage = () => {
+      108 -  const { bookingId = 'gb-1' } = useParams()                  
+      109 -  const booking = BOOKINGS[bookingId] ?? BOOKINGS['gb-1']     
+       91 +  const { bookingId = '' } = useParams()                      
+       92 +  // Бэк принимает только числовой id; остальное (старые ссылк
+          +и макетов вида /guest/bookings/gb-1) — «не найдена» без запрос
+          +а                                                             
+       93 +  const isValidId = /^\d+$/.test(bookingId)                   
+       94 +  const { data: booking, isPending, isError, error, refetch, i
+          +sRefetching } = useGuestBooking(Number(bookingId))            
+       95 +  const { data: instructions } = useGuestInstructions(Number(b
+          +ookingId), { enabled: !!booking })                            
+       96  
+       97 +  // 404 — привязки нет, она не подтверждена или отозвана, бро
+          +нь отменена. Причину бэк не называет                          
+       98 +  if (!isValidId || (isError && isAxiosError(error) && error.r
+          +esponse?.status === 404)) {                                   
+       99 +    return (                                                  
+      100 +      <GuestShell mockOwner>                                  
+      101 +        <div className="mx-auto flex w-full max-w-4xl flex-col
+          + gap-6">                                                      
+      102 +          <BackLink />                                        
+      103 +          <StateView                                          
+      104 +            state="empty"                                     
+      105 +            empty={{                                          
+      106 +              title: 'Бронь не найдена',                      
+      107 +              description: 'Ссылка устарела, бронь отменена ил
+          +и владелец ещё не подтвердил ваш доступ. Если вы только что пр
+          +иняли приглашение — дождитесь подтверждения.',                
+      108 +            }}                                                
+      109 +          />                                                  
+      110 +        </div>                                                
+      111 +      </GuestShell>                                           
+      112 +    )                                                         
+      113 +  }                                                           
+      114 +                                                              
+      115 +  if (isPending) {                                            
+      116 +    return (                                                  
+      117 +      <GuestShell mockOwner>                                  
+      118 +        <StateView state="loading" skeleton="record" className
+          +="mx-auto w-full max-w-4xl" />                                
+      119 +      </GuestShell>                                           
+      120 +    )                                                         
+      121 +  }                                                           
+      122 +                                                              
+      123 +  if (isError) {                                              
+      124 +    return (                                                  
+      125 +      <GuestShell mockOwner>                                  
+      126 +        <StateView                                            
+      127 +          state="error"                                       
+      128 +          className="mx-auto w-full max-w-4xl"                
+      129 +          error={{                                            
+      130 +            title: 'Бронь не загрузилась',                    
+      131 +            description: 'Проверьте соединение и повторите поп
+          +ытку.',                                                       
+      132 +            action: (                                         
+      133 +              <Button variant="outline" size="sm" disabled={is
+          +Refetching} onClick={() => refetch()}>                        
+      134 +                <RefreshCwIcon /> Повторить                   
+      135 +              </Button>                                       
+      136 +            ),                                                
+      137 +          }}                                                  
+      138 +        />                                                    
+      139 +      </GuestShell>                                           
+      140 +    )                                                         
+      141 +  }                                                           
+      142 +                                                              
+      143 +  const past = isGuestBookingPast(booking)                    
+      144 +  const from = booking.start_date.slice(0, 10)                
+      145 +  const until = booking.end_date.slice(0, 10)                 
+      146 +  const hasOpen = !past && instructions?.some((instruction) =>
+          + instruction.available)                                       
+      147 +                                                              
+      148    return (
+      112 -    <GuestShell>                                              
+      149 +    <GuestShell mockOwner>                                    
+      150        <div className="mx-auto flex w-full max-w-4xl flex-col g
+           ap-8">
+      151          <div className="flex flex-col gap-4">
+      152            <Reveal>
+      116 -            <Link to={to.guestBookings()} className="inline-fl
+          -ex w-fit items-center gap-1.5 text-caption text-smoke transiti
+          -on-colors hover:text-foreground">                             
+      117 -              <ArrowLeftIcon className="size-3.5" aria-hidden 
+          -/> Мои бронирования                                           
+      118 -            </Link>                                           
+      153 +            <BackLink />                                      
+      154            </Reveal>
+      120 -          <SplitHeadline text={booking.property} delay={0.05} 
+          -className="brand-display max-w-3xl text-[40px] md:text-[60px]"
+          - />                                                           
+      155 +          <SplitHeadline text={booking.property.public_title ?
+          +? 'Ваше бронирование'} delay={0.05} className="brand-display m
+          +ax-w-3xl text-[40px] md:text-[60px]" />                       
+      156            <Reveal delay={0.25} className="flex flex-wrap items
+           -center gap-3">
+      122 -            <StatusFromMeta meta={booking.status} />          
+      123 -            <span className="text-caption text-smoke">Бронь {b
+          -ooking.number}</span>                                         
+      157 +            <StatusFromMeta meta={past ? FINISHED : CONFIRMED}
+          + />                                                           
+      158 +            <span className="text-caption text-smoke">Бронь #{
+          +booking.id}</span>                                            
+      159            </Reveal>
+      160          </div>
+      161  
+      127 -        {/* Заезд и выезд — ink-карточка с аркой: самое нужное
+          - гостю в поездке */}                                          
+      162 +        {/* Заезд и выезд — ink-карточка с аркой: самое нужное
+          + гостю в поездке. Время — снимок из брони, в поясе объекта */}
+      163          <Reveal delay={0.3}>
+      164            <section className="grid grid-cols-[1fr_auto_1fr] it
+           ems-center gap-4 rounded-card rounded-t-arc bg-foreground px-6
+            pt-12 pb-8 text-background shadow-card md:px-12 dark:bg-mist 
+           dark:text-foreground">
+      165              <div className="flex flex-col gap-1">
+      166                <span className="text-caption opacity-60">Заезд<
+           /span>
+      132 -              <span className="brand-display text-[36px] tabul
+          -ar-nums md:text-[56px]">{booking.checkIn.time}</span>         
+      133 -              <span className="text-body-sm opacity-80">{booki
+          -ng.checkIn.date}</span>                                       
+      167 +              <span className="brand-display text-[36px] tabul
+          +ar-nums md:text-[56px]">{booking.check_in_time}</span>        
+      168 +              <span className="text-body-sm opacity-80">{forma
+          +tDate(from, 'd MMM, EEEEEE')}</span>                          
+      169              </div>
+      170              <div className="flex flex-col items-center gap-2">
+      136 -              <span className={cn('rounded-full px-3 py-1 text
+          --caption font-medium', booking.past ? 'bg-background/10 dark:b
+          -g-foreground/10' : 'bg-lime text-[#0a1217]')}>                
+      137 -                {booking.countdown}                           
+      171 +              <span className={cn('rounded-full px-3 py-1 text
+          +-caption font-medium', past ? 'bg-background/10 dark:bg-foregr
+          +ound/10' : 'bg-lime text-[#0a1217]')}>                        
+      172 +                {getCountdown(booking)}                       
+      173                </span>
+      174                <span className="h-px w-12 bg-current opacity-30
+            md:w-24" aria-hidden />
+      140 -              <span className="text-caption opacity-60">3 ночи
+          -</span>                                                       
+      175 +              <span className="text-caption opacity-60">{plura
+          +lize(nights(from, until), ['ночь', 'ночи', 'ночей'])}</span>  
+      176              </div>
+      177              <div className="flex flex-col items-end gap-1 text
+           -right">
+      178                <span className="text-caption opacity-60">Выезд<
+           /span>
+      144 -              <span className="brand-display text-[36px] tabul
+          -ar-nums md:text-[56px]">{booking.checkOut.time}</span>        
+      145 -              <span className="text-body-sm opacity-80">{booki
+          -ng.checkOut.date}</span>                                      
+      179 +              <span className="brand-display text-[36px] tabul
+          +ar-nums md:text-[56px]">{booking.check_out_time}</span>       
+      180 +              <span className="text-body-sm opacity-80">{forma
+          +tDate(until, 'd MMM, EEEEEE')}</span>                         
+      181              </div>
+      182            </section>
+      183          </Reveal>
+      184  
+      185          <RevealGroup delay={0.45} stagger={0.08} className="gr
+           id gap-4 md:grid-cols-2">
+      186            <RevealItem className="md:row-span-2">
+      152 -            <Card icon={BanknoteIcon} title="Оплаты" className
+          -="h-full">                                                    
+      187 +            <Card icon={BanknoteIcon} title="Оплаты" className
+          +={cn('h-full', MOCK_BORDER)}>                                 
+      188                <ul className="flex flex-col">
+      154 -                {booking.payments.map((payment) => (          
+      189 +                {MOCK_PAYMENTS.map((payment) => (             
+      190                    <li key={payment.label} className="flex item
+           s-start justify-between gap-3 border-t border-foreground/8 py-
+           3.5 first:border-t-0 first:pt-0">
+      191                      <span className="flex min-w-0 flex-col gap
+           -1">
+      192                        <span className="text-body-sm font-mediu
+           m">{payment.label}</span>
+     ...
+      202              </Card>
+      203            </RevealItem>
+      204            <RevealItem>
+      170 -            <Link to={to.guestInstructions(booking.id)} classN
+          -ame="group block rounded-card outline-none focus-visible:ring-
+          -3 focus-visible:ring-ring/30">                                
+      171 -              <Card icon={booking.instructions.open ? KeyRound
+          -Icon : LockIcon} title="Инструкции по заселению">             
+      205 +            <Link to={to.guestInstructions(String(booking.id))
+          +} className="group block rounded-card outline-none focus-visib
+          +le:ring-3 focus-visible:ring-ring/30">                        
+      206 +              <Card icon={hasOpen ? KeyRoundIcon : LockIcon} t
+          +itle="Инструкции по заселению">                               
+      207                  <span className="flex items-center justify-bet
+           ween gap-3">
+      173 -                  <span className="text-body-sm text-slate">{b
+          -ooking.instructions.text}</span>                              
+      208 +                  <span className="text-body-sm text-slate">{g
+          +etInstructionsSummary(instructions, past)}</span>             
+      209                    <ArrowRightIcon className="size-4 shrink-0 t
+           ext-smoke transition-transform duration-500 group-hover:transl
+           ate-x-1 group-hover:text-foreground" aria-hidden />
+      210                  </span>
+      211                </Card>
+      212              </Link>
+      213            </RevealItem>
+      214            <RevealItem>
+      180 -            <Card icon={MapPinIcon} title="Адрес">            
+      181 -              <span className="text-body-sm">{booking.address}
+          -</span>                                                       
+      215 +            <Card icon={MapPinIcon} title="Адрес" className={M
+          +OCK_BORDER}>                                                  
+      216 +              <span className="text-body-sm">{MOCK_ADDRESS}</s
+          +pan>                                                          
+      217                <span className="text-caption text-smoke">Как пр
+           ойти и код домофона — в инструкциях</span>
+      218              </Card>
+      219            </RevealItem>
+      220          </RevealGroup>
+      221  
+      187 -        <Reveal delay={0.7} className="flex flex-col gap-3 bor
+          -der-t border-mist pt-8 sm:flex-row sm:items-center">          
+      222 +        {/* Переписки, переноса дат и отмены брони гостем на б
+          +эке нет */}                                                   
+      223 +        <Reveal delay={0.7} className={cn('flex flex-col gap-3
+          + rounded-3xl border-t border-mist p-3 pt-8 sm:flex-row sm:item
+          +s-center', MOCK_BORDER)}>                                     
+      224            <Button variant="outline" className="h-12">
+      225              <MessageCircleIcon /> Написать владельцу
+      226            </Button>
+      191 -          {!booking.past && (                                 
+      227 +          {!past && (                                         
+      228              <>
+      229                <Button variant="ghost" className="h-12">
+      230                  <CalendarClockIcon /> Попросить другие даты
+      231                </Button>
+      196 -              <Dialog>                                        
+      197 -                <DialogTrigger render={<Button variant="ghost"
+          - className="h-12 text-destructive hover:bg-destructive/10 hove
+          -r:text-destructive sm:ml-auto" />}>                           
+      198 -                  Отменить бронь                              
+      199 -                </DialogTrigger>                              
+      200 -                <DialogContent className="sm:max-w-lg">       
+      201 -                  <DialogHeader className="gap-2">            
+      202 -                    <span className="mono-label text-smoke">Бр
+          -онь {booking.number}</span>                                   
+      203 -                    <DialogTitle className="section-heading te
+          -xt-heading-sm">Отменить бронь?</DialogTitle>                  
+      204 -                    <DialogDescription className="text-body-sm
+          - text-slate">Вернуть бронь после отмены нельзя — только оформи
+          -ть заново, если даты будут свободны.</DialogDescription>      
+      205 -                  </DialogHeader>                             
+      206 -                  <DialogBody>                                
+      207 -                    <ConsequencesPreview items={CANCEL} />    
+      208 -                  </DialogBody>                               
+      209 -                  <DialogFooter className="gap-2">            
+      210 -                    <DialogClose render={<Button variant="ghos
+          -t" />}>Не отменять</DialogClose>                              
+      211 -                    <Button variant="destructive">Отменить бро
+          -нь</Button>                                                   
+      212 -                  </DialogFooter>                             
+      213 -                </DialogContent>                              
+      214 -              </Dialog>                                       
+      232 +              <Button variant="ghost" className="h-12 text-des
+          +tructive hover:bg-destructive/10 hover:text-destructive sm:ml-
+          +auto">                                                        
+      233 +                Отменить бронь                                
+      234 +              </Button>                                       
+      235              </>
+      236            )}
+      237          </Reveal>
+● Write(src\pages\guest\components\GuestInstructionCard.tsx)
+  ⎿  Wrote 106 lines to src\pages\guest\components\GuestInstructionCard.tsx
+       1 import { CheckIcon, EyeIcon, LockIcon, RefreshCwIcon } from 'luc
+       2 import { useState } from 'react'
+       3 import { useAcknowledgeGuestInstruction, useGuestInstruction } f
+       4 import { formatInstant, getInstructionConflict, getInstructionTy
+       5 import type { GuestInstructionMetadata } from '@/shared/api/gene
+         rated/models'
+       7 import { Button } from '@/shared/ui/shadcn/animate-ui/components
+         /buttons/button'
+         ents/buttons/copy'
+      10 import { Spinn
+     … +135 lines (ctrl+o to expand)
+
+● Write(src\pages\guest\GuestInstructionsPage.tsx)
+  ⎿  Added 70 lines, removed 156 lines
+        1 -import { useState } from 'react'                              
+        2 -import { ArrowLeftIcon, BanknoteIcon, ClockIcon, DoorOpenIcon,
+          - EyeIcon, KeyRoundIcon, LockIcon, type LucideIcon, MapPinIcon,
+          - ScrollTextIcon, WifiIcon } from 'lucide-react'               
+        3 -import { AnimatePresence, motion } from 'motion/react'        
+        1 +import { isAxiosError } from 'axios'                          
+        2 +import { ArrowLeftIcon, RefreshCwIcon } from 'lucide-react'   
+        3  import { Link, useParams } from 'react-router'
+        4 +import { useGuestBooking, useGuestInstructions } from '@/entit
+          +ies/guest-access'                                             
+        5 +import { sortByInstructionType } from '@/entities/instruction'
+        6  import { to } from '@/shared/config/paths'
+        6 -import { DEMO_TZ } from '@/shared/lib/format'                 
+        7 -import { useDemoState } from '@/shared/mock/state'            
+        7 +import { formatRange } from '@/shared/lib/format'             
+        8 +import { cn } from '@/shared/lib/utils'                       
+        9 +import { DeviationNote } from '@/shared/mock/DeviationNote'   
+       10 +import { MOCK_BORDER } from '@/shared/mock/mock-border'       
+       11  import { Reveal, RevealGroup, RevealItem, SplitHeadline } from
+            '@/shared/ui/rb/motion'
+        9 -import { EASE } from '@/shared/ui/rb/motion-presets'          
+       12 +import { StateView } from '@/shared/ui/rb/StateView'          
+       13  import { Button } from '@/shared/ui/shadcn/animate-ui/componen
+           ts/buttons/button'
+       11 -import { CopyButton } from '@/shared/ui/shadcn/animate-ui/comp
+          -onents/buttons/copy'                                          
+       14  import { GuestShell } from '@/widgets/guest-shell/GuestShell'
+       15 +import { GuestInstructionCard } from './components/GuestInstru
+          +ctionCard'                                                    
+       16  
+       14 -// ── Макетные данные инструкций ─────────────────────────────
+          -─────────────────                                             
+       17 +const GuestInstructionsPage = () => {                         
+       18 +  const { bookingId = '' } = useParams()                      
+       19 +  // Бэк принимает только числовой id; остальное — «не найдена
+          +» без запроса                                                 
+       20 +  const isValidId = /^\d+$/.test(bookingId)                   
+       21 +  const id = Number(bookingId)                                
+       22 +  const { data: booking } = useGuestBooking(id)               
+       23 +  const { data: instructions, isPending, isError, error, refet
+          +ch, isRefetching } = useGuestInstructions(id)                 
+       24  
+       16 -type Block = { id: string; icon: LucideIcon; title: string; te
+          -xt: string }                                                  
+       25 +  const notFound = !isValidId || (isError && isAxiosError(erro
+          +r) && error.response?.status === 404)                         
+       26 +  const awaitsPayment = instructions?.some((instruction) => in
+          +struction.locked_reasons.includes('payment_approval_required')
+          +)                                                             
+       27  
+       18 -const BLOCKS: Block[] = [                                     
+       19 -  { id: 'route', icon: MapPinIcon, title: 'Как добраться', tex
+          -t: 'Лиговский пр., 50. От метро «Лиговский проспект» 4 минуты.
+          - Вход со двора: арка справа от аптеки, 3 подъезд, 4 этаж.' }, 
+       20 -  { id: 'rules', icon: ScrollTextIcon, title: 'Правила дома', 
+          -text: 'Без животных и вечеринок. Тишина с 23:00. Курить только
+          - на улице.' },                                                
+       21 -  { id: 'checkout', icon: DoorOpenIcon, title: 'Выезд', text: 
+          -`До 12:00 ${DEMO_TZ}. Оставьте ключи в ключнице, закройте окна
+          -. Посуду мыть не нужно.` },                                   
+       22 -]                                                             
+       23 -                                                              
+       24 -const ACCESS = { code: '4721', intercom: '14В' }              
+       25 -const WIFI = { network: 'Volna_Ligovsky', password: 'ligovsky-
+          -2026' }                                                       
+       26 -                                                              
+       27 -// ── Код доступа ────────────────────────────────────────────
+          -─────────────────                                             
+       28 -                                                              
+       29 -// Код скрыт до нажатия: экран могут видеть рядом, а код — сам
+          -ое чувствительное в поездке                                   
+       30 -const AccessCode = () => {                                    
+       31 -  const [shown, setShown] = useState(false)                   
+       28    return (
+       33 -    <section className="flex flex-col items-center gap-6 round
+          -ed-card rounded-t-arc bg-foreground px-6 pt-12 pb-7 text-cente
+          -r text-background shadow-card dark:bg-mist dark:text-foregroun
+          -d">                                                           
+       34 -      <span className="flex items-center gap-2 text-caption op
+          -acity-60">                                                    
+       35 -        <KeyRoundIcon className="size-3.5" aria-hidden /> Код 
+          -ключницы · действует до выезда                                
+       36 -      </span>                                                 
+       37 -      <div className="flex gap-2" aria-live="polite">         
+       38 -        {ACCESS.code.split('').map((digit, index) => (        
+       39 -          <span key={index} className="relative flex h-20 w-14
+          - items-center justify-center overflow-hidden rounded-2xl bg-ba
+          -ckground/10 md:h-24 md:w-16 dark:bg-foreground/10">           
+       40 -            <AnimatePresence mode="wait" initial={false}>     
+       41 -              {shown ? (                                      
+       42 -                <motion.span                                  
+       43 -                  key="digit"                                 
+       44 -                  initial={{ y: '80%', opacity: 0, filter: 'bl
+          -ur(6px)' }}                                                   
+       45 -                  animate={{ y: 0, opacity: 1, filter: 'blur(0
+          -px)' }}                                                       
+       46 -                  transition={{ duration: 0.55, ease: EASE, de
+          -lay: index * 0.07 }}                                          
+       47 -                  className="brand-display text-[44px] md:text
+          --[56px]"                                                      
+       48 -                >                                             
+       49 -                  {digit}                                     
+       50 -                </motion.span>                                
+       51 -              ) : (                                           
+       52 -                <motion.span key="dot" exit={{ scale: 0, opaci
+          -ty: 0 }} className="size-3 rounded-full bg-current opacity-50"
+          - />                                                           
+       53 -              )}                                              
+       54 -            </AnimatePresence>                                
+       55 -          </span>                                             
+       56 -        ))}                                                   
+       57 -      </div>                                                  
+       58 -      <span className="text-body-sm opacity-70">Домофон: {show
+          -n ? ACCESS.intercom : '•••'}, затем кнопка «В»</span>         
+       59 -      {shown ? (                                              
+       60 -        <CopyButton content={ACCESS.code} size="lg" className=
+          -"size-11 rounded-full bg-lime text-[#0a1217] hover:bg-lime/85"
+          - aria-label="Скопировать код" />                              
+       61 -      ) : (                                                   
+       62 -        <Button variant="accent" className="h-11" onClick={() 
+          -=> setShown(true)}>                                           
+       63 -          <EyeIcon /> Показать код                            
+       64 -        </Button>                                             
+       65 -      )}                                                      
+       66 -    </section>                                                
+       67 -  )                                                           
+       68 -}                                                             
+       69 -                                                              
+       70 -// ── Закрытые инструкции ────────────────────────────────────
+          -─────────────────                                             
+       71 -                                                              
+       72 -type ClosedReason = 'time' | 'payment'                        
+       73 -                                                              
+       74 -const CLOSED: Record<ClosedReason, { icon: LucideIcon; title: 
+          -string; text: string; action?: string }> = {                  
+       75 -  time: {                                                     
+       76 -    icon: ClockIcon,                                          
+       77 -    title: 'Откроются в день заезда',                         
+       78 -    text: `Код и инструкции станут доступны 15 окт в 13:00 ${D
+          -EMO_TZ} — за час до заезда. Пришлём сообщение, когда откроются
+          -.`,                                                           
+       79 -  },                                                          
+       80 -  payment: {                                                  
+       81 -    icon: BanknoteIcon,                                       
+       82 -    title: 'Ждём подтверждения оплаты',                       
+       83 -    text: 'Код откроется, когда владелец подтвердит остаток 6 
+          -800 ₽. Если вы уже перевели — сообщите о переводе, владелец св
+          -ерит его.',                                                   
+       84 -    action: 'Сообщить о переводе',                            
+       85 -  },                                                          
+       86 -}                                                             
+       87 -                                                              
+       88 -const ClosedView = ({ reason }: { reason: ClosedReason }) => {
+       89 -  const { icon: Icon, title, text, action } = CLOSED[reason]  
+       90 -  return (                                                    
+       91 -    <div className="flex flex-col gap-6">                     
+       92 -      <Reveal delay={0.2}>                                    
+       93 -        <section className="flex flex-col items-center gap-5 r
+          -ounded-card rounded-t-arc bg-card px-6 pt-12 pb-8 text-center 
+          -shadow-card">                                                 
+       94 -          <span className="flex size-16 items-center justify-c
+          -enter rounded-full bg-background">                            
+       95 -            <Icon className="size-6" aria-hidden />           
+       96 -          </span>                                             
+       97 -          <span className="brand-display text-[30px] md:text-[
+          -40px]">{title}</span>                                         
+       98 -          <span className="max-w-sm text-body-sm text-slate">{
+          -text}</span>                                                  
+       99 -          {action && <Button className="h-12 shadow-control">{
+          -action}</Button>}                                             
+      100 -        </section>                                            
+      101 -      </Reveal>                                               
+      102 -      {/* Обычные материалы доступны и до кода: закрыто только
+          - чувствительное */}                                           
+      103 -      <Reveal delay={0.35} className="flex flex-col gap-3">   
+      104 -        <span className="text-caption text-smoke">Уже доступно
+          -</span>                                                       
+      105 -        {BLOCKS.filter((block) => block.id !== 'checkout').map
+          -(({ id, icon: BlockIcon, title: blockTitle, text: blockText })
+          - => (                                                         
+      106 -          <div key={id} className="flex gap-4 rounded-3xl bg-c
+          -ard p-5">                                                     
+      107 -            <BlockIcon className="mt-0.5 size-4 shrink-0" aria
+          --hidden />                                                    
+      108 -            <span className="flex flex-col gap-1">            
+      109 -              <span className="text-body-sm font-medium">{bloc
+          -kTitle}</span>                                                
+      110 -              <span className="text-body-sm text-slate">{id ==
+          -= 'route' ? 'Лиговский пр., 50. Точный подъезд и этаж — вместе
+          - с кодом.' : blockText}</span>                                
+      111 -            </span>                                           
+      112 -          </div>                                              
+      113 -        ))}                                                   
+      114 -        <div className="flex items-center gap-4 rounded-3xl bo
+          -rder border-dashed border-foreground/20 p-5 text-body-sm text-
+          -slate">                                                       
+      115 -          <LockIcon className="size-4 shrink-0" aria-hidden />
+          - Код ключницы, домофон и Wi-Fi                                
+      116 -        </div>                                                
+      117 -      </Reveal>                                               
+      118 -    </div>                                                    
+      119 -  )                                                           
+      120 -}                                                             
+      121 -                                                              
+      122 -// ── Страница ───────────────────────────────────────────────
+          -─────────────────                                             
+      123 -                                                              
+      124 -const GuestInstructionsPage = () => {                         
+      125 -  const { bookingId = 'gb-1' } = useParams()                  
+      126 -  const { state } = useDemoState()                            
+      127 -  // ?state=denied — закрыты по времени, ?state=error — закрыт
+          -ы до подтверждения оплаты                                     
+      128 -  const closed: ClosedReason | null = state === 'denied' ? 'ti
+          -me' : state === 'error' ? 'payment' : null                    
+      129 -                                                              
+      130 -  return (                                                    
+      131 -    <GuestShell>                                              
+       29 +    <GuestShell mockOwner>                                    
+       30        <div className="mx-auto flex w-full max-w-xl flex-col ga
+           p-8">
+       31          <div className="flex flex-col gap-4">
+       32            <Reveal>
+      135 -            <Link to={to.guestBooking(bookingId)} className="i
+          -nline-flex w-fit items-center gap-1.5 text-caption text-smoke 
+          -transition-colors hover:text-foreground">                     
+      136 -              <ArrowLeftIcon className="size-3.5" aria-hidden 
+          -/> К брони                                                    
+       33 +            <Link                                             
+       34 +              to={isValidId ? to.guestBooking(bookingId) : to.
+          +guestBookings()}                                              
+       35 +              className="inline-flex w-fit items-center gap-1.
+          +5 text-caption text-smoke transition-colors hover:text-foregro
+          +und"                                                          
+       36 +            >                                                 
+       37 +              <ArrowLeftIcon className="size-3.5" aria-hidden 
+          +/> {isValidId ? 'К брони' : 'Мои бронирования'}               
+       38              </Link>
+       39            </Reveal>
+       40            <SplitHeadline text="Как заселиться" delay={0.05} cl
+           assName="brand-display text-[44px] md:text-[64px]" />
+      140 -          <Reveal delay={0.2} className="text-body text-slate"
+          ->                                                             
+      141 -            Студия у Московского вокзала · 15–18 окт          
+      142 -          </Reveal>                                           
+       41 +          {booking && (                                       
+       42 +            <Reveal delay={0.2} className="text-body text-slat
+          +e">                                                           
+       43 +              {booking.property.public_title ?? 'Ваше брониров
+          +ание'} · {formatRange(booking.start_date.slice(0, 10), booking
+          +.end_date.slice(0, 10))}                                      
+       44 +            </Reveal>                                         
+       45 +          )}                                                  
+       46          </div>
+       47  
+      145 -        {closed ? (                                           
+      146 -          <ClosedView reason={closed} />                      
+       48 +        {notFound ? (                                         
+       49 +          // 404 — привязки нет, она не подтверждена или отозв
+          +ана, бронь отменена. Причину бэк не называет                  
+       50 +          <StateView                                          
+       51 +            state="empty"                                     
+       52 +            empty={{                                          
+       53 +              title: 'Инструкции недоступны',                 
+       54 +              description: 'Бронь отменена, доступ отозван или
+          + владелец ещё не подтвердил его.',                            
+       55 +            }}                                                
+       56 +          />                                                  
+       57 +        ) : isPending ? (                                     
+       58 +          <StateView state="loading" />                       
+       59 +        ) : isError ? (                                       
+       60 +          <StateView                                          
+       61 +            state="error"                                     
+       62 +            error={{                                          
+       63 +              title: 'Инструкции не загрузились',             
+       64 +              description: 'Проверьте соединение и повторите п
+          +опытку.',                                                     
+       65 +              action: (                                       
+       66 +                <Button variant="outline" size="sm" disabled={
+          +isRefetching} onClick={() => refetch()}>                      
+       67 +                  <RefreshCwIcon /> Повторить                 
+       68 +                </Button>                                     
+       69 +              ),                                              
+       70 +            }}                                                
+       71 +          />                                                  
+       72 +        ) : instructions.length === 0 ? (                     
+       73 +          <StateView state="empty" empty={{ title: 'Инструкций
+          + пока нет', description: 'Владелец ещё не добавил инструкции д
+          +ля этого жилья.' }} />                                        
+       74          ) : (
+       75            <>
+      149 -            <Reveal delay={0.25}>                             
+      150 -              <AccessCode />                                  
+      151 -            </Reveal>                                         
+      152 -            <Reveal delay={0.35}>                             
+      153 -              <section className="flex items-center justify-be
+          -tween gap-4 rounded-card bg-card p-5 shadow-card">            
+      154 -                <span className="flex items-center gap-4">    
+      155 -                  <span className="flex size-10 items-center j
+          -ustify-center rounded-full bg-background">                    
+      156 -                    <WifiIcon className="size-4" aria-hidden /
+          ->                                                             
+      157 -                  </span>                                     
+      158 -                  <span className="flex flex-col">            
+      159 -                    <span className="text-body-sm font-medium"
+          ->{WIFI.network}</span>                                        
+      160 -                    <span className="font-mono text-caption te
+          -xt-slate">{WIFI.password}</span>                              
+      161 -                  </span>                                     
+      162 -                </span>                                       
+      163 -                <CopyButton content={WIFI.password} variant="g
+          -host" size="lg" className="rounded-full bg-background hover:bg
+          --mist" aria-label="Скопировать пароль Wi-Fi" />               
+      164 -              </section>                                      
+      165 -            </Reveal>                                         
+      166 -            <RevealGroup as="ol" delay={0.45} stagger={0.08} c
+          -lassName="flex flex-col gap-3">                               
+      167 -              {BLOCKS.map(({ id, icon: Icon, title, text }, in
+          -dex) => (                                                     
+      168 -                <RevealItem as="li" key={id} className="flex g
+          -ap-4 rounded-3xl bg-card p-5">                                
+      169 -                  <span className="text-caption text-smoke tab
+          -ular-nums">{String(index + 1).padStart(2, '0')}</span>        
+      170 -                  <span className="flex flex-col gap-1.5">    
+      171 -                    <span className="flex items-center gap-2 t
+          -ext-body font-medium">                                        
+      172 -                      <Icon className="size-4" aria-hidden /> 
+          -{title}                                                       
+      173 -                    </span>                                   
+      174 -                    <span className="text-body-sm text-slate">
+          -{text}</span>                                                 
+      175 -                  </span>                                     
+       76 +            <RevealGroup as="ol" delay={0.25} stagger={0.08} c
+          +lassName="flex flex-col gap-3">                               
+       77 +              {sortByInstructionType(instructions).map((instru
+          +ction, index) => (                                            
+       78 +                <RevealItem as="li" key={instruction.id}>     
+       79 +                  <GuestInstructionCard index={index} bookingI
+          +d={id} instruction={instruction} timezone={booking?.timezone ?
+          +? ''} />                                                      
+       80                  </RevealItem>
+       81                ))}
+       82              </RevealGroup>
+       83 +                                                              
+       84 +            {/* Сообщить о переводе гость пока не может: ручки
+          + под оплаты на бэке нет */}                                   
+       85 +            {awaitsPayment && (                               
+       86 +              <Reveal delay={0.5} className={cn('flex flex-col
+          + items-start gap-3 rounded-3xl p-4', MOCK_BORDER)}>           
+       87 +                <span className="text-body-sm text-slate">Если
+          + вы уже перевели оплату — сообщите о переводе, владелец сверит
+          + его.</span>                                                  
+       88 +                <Button className="h-12 shadow-control">Сообщи
+          +ть о переводе</Button>                                        
+       89 +              </Reveal>                                       
+       90 +            )}                                                
+       91 +                                                              
+       92 +            <DeviationNote reason="крупного блока с цифрами ко
+          +да и отдельной карточки Wi-Fi нет — бэк отдаёт инструкции своб
+          +одным текстом, а чувствительные гостю пока не выдаёт" />      
+       93            </>
+       94          )}
+       95        </div>
+
+  Called claude-in-chrome 3 times, ran 4 shell commands (ctrl+o to expand)
+
+● Всё по плану сделано: объект, бронь и гостевые страницы переведены на API. В
+  браузере не проверял — проверены только tsc и oxlint.
+
+  tsc -b и oxlint в новых файлах чистые. Единственная ошибка tsc —
+  неиспользуемый ROUTES в src/widgets/app-shell/AppFooter.tsx, этот файл я не
+  трогал.
+
+  Почему без браузера: dev-сервер проксирует /api на боевой api.rentybot.ru, а в
+  моём Chrome сессии нет. Входить и создавать там инструкции и приглашения без
+  твоего решения не стал.
+
+  Что теперь работает
+
+  - Объект → «Инструкции»: пять слотов по типам, создание и правка в шторке,
+    история, форма условий выдачи. Администратор и архивный объект — только
+    чтение.
+  - Бронь → «Инструкции»: предпросмотр «Глазами гостя» с выбором гостя,
+    приглашение по почте с одноразовой ссылкой, привязки гостей (подтвердить,
+    разрешить по оплате, отозвать — всё с основанием), история доступа.
+  - Гость: новая страница /guest/invitations/:token, список броней, карточка
+    брони, инструкции (открыть → «Получил(а)»).
+  - Правка и отмена брони теперь перечитывают гостевой доступ и предпросмотр.
+
+  Слой данных — в новых src/entities/instruction и src/entities/guest-access.
+
+  Рамки
+
+  Красные (на бэке нет):
+  - строка «Канал: MAX» в условиях выдачи;
+  - у гостя: оплаты, адрес, кнопки «Написать / Другие даты / Отменить»,
+    «Сообщить о переводе», сумма в списке броней, «Выбрать жильё», имя владельца
+    в шапке.
+
+  Жёлтые (работает иначе, чем в макете):
+  - в списке инструкций нет текста и даты изменения;
+  - чувствительные инструкции гостю сейчас не выдаются вообще
+    (sensitive_delivery_available всегда false);
+  - нет переключателя «за день / за час до заезда»;
+  - у гостя нет крупного блока с цифрами кода и карточки Wi-Fi — только
+    свободный текст.
+
+  Что убрал сверх плана
+
+  - Экран «Подтвердите номер» в списке броней гостя: он открывался только через
+    демо-панель, а она на этих страницах теперь скрыта.
+  - Диалог отмены брони гостем с макетными последствиями: осталась одна кнопка в
+    красной рамке.
+
+  Старые демо-ссылки вида /guest/bookings/gb-1 (реестр страниц, UX-карта,
+  страница заявки) теперь показывают «Бронь не найдена».
+
+  Проверить руками
+
+  Нужны два аккаунта: владелец и гость с почтой из приглашения.
+  1. Владелец создаёт инструкции и сохраняет условия.
+  2. В брони создаёт ссылку-приглашение.
+  3. Гость открывает ссылку и запрашивает доступ.
+  4. Владелец подтверждает гостя.
+  5. Гость открывает инструкцию и жмёт «Получил(а)» — отметки должны появиться у
+     владельца в привязках и истории.
+
+✻ Worked for 14m 20s · done 22:10
+
+> Напиши мне текст -кейсы что мне нужно проверить сейчас,                       
+
+● Тест-кейсы: инструкции и гостевой доступ
+
+  Нужно: аккаунт владельца (A), аккаунт администратора (B), аккаунт гостя (C) с
+  отдельной почтой, один объект, одна подтверждённая будущая бронь на нём.
+
+  Dev-сервер ходит на боевой api.rentybot.ru — всё созданное останется там.
+
+  ---
+
+  1. Объект → «Инструкции» (аккаунт A)
+
+  1.1 Пустое состояние
+  - Открыть объект → вкладка «Инструкции».
+  - Ждём: 5 слотов «Не заполнена» с кнопкой «Добавить», счётчик «0 из 5», справа
+    «Условия выдачи».
+
+  1.2 Создание обычной инструкции
+  - «Добавить» у «Как добраться» → ввести текст → «Создать».
+  - Ждём: тост «Инструкция создана», слот заполнен, «версия 1», счётчик «1 из
+    5».
+
+  1.3 Создание чувствительной
+  - «Добавить» у «Wi-Fi».
+  - Ждём: переключатель «Чувствительное» включён и заблокирован. После создания
+    — бейдж «чувствительное».
+
+  1.4 Валидация
+  - Очистить название и текст → «Создать».
+  - Ждём: ошибки под полями, запрос не уходит.
+
+  1.5 Правка
+  - Карандаш у инструкции → текст подгрузился → изменить → «Сохранить».
+  - Ждём: тост «Инструкция сохранена», «версия 2».
+
+  1.6 Правка без изменений
+  - Открыть, ничего не менять → «Сохранить».
+  - Ждём: шторка закрылась, версия не выросла, запроса POST нет.
+
+  1.7 Выключение
+  - Выключить «Показывать гостям» → сохранить.
+  - Ждём: бейдж «выключена», название приглушено.
+
+  1.8 История
+  - Иконка часов у инструкции.
+  - Ждём: события «создана», «изменена» с автором и временем, свежие сверху.
+
+  1.9 Конфликт версий
+  - Открыть одну инструкцию на правку в двух вкладках. Сохранить в первой, потом
+    во второй.
+  - Ждём во второй: тост «Данные изменили, пока форма была открыта…», форма
+    получила свежий текст.
+
+  1.10 Условия выдачи
+  - Поставить «2 / часов / до заезда», сохранить.
+  - Ждём: тост «Условия выдачи сохранены», после перезагрузки значения те же.
+  - Ввести 8 дней → ошибка «Не больше 7 дней».
+  - Без изменений кнопка «Сохранить условия» неактивна.
+
+  1.11 Рамки
+  - Красная: строка «Канал».
+  - Жёлтые: список материалов, плашка про чувствительные.
+
+  2. Права и архив
+
+  2.1 Администратор (аккаунт B)
+  - Та же вкладка.
+  - Ждём: плашка «читают и меняют владелец и управляющий», нет «Добавить» и
+    карандаша, история открывается, условия выдачи — текстом без формы.
+
+  2.2 Архивный объект (аккаунт A)
+  - Заархивировать объект без будущих броней → «Инструкции».
+  - Ждём: плашка про архив, вместо карандаша глаз, текст открывается, поля
+    заблокированы, кнопки «Сохранить» нет.
+
+  3. Бронь → «Инструкции» (аккаунт A)
+
+  3.1 Предпросмотр без гостя
+  - Ждём: тёмная карточка «Глазами гостя», все инструкции с текстом, у каждой
+    причина «Гость не подтверждён командой». Текст чувствительной скрыт до
+    «Показать текст».
+
+  3.2 Создание приглашения
+  - Поле почты предзаполнено почтой гостя из брони. Ввести почту аккаунта C →
+    «Создать ссылку».
+  - Ждём: блок со ссылкой /guest/invitations/<64 символа>, копирование работает,
+    в списке приглашение «Ждёт гостя». Тоста об успехе нет.
+
+  3.3 Повторное приглашение на ту же почту
+  - Ждём: новая ссылка, прежнее приглашение стало «Отозвано».
+
+  3.4 Отзыв приглашения
+  - «Отозвать» → пустое основание → ошибка под полем. Ввести основание →
+    «Отозвать».
+  - Ждём: тост, статус «Отозвано». Создать приглашение заново для следующих
+    шагов.
+
+  3.5 Невалидная почта
+  - Ввести abc → ошибка под полем.
+
+  4. Гость принимает приглашение (аккаунт C)
+
+  4.1 Без входа
+  - Открыть ссылку в чистом браузере.
+  - Ждём: редирект на вход, после входа — возврат на ссылку.
+
+  4.2 Чужая почта
+  - Открыть ссылку под аккаунтом A или B.
+  - Ждём: «Приглашение не найдено», кнопка «Войти с другой почтой».
+
+  4.3 Запрос доступа
+  - Под аккаунтом C → «Запросить доступ».
+  - Ждём: экран «Запрос отправлен».
+  - Открыть ссылку снова → «Приглашение недоступно».
+
+  4.4 До подтверждения
+  - /guest/bookings → «Бронирований пока нет».
+
+  4.5 Отозванная ссылка
+  - Открыть ссылку из 3.3/3.4 → «Приглашение недоступно».
+
+  5. Подтверждение гостя (аккаунт A)
+
+  5.1 Запрос появился
+  - Бронь → «Инструкции» → «Гости с доступом».
+  - Ждём: гость C, статус «Ждёт подтверждения», приглашение «Принято».
+
+  5.2 Подтвердить
+  - «Подтвердить гостя» → основание → «Подтвердить».
+  - Ждём: тост, статус «Подтверждён», появился блок «Оплата: не подтверждена».
+
+  5.3 Предпросмотр с гостем
+  - В выпадающем списке выбрать гостя C.
+  - Ждём: обычные инструкции — зелёная плашка «гость видит · до …»;
+    чувствительная — причины «выдача пока недоступна», «не подтверждена полная
+    оплата» и др.; выключенная — «Инструкция выключена».
+
+  5.4 Оплата
+  - «Оплата проверена» → основание → «Разрешить».
+  - Ждём: «Проверена <дата>», основание показано, в предпросмотре причина про
+    оплату пропала.
+
+  5.5 История доступа
+  - Ждём: приглашение создано, принято, гость запросил, подтверждён, оплата
+    разрешена — с основаниями.
+
+  6. Гость читает инструкции (аккаунт C)
+
+  6.1 Список броней
+  - /guest/bookings → бронь в «Ближайшие», даты, ночи, время заезда; сверху имя
+    и почта гостя. Сумма — в красной рамке.
+
+  6.2 Карточка брони
+  - Ждём: название, время заезда/выезда, плашка «через N дней», «Доступно X из
+    Y» в блоке инструкций. Оплаты, адрес, нижние кнопки — в красной рамке.
+
+  6.3 Инструкции
+  - Ждём: выключенной инструкции нет; чувствительная — с замком и причинами;
+    обычные — кнопка «Открыть».
+
+  6.4 Открыть и подтвердить
+  - «Открыть» → текст с переносами строк → «Получил(а)».
+  - Ждём: тост «Получение подтверждено», вместо кнопки — «Получение
+    подтверждено». «Скрыть» убирает текст.
+
+  6.5 Отметки у владельца (аккаунт A)
+  - Бронь → «Гости с доступом»: «<название> · получение подтверждено <дата>».
+  - История доступа: «Гость открыл инструкцию: «…»», «Гость подтвердил
+    получение…».
+
+  6.6 Новая версия
+  - A меняет текст инструкции. C обновляет страницу.
+  - Ждём: снова «Открыть», отметки получения нет; у A отметка по этой инструкции
+    пропала.
+
+  6.7 Чужой / несуществующий id
+  - /guest/bookings/999999 и /guest/bookings/gb-1 → «Бронь не найдена».
+
+  7. Отзыв и изменения брони
+
+  7.1 Отзыв доступа (A)
+  - «Отозвать доступ» → основание.
+  - Ждём: статус «Отозван», кнопок нет, подсказка про новое приглашение.
+  - У C: бронь пропала из списка, по прямой ссылке — «не найдена», инструкции —
+    «недоступны».
+
+  7.2 Возврат доступа
+  - Новое приглашение → C принимает → у A снова «Ждёт подтверждения», оплата
+    сброшена.
+
+  7.3 Перенос дат
+  - Подтвердить C и разрешить оплату. Изменить даты брони.
+  - Ждём: во вкладке «Инструкции» оплата снова «Не подтверждена», в истории
+    «Даты брони изменены — разрешение по оплате сброшено». Страницу не
+    перезагружать — должно обновиться само.
+
+  7.4 Отмена брони
+  - Отменить бронь.
+  - Ждём: привязка «Отозван», форма приглашения заменена текстом «новые
+    приглашения не выдаются», у гостя бронь пропала.
+
+  8. Общее
+
+  - На гостевых страницах и вкладках «Инструкции» нет демо-панелей
+    (переключатель вариантов, карта путей).
+  - Администратор (B) на вкладке брони: приглашения и привязки работают, в
+    предпросмотре только список без текста с пояснением.
+  - Сотрудник: объект и бронь недоступны, как раньше.
+  - В консоли браузера нет ошибок при проходе сценария.
+
+  Самые рискованные места — 1.9, 6.6 и 7.3: там завязка на версии и
+  перечитывание кэша.
+
+✻ Churned for 31s · done 22:11

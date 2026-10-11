@@ -6,6 +6,7 @@ import CalendarPage from '@/pages/calendar/CalendarPage'
 import GuestBookingPage from '@/pages/guest/GuestBookingPage'
 import GuestBookingsPage from '@/pages/guest/GuestBookingsPage'
 import GuestInstructionsPage from '@/pages/guest/GuestInstructionsPage'
+import GuestInvitationPage from '@/pages/guest/GuestInvitationPage'
 import GuestRequestPage from '@/pages/guest/GuestRequestPage'
 import CheckoutPage from '@/pages/host/CheckoutPage'
 import HostPage from '@/pages/host/HostPage'
@@ -27,6 +28,7 @@ import ProfileSecurityPage from '@/pages/profile/profile-security/ProfileSecurit
 import ProfileWorkspacesPage from '@/pages/profile/profile-workspaces/ProfileWorkspacesPage'
 import PropertiesPage from '@/pages/properties/PropertiesPage'
 import LayoutProperty from '@/pages/property/LayoutProperty'
+import LayoutGuest from '@/shared/layouts/layout-guest/LayoutGuest'
 import PropertyBookingsPage from '@/pages/property/property-bookings/PropertyBookingsPage'
 import PropertyCalendarPage from '@/pages/property/property-calendar/PropertyCalendarPage'
 import PropertyDirectPage from '@/pages/property/property-direct/PropertyDirectPage'
@@ -87,6 +89,18 @@ export const privateRoutes: AppRoute[] = [
   // Приглашение в команду: бэк отдаёт его только вошедшему (team-invitations/{token} под auth:web).
   // Гард запоминает ссылку и возвращает на неё после входа
   { path: ROUTES.INVITE, Component: InvitePage },
+  // Гость брони: приглашение, свои брони и инструкции — только после входа (guest-invitations и guest/bookings под auth:web).
+  // Оплаты, адрес, переписка и отмена в гостевых ручках отсутствуют — эти блоки пока моки (обведены красным)
+  { path: ROUTES.GUEST_INVITATION, Component: GuestInvitationPage },
+  // LayoutGuest держит шапку, подвал и общую ширину; страницы — внутри него
+  {
+    Component: LayoutGuest,
+    children: [
+      { path: ROUTES.GUEST_BOOKINGS, Component: GuestBookingsPage },
+      { path: ROUTES.GUEST_BOOKING, Component: GuestBookingPage },
+      { path: ROUTES.GUEST_INSTRUCTIONS, Component: GuestInstructionsPage },
+    ],
+  },
 ]
 
 // ── После входа и в своей организации (/app/:orgId/*), без оболочки кабинета ─
@@ -100,14 +114,15 @@ export const orgRoutes: AppRoute[] = [
 export const appRoutes: AppRoute[] = [
   // Лента на API; кнопка «Прочитать всё» ждёт ручку на бэке (обведена красным)
   { path: ROUTES.NOTIFICATIONS, Component: NotificationsPage },
-  // Ручные брони (тег Bookings): список, создание, карточка, правка, отмена и история — на API.
-  // Блокировка дат, оплаты, подготовка, инструкции и всё про площадки пока моки (обведены красным)
+  // Ручные брони (тег Bookings): список, создание, карточка, правка, отмена и история — на API,
+  // как и вкладка «Инструкции» (тег Instructions): предпросмотр, приглашения и привязки гостя.
+  // Блокировка дат, оплаты, подготовка и всё про площадки пока моки (обведены красным)
   { path: ROUTES.BOOKINGS, Component: BookingsPage },
   { path: ROUTES.BOOKING, Component: BookingPage },
   // Список и создание — на API. Заезды, площадки, публичность и ответственный в карточках пока моки (обведены красным)
   { path: ROUTES.PROPERTIES, Component: PropertiesPage },
   // Объект: LayoutProperty грузит объект, держит шапку и вкладки, вкладки — отдельные страницы.
-  // На API шапка (кроме обведённого красным), «Сведения», архив и восстановление; остальные вкладки — моки
+  // На API шапка (кроме обведённого красным), «Сведения», «Инструкции», архив и восстановление; остальные вкладки — моки
   {
     path: ROUTES.PROPERTY,
     Component: LayoutProperty,
@@ -182,10 +197,6 @@ export const mockPrivateRoutes: AppRoute[] = [
   { path: ROUTES.SPECIALIST_PROFILE, Component: SpecialistProfilePage },
   { path: ROUTES.SPECIALIST_INBOX, Component: SpecialistInboxPage },
   { path: ROUTES.SPECIALIST_REVIEWS, Component: SpecialistReviewsPage },
-  // Брони и инструкции гостя — тоже только после входа (guest/bookings под auth:web)
-  { path: ROUTES.GUEST_BOOKINGS, Component: GuestBookingsPage },
-  { path: ROUTES.GUEST_BOOKING, Component: GuestBookingPage },
-  { path: ROUTES.GUEST_INSTRUCTIONS, Component: GuestInstructionsPage },
 ]
 
 // ── Без входа: доступны всем ────────────────────────────────────────────────

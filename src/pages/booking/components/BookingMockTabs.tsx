@@ -9,13 +9,13 @@ import { Checklist, type ChecklistItem } from '@/shared/ui/rb/Checklist'
 import { type MoneyLine, MoneySummary } from '@/shared/ui/rb/MoneySummary'
 import { PersonLine } from '@/shared/ui/rb/PersonAvatar'
 import { SectionCard } from '@/shared/ui/rb/Section'
-import { ACCESS_STATUS, TASK_STATUS, withLabel } from '@/shared/ui/rb/status-presets'
+import { TASK_STATUS } from '@/shared/ui/rb/status-presets'
 import { StatusFromMeta } from '@/shared/ui/rb/StatusBadge'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ConfirmPaymentDialog } from '@/widgets/booking-actions/ConfirmPaymentDialog'
 
-// Вкладки, под которые ручек ещё нет или они подключаются отдельным этапом: оплаты (API нет), подготовка (preparations)
-// и инструкции (guest-access). Целиком на моках, поэтому каждая обведена красным
+// Вкладки, под которые ручек ещё нет или они подключаются отдельным этапом: оплаты (API нет) и подготовка (preparations).
+// Целиком на моках, поэтому каждая обведена красным
 
 // ── Макетные данные ─────────────────────────────────────────────────────────
 
@@ -41,8 +41,6 @@ const PREP_TASKS = [
   { id: 't-301', title: 'Уборка после выезда', who: 'Марина Соколова', due: `14:30 ${DEMO_TZ}`, status: TASK_STATUS.todo },
   { id: 't-307', title: 'Передать ключи гостю', who: 'Игорь Петров', due: `15:00 ${DEMO_TZ}`, status: TASK_STATUS.planned },
 ]
-
-const INSTRUCTION_STEPS = ['Адрес и как пройти от метро', 'Код домофона и ключницы', 'Wi-Fi и бытовая техника', 'Правила дома и выезд']
 
 // ── Вкладки ─────────────────────────────────────────────────────────────────
 
@@ -93,27 +91,5 @@ export const BookingPrepMock = () => (
         ))}
       </ul>
     </SectionCard>
-  </div>
-)
-
-export const BookingInstructionsMock = ({ booking, orgId }: { booking: Booking; orgId: string }) => (
-  <div className={cn('grid items-start gap-4 lg:grid-cols-[1fr_360px]', MOCK_BORDER)}>
-    <SectionCard title="Что увидит гость">
-      <ol className="flex flex-col gap-4">
-        {INSTRUCTION_STEPS.map((item, index) => (
-          <li key={item} className="flex items-center gap-4">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-mist text-caption tabular-nums">{String(index + 1).padStart(2, '0')}</span>
-            <span className="text-body-sm">{item}</span>
-          </li>
-        ))}
-      </ol>
-    </SectionCard>
-    <section className="flex flex-col gap-4 rounded-card bg-card p-6 shadow-card">
-      <StatusFromMeta meta={withLabel(ACCESS_STATUS.locked, 'Закрыты')} />
-      <span className="text-body-sm text-slate">Код доступа не показывается заранее. Гость получит инструкции в 14:00 {DEMO_TZ}, за час до заезда.</span>
-      <Button variant="outline" size="sm" className="self-start bg-canvas" asChild>
-        <Link to={to.property(String(booking.property_id), 'instructions', orgId)}>Изменить инструкции объекта</Link>
-      </Button>
-    </section>
   </div>
 )

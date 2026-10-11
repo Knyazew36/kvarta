@@ -81,8 +81,8 @@ export const PropertyHeader = ({ property, orgId, isOwner }: PropertyHeaderProps
                 organizationId={property.organization_id}
                 property={property}
                 trigger={
-                  <Button variant="ghost" size="icon" aria-label="Архивировать объект">
-                    <ArchiveIcon />
+                  <Button variant="ghost">
+                    <ArchiveIcon /> В архив
                   </Button>
                 }
               />

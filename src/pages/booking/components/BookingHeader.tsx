@@ -1,4 +1,4 @@
-import { PencilIcon, XIcon } from 'lucide-react'
+import { PencilIcon, UserPlusIcon, XIcon } from 'lucide-react'
 import { Link } from 'react-router'
 import { getBookingDisplayStatus } from '@/entities/booking'
 import type { Booking, Property, PropertyWork } from '@/shared/api/generated/models'
@@ -13,6 +13,8 @@ import { StatusFromMeta } from '@/shared/ui/rb/StatusBadge'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { BookingEditSheet } from './BookingEditSheet'
 import { CancelBookingDialog } from './CancelBookingDialog'
+import { GuestInviteDialog } from './GuestInviteDialog'
+import { hasBookingEnded } from './has-booking-ended'
 
 // Дата и время снимка из брони: «8 окт, 15:00». Времена относятся к поясу брони, а не браузера
 const formatStay = (date: string, time: string | null) => `${formatDate(date)}${time ? `, ${time}` : ''}`
@@ -29,6 +31,8 @@ export const BookingHeader = ({ booking, property, orgId }: BookingHeaderProps) 
   const confirmed = booking.status === 'confirmed'
   // Править бронь архивного объекта бэк не даёт (409); отменить — можно
   const canEdit = confirmed && property?.status !== 'archived'
+  // Приглашения бэк выдаёт только по подтверждённой брони неархивного объекта и до выезда (иначе 409)
+  const canInvite = canEdit && !hasBookingEnded(booking)
 
   return (
     <RecordHeader
@@ -80,14 +84,26 @@ export const BookingHeader = ({ booking, property, orgId }: BookingHeaderProps) 
       }
       secondaryActions={
         confirmed && (
-          <CancelBookingDialog
-            booking={booking}
-            trigger={
-              <Button variant="ghost">
-                <XIcon /> Отменить
-              </Button>
-            }
-          />
+          <>
+            {canInvite && (
+              <GuestInviteDialog
+                booking={booking}
+                trigger={
+                  <Button variant="outline" className="bg-canvas">
+                    <UserPlusIcon /> Пригласить гостя
+                  </Button>
+                }
+              />
+            )}
+            <CancelBookingDialog
+              booking={booking}
+              trigger={
+                <Button variant="ghost">
+                  <XIcon /> Отменить
+                </Button>
+              }
+            />
+          </>
         )
       }
     />
