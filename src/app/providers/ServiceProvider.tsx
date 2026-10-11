@@ -9,7 +9,14 @@ import { TooltipProvider } from '@/shared/ui/shadcn/animate-ui/components/animat
 const ServiceProvider = ({ children }: { children: ReactNode }) => {
   return (
     // attribute="class": тёмная тема в global.css завязана на класс .dark; обе темы поддерживаются на всех экранах
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    // scriptProps: в SPA инлайн-скрипт next-themes всё равно не исполняется; data-block тип гасит предупреждение React 19
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+      scriptProps={{ type: 'application/json' }}
+    >
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           {children}

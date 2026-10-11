@@ -13,6 +13,7 @@ import axios, { AxiosError, type AxiosResponse } from 'axios'
 import { emitUnauthorized } from '@/shared/auth/session-events'
 
 import { getAccessToken, clearAccessToken } from './access-token'
+import { apiDomain } from './constants'
 import log from './log'
 import type { BaseResponse, ErrorResponse } from './type'
 
@@ -20,11 +21,35 @@ const isProduction = import.meta.env.PROD
 
 // Authorization ставится динамически в интерцепторе: токен появляется только после логина
 const $api = axios.create({
+  baseURL: apiDomain,
   withCredentials: true
 })
 
+const CSRF_TOKEN_URL = '/api/v1/auth/csrf-token'
+const SAFE_METHODS = ['get', 'head', 'options']
+// После входа, регистрации и выхода сессия пересоздаётся — токен нужно получить заново
+const CSRF_RESET_URLS = ['/api/v1/auth/login', '/api/v1/auth/register', '/api/v1/auth/logout']
+
+// Токен привязан к серверной сессии, храним в памяти; промис — чтобы параллельные запросы не плодили GET
+let csrfToken: Promise<string> | null = null
+
+const getCsrfToken = () => {
+  csrfToken ??= $api
+    .get<{ csrf_token: string }>(CSRF_TOKEN_URL)
+    .then(res => res.data.csrf_token)
+    .catch(error => {
+      csrfToken = null
+      throw error
+    })
+  return csrfToken
+}
+
 $api.interceptors.request.use(
-  config => {
+  async config => {
+    if (!SAFE_METHODS.includes((config.method ?? 'get').toLowerCase())) {
+      config.headers['X-CSRF-TOKEN'] = await getCsrfToken()
+    }
+
     const token = getAccessToken()
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -70,6 +95,10 @@ $api.interceptors.response.use(
       })
     }
 
+    if (CSRF_RESET_URLS.includes(response.config.url ?? '')) {
+      csrfToken = null
+    }
+
     // Редирект по "юзер без роли в организации" — паттерн из другого проекта, нет организаций тут
     // const hasSelectedOrganization = !!getOrganizationIdFromStore()
     // if (
@@ -102,6 +131,11 @@ $api.interceptors.response.use(
       } catch {
         // тело не JSON — оставляем Blob как есть
       }
+    }
+
+    // 419 — CSRF-токен устарел (сессия пересоздана), следующий запрос получит новый
+    if (error.response?.status === 419) {
+      csrfToken = null
     }
 
     if (error.response?.status === 401) {

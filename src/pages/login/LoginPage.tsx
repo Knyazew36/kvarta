@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeftIcon, ArrowRightIcon, BanknoteIcon, CircleCheckIcon, CornerDownLeftIcon, LockIcon, type LucideIcon } from 'lucide-react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
+import { requestLoginCode } from '@/shared/api/generated'
 import { ROUTES } from '@/shared/config/paths'
 import { DEMO_TZ } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
@@ -283,6 +284,8 @@ const LoginPage = () => {
                       className="flex flex-col gap-8"
                       onSubmit={(event) => {
                         event.preventDefault()
+                        // Проверочный запрос: макетный переход не ждёт ответа, результат — в консоли и Network
+                        requestLoginCode({ email: contact }).catch(() => {})
                         submit(() => setStep('code'))
                       }}
                     >

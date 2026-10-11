@@ -1,6 +1,8 @@
 import { env } from '@/env'
 
-export const apiDomainAccountDev = 'http://localhost:4003/api'
+// Только origin, без `/api`: пути из OpenAPI уже содержат префикс `/api/v1/...`.
+// В dev — пусто: запросы идут на тот же origin и уходят на бэк через proxy в vite.config.ts
+export const apiDomainAccountDev = ''
 
 export const apiDomainAccountProd = env.VITE_API_URL_PROD
 export const apiDomain = import.meta.env.DEV ? `${apiDomainAccountDev}` : `${apiDomainAccountProd}`
