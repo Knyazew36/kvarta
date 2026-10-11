@@ -490,12 +490,14 @@ export const TaskFormSheet = ({ trigger, propertyId, bookingId }: TaskFormSheetP
         </SheetBody>
 
         <SheetFooter className="flex-row-reverse justify-start border-t border-mist">
+          {/* key обязателен: без него React переиспользует кнопку «Далее», меняя ей type на submit прямо во время клика, —
+              и тот же клик отправляет форму */}
           {isLast ? (
-            <Button type="submit" form="task-form" className="shadow-control" disabled={createTask.isPending}>
+            <Button key="submit" type="submit" form="task-form" className="shadow-control" disabled={createTask.isPending}>
               {createTask.isPending ? <Spinner /> : <ClipboardPlusIcon />} Создать задачу
             </Button>
           ) : (
-            <Button type="button" className="shadow-control" onClick={next}>
+            <Button key="next" type="button" className="shadow-control" onClick={next}>
               Далее <ArrowRightIcon />
             </Button>
           )}
