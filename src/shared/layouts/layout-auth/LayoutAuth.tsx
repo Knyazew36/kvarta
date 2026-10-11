@@ -50,10 +50,10 @@ export const LayoutAuth = () => {
                   </motion.div>
                 </AnimatePresence>
               </Reveal>
-
+{/* 
               <Reveal delay={0.7} className="flex flex-col gap-2 border-t border-mist pt-6 text-body-sm text-slate">
                 <span>Вас пригласили в команду? Откройте ссылку из приглашения — она сразу покажет организацию.</span>
-              </Reveal>
+              </Reveal> */}
             </div>
           </div>
 

@@ -162,7 +162,7 @@ export const Showcase = () => (
     initial={{ opacity: 0, scale: 0.985 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ duration: 0.9, ease: EASE }}
-    className="relative flex flex-col gap-10 overflow-hidden rounded-[32px] bg-foreground p-6 text-background md:p-10 lg:min-h-[calc(100svh-32px)] lg:justify-between lg:rounded-[40px] lg:p-12 xl:p-14 dark:bg-mist dark:text-foreground"
+    className="relative hidden  md:flex flex-col gap-10 overflow-hidden rounded-[32px] bg-foreground p-6 text-background md:p-10 lg:min-h-[calc(100svh-32px)] lg:justify-between lg:rounded-[40px] lg:p-12 xl:p-14 dark:bg-mist dark:text-foreground"
   >
     <Reveal delay={0.2} className="flex items-center justify-between">
       <Link to={ROUTES.PAGES} className="flex items-center gap-2 text-subheading-lg font-semibold tracking-[-0.02em] outline-none focus-visible:underline">
