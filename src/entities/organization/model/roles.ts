@@ -8,3 +8,6 @@ const ROLE_LABEL: Record<string, string> = {
 
 // Незнакомую роль показываем как есть: бэк может добавить новую раньше фронта
 export const getRoleLabel = (role: string): string => ROLE_LABEL[role] ?? role
+
+// Проверки роли держим здесь, чтобы компоненты не сравнивали строки сами
+export const isEmployee = (role: string): boolean => role === 'employee'

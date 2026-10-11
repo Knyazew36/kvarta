@@ -1,58 +1,23 @@
-import { Link, useSearchParams } from 'react-router'
+import { Link, useParams } from 'react-router'
+import { isEmployee, useCurrentOrganization } from '@/entities/organization'
+import { PropertyFilter } from '@/entities/property'
 import { ROUTES } from '@/shared/config/paths'
-import { useDemoState } from '@/shared/mock/state'
 import { SidebarTrigger } from '@/shared/ui/shadcn/animate-ui/components/radix/sidebar'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/shadcn/select'
 import { UserDropdown } from '@/widgets/user-dropdown/UserDropdown'
 import { NotificationsPopover } from './NotificationsPopover'
 
-// Макетный список объектов для фильтра в шапке
-const OBJECTS = [
-  { value: 'all', label: 'Все объекты' },
-  { value: 'p-ligovsky', label: 'Студия на Лиговском' },
-  { value: 'p-neva', label: 'Лофт у Невы' },
-  { value: 'p-moika', label: 'Апартаменты на Мойке' },
-  { value: 'p-repino', label: 'Дом в Репино' },
-]
+// Сотруднику фильтр не показываем — роль берём из текущей организации
+const TopbarPropertyFilter = () => {
+  const { role } = useCurrentOrganization()
 
-// Фильтр объекта хранится в ссылке, как и остальные фильтры (§4.2)
-const ObjectFilter = () => {
-  const [params, setParams] = useSearchParams()
-  const value = params.get('object') ?? 'all'
+  if (isEmployee(role)) return null
 
-  return (
-    <Select
-      items={OBJECTS}
-      value={value}
-      onValueChange={(next) =>
-        setParams(
-          (prev) => {
-            const nextParams = new URLSearchParams(prev)
-            if (next === 'all') nextParams.delete('object')
-            else nextParams.set('object', next as string)
-            return nextParams
-          },
-          { replace: true },
-        )
-      }
-    >
-      <SelectTrigger aria-label="Объект" className="w-56 rounded-full bg-card">
-        <span className="mono-label text-smoke">Объект</span>
-        <SelectValue className="truncate font-medium" />
-      </SelectTrigger>
-      <SelectContent alignItemWithTrigger={false} align="start">
-        {OBJECTS.map((item) => (
-          <SelectItem key={item.value} value={item.value}>
-            {item.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  )
+  return <PropertyFilter className="hidden md:flex" />
 }
 
 export const Topbar = () => {
-  const { isEmployee, singleObject } = useDemoState()
+  // Шапку рисует и витрина /ui — там организации в адресе нет, и фильтру не из чего грузиться
+  const { orgId } = useParams()
 
   return (
     <header className="sticky top-0 z-20 flex items-center gap-2 bg-background/85 px-4 py-3 backdrop-blur-md md:px-6 md:py-4">
@@ -61,12 +26,7 @@ export const Topbar = () => {
         Rentybot
         <span className="size-2 rounded-full bg-foreground" aria-hidden />
       </Link>
-      {/* С одним объектом выбирать нечего — фильтр не показываем (§2) */}
-      {!isEmployee && !singleObject && (
-        <div className="hidden md:block">
-          <ObjectFilter />
-        </div>
-      )}
+      {orgId && <TopbarPropertyFilter />}
       <div className="ml-auto flex items-center gap-2">
         <NotificationsPopover />
         <UserDropdown className="bg-card" />

@@ -1,11 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowRightIcon } from 'lucide-react'
+import { ArrowLeftIcon, ArrowRightIcon, LogOutIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
-import { type OrganizationValues, organizationSchema, useCreateOrganization } from '@/entities/organization'
+import { type OrganizationValues, organizationSchema, useCreateOrganization, useOrganizations } from '@/entities/organization'
+import { useLogout } from '@/features/logout'
 import { getFieldErrors } from '@/shared/api/model/getFieldErrors'
-import { to } from '@/shared/config/paths'
+import { ROUTES, to } from '@/shared/config/paths'
 import { ErrorText } from '@/shared/ui/rb/ErrorText'
 import { Reveal, SplitHeadline } from '@/shared/ui/rb/motion'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -18,6 +19,10 @@ import { EntryShell } from '@/widgets/entry-shell/EntryShell'
 const OrgCreatePage = () => {
   const navigate = useNavigate()
   const createOrganization = useCreateOrganization()
+  const { data: organizations } = useOrganizations()
+  const { logout, isPending: isLoggingOut } = useLogout()
+  // Без организаций возвращаться некуда: кабинета ещё нет, поэтому отмена — это выход из аккаунта
+  const hasOrganizations = !!organizations?.data.length
   const {
     register,
     handleSubmit,
@@ -29,7 +34,7 @@ const OrgCreatePage = () => {
     createOrganization.mutate(
       { name },
       {
-        onSuccess: ({ data }) => navigate(to.onboarding(String(data.id)), { replace: true, state: { orgName: data.name } }),
+        onSuccess: ({ data }) => navigate(to.onboarding(String(data.id)), { replace: true }),
         onError: (error) => {
           // Ошибки бэка по полю — под тем же инпутом; остальное показывает общий тост
           const nameErrors = getFieldErrors(error).name
@@ -68,17 +73,38 @@ const OrgCreatePage = () => {
               <ErrorText id="org-name-error" errors={errors.name} />
             </div>
 
-            <Button type="submit" className="group shadow-control h-12" disabled={createOrganization.isPending}>
-              {createOrganization.isPending ? (
-                <>
-                  <Spinner /> Создаём организацию
-                </>
+            <div className="flex flex-col gap-3">
+              <Button type="submit" className="group shadow-control h-12" disabled={createOrganization.isPending}>
+                {createOrganization.isPending ? (
+                  <>
+                    <Spinner /> Создаём организацию
+                  </>
+                ) : (
+                  <>
+                    Создать организацию <ArrowRightIcon className="transition-transform duration-300 group-hover:translate-x-1" />
+                  </>
+                )}
+              </Button>
+
+              {hasOrganizations ? (
+                // Корень сам решает, куда вернуть: в единственный кабинет или к списку организаций
+                <Link
+                  to={ROUTES.HOME}
+                  className="text-caption text-smoke hover:text-foreground mx-auto inline-flex w-fit items-center gap-1.5 transition-colors"
+                >
+                  <ArrowLeftIcon className="size-3.5" aria-hidden /> Отменить и вернуться
+                </Link>
               ) : (
-                <>
-                  Создать организацию <ArrowRightIcon className="transition-transform duration-300 group-hover:translate-x-1" />
-                </>
+                <button
+                  type="button"
+                  disabled={isLoggingOut}
+                  onClick={logout}
+                  className="text-caption text-smoke hover:text-foreground mx-auto inline-flex w-fit items-center gap-1.5 transition-colors disabled:opacity-50"
+                >
+                  <LogOutIcon className="size-3.5" aria-hidden /> Выйти из аккаунта
+                </button>
               )}
-            </Button>
+            </div>
           </form>
         </Reveal>
       </div>

@@ -62,7 +62,9 @@ const OtpPage = () => {
   // Под кодом показываем все ошибки полей: на этом шаге почту и имя уже не видно, а отклонить бэк может и их
   const fieldErrors = Object.values(getFieldErrors(auth.error)).flat()
 
-  const onSuccess = () => navigate(from ?? ROUTES.HOME, { replace: true })
+  // TODO: временно выключен возврат по адресу `from` — после входа всегда на корень (список организаций).
+  // Вернуть: navigate(from ?? ROUTES.HOME, { replace: true })
+  const onSuccess = () => navigate(ROUTES.HOME, { replace: true })
 
   const submit = handleSubmit(({ code }) => {
     if (auth.isPending) return

@@ -1,27 +1,16 @@
-import { CornerDownLeftIcon } from 'lucide-react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { useLocation, useOutlet } from 'react-router'
-import { useAuthFlowState } from '@/entities/auth'
 import { ROUTES } from '@/shared/config/paths'
 import { Reveal } from '@/shared/ui/rb/motion'
 import { EASE, swapTransition } from '@/shared/ui/rb/motion-presets'
 import { ThemeTogglerButton } from '@/shared/ui/shadcn/animate-ui/components/buttons/theme-toggler'
 import { Showcase } from './components/Showcase'
 
-// Понятная подпись вместо сырого пути: человек должен узнать, куда вернётся
-const describeReturn = (path: string) => {
-  if (path.includes('/bookings/')) return 'карточка брони'
-  if (path.includes('/tasks/')) return 'задача'
-  if (path.startsWith('/invite/')) return 'приглашение в команду'
-  return 'страница, с которой вы пришли'
-}
-
 // Общая оболочка входа, регистрации и кода: витрина и рамка формы остаются на месте, меняется только сама форма
 export const LayoutAuth = () => {
   const { pathname } = useLocation()
   // useOutlet вместо <Outlet />: AnimatePresence должен удержать уходящую страницу до конца анимации
   const outlet = useOutlet()
-  const { from } = useAuthFlowState()
   const isCodeStep = pathname === ROUTES.OTP
 
   return (
@@ -53,16 +42,6 @@ export const LayoutAuth = () => {
                   ))}
                 </span>
               </Reveal>
-
-              {from && (
-                <Reveal delay={0.5} className="flex items-start gap-3 rounded-3xl bg-card p-4">
-                  <CornerDownLeftIcon className="mt-0.5 size-4 shrink-0 text-smoke" aria-hidden />
-                  <span className="flex min-w-0 flex-col gap-0.5">
-                    <span className="text-body-sm">После входа откроется {describeReturn(from)}</span>
-                    <span className="mono-label truncate text-smoke">{from}</span>
-                  </span>
-                </Reveal>
-              )}
 
               <Reveal delay={0.55}>
                 <AnimatePresence mode="wait" initial={false}>

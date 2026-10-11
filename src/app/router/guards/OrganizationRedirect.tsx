@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Navigate } from 'react-router'
 import { organizationsQueryOptions } from '@/entities/organization'
-import { ROUTES, to } from '@/shared/config/paths'
+import { ROUTES } from '@/shared/config/paths'
 import { Spinner } from '@/shared/ui/shadcn/spinner'
 
 // Корень сайта и точка после входа: куда вести, решает число организаций пользователя
@@ -22,8 +22,9 @@ const OrganizationRedirect = () => {
   const [first] = data.data
   // Организаций нет — начинаем с создания
   if (!first) return <Navigate to={ROUTES.ORG_NEW} replace />
+  // TODO: временно выключено — с одной организацией тоже ведём на выбор. Вернуть вместе с импортом `to`
   // Одна — выбирать не из чего, сразу в кабинет
-  if (data.meta.total === 1) return <Navigate to={to.today(String(first.id))} replace />
+  // if (data.meta.total === 1) return <Navigate to={to.today(String(first.id))} replace />
 
   return <Navigate to={ROUTES.WORKSPACES} replace />
 }

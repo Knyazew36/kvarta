@@ -45,8 +45,40 @@ import WorkspacesPage from '@/pages/workspaces/WorkspacesPage'
 // Страницы подключаются сразу, без lazy: макеты лёгкие, а переходы между ними должны быть мгновенными
 export type AppRoute = { path: string; Component: ComponentType }
 
-// ── Кабинет: внутри оболочки AppShell (/app/:orgId/*) ───────────────────────
-export const appRoutes: AppRoute[] = [
+// ════════════════════════════════════════════════════════════════════════════
+// ГОТОВО: страницы на настоящей логике (запросы к API)
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Без входа: вошедшего GuestRoute уводит на главную ───────────────────────
+// Все три — внутри общей оболочки LayoutAuth
+export const guestRoutes: AppRoute[] = [
+  { path: ROUTES.LOGIN, Component: LoginPage },
+  { path: ROUTES.REGISTER, Component: RegisterPage },
+  { path: ROUTES.OTP, Component: OtpPage },
+]
+
+// ── После входа: гостя PrivateRoute уводит на /login ────────────────────────
+// Корень «/» сюда не входит: это OrganizationRedirect в router/index.tsx — он решает, куда вести после входа
+export const privateRoutes: AppRoute[] = [
+  // Выбор организации — тем, у кого их несколько
+  { path: ROUTES.WORKSPACES, Component: WorkspacesPage },
+  { path: ROUTES.ORG_NEW, Component: OrgCreatePage },
+]
+
+// ── После входа и в своей организации (/app/:orgId/*), без оболочки кабинета ─
+export const orgRoutes: AppRoute[] = [
+  // Первые шаги — без меню кабинета: пустые разделы новой организации только отвлекают.
+  // Шаг «Объект» работает на API, остальные три пока моки (обведены красным)
+  { path: ROUTES.ONBOARDING, Component: OnboardingPage },
+]
+
+// ════════════════════════════════════════════════════════════════════════════
+// НЕ ОБРАБОТАНО: статичные макеты на моках. Доступ уже разведён по гардам,
+// но данных API на страницах нет. Перевели страницу на запросы — переносим её наверх
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── После входа, в своей организации, внутри оболочки AppShell (/app/:orgId/*) ─
+export const mockAppRoutes: AppRoute[] = [
   { path: ROUTES.TODAY, Component: TodayPage },
   { path: ROUTES.CALENDAR, Component: CalendarPage },
   { path: ROUTES.BOOKINGS, Component: BookingsPage },
@@ -69,13 +101,8 @@ export const appRoutes: AppRoute[] = [
   { path: ROUTES.PROFILE, Component: ProfilePage },
 ]
 
-// ── Приватные вне оболочки кабинета ─────────────────────────────────────────
-// Первые шаги — без меню кабинета: пустые разделы новой организации только отвлекают
-export const privateRoutes: AppRoute[] = [
-  // Выбор организации — тем, у кого их несколько; куда вести после входа, решает OrganizationRedirect
-  { path: ROUTES.WORKSPACES, Component: WorkspacesPage },
-  { path: ROUTES.ORG_NEW, Component: OrgCreatePage },
-  { path: ROUTES.ONBOARDING, Component: OnboardingPage },
+// ── После входа, вне организации ────────────────────────────────────────────
+export const mockPrivateRoutes: AppRoute[] = [
   // Кабинет специалиста — свои права и своя оболочка, без меню организации (CAT-06)
   { path: ROUTES.SPECIALIST_PROFILE, Component: SpecialistProfilePage },
   { path: ROUTES.SPECIALIST_INBOX, Component: SpecialistInboxPage },
@@ -89,16 +116,9 @@ export const privateRoutes: AppRoute[] = [
   { path: ROUTES.GUEST_INSTRUCTIONS, Component: GuestInstructionsPage },
 ]
 
-// ── Гостевые: только без входа, иначе редирект на главную ───────────────────
-// Все три — внутри общей оболочки LayoutAuth
-export const guestRoutes: AppRoute[] = [
-  { path: ROUTES.LOGIN, Component: LoginPage },
-  { path: ROUTES.REGISTER, Component: RegisterPage },
-  { path: ROUTES.OTP, Component: OtpPage },
-]
-
-// ── Публичные: доступны всем ────────────────────────────────────────────────
-export const publicRoutes: AppRoute[] = [
+// ── Без входа: доступны всем ────────────────────────────────────────────────
+export const mockPublicRoutes: AppRoute[] = [
+  // Служебные витрины макетов
   { path: ROUTES.UI, Component: UiPage },
   { path: ROUTES.PAGES, Component: PagesIndexPage },
   { path: ROUTES.UX, Component: UxMapPage },
@@ -107,5 +127,7 @@ export const publicRoutes: AppRoute[] = [
   { path: ROUTES.HOST_PROPERTY, Component: HostPropertyPage },
   { path: ROUTES.HOST_CHECKOUT, Component: CheckoutPage },
   { path: ROUTES.GUEST_REQUEST, Component: GuestRequestPage },
-  { path: '*', Component: NotFoundPage },
 ]
+
+// Всё, что не совпало ни с одним маршрутом
+export const notFoundRoute: AppRoute = { path: '*', Component: NotFoundPage }
