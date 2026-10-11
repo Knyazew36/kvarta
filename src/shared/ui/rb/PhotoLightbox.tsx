@@ -69,6 +69,9 @@ export const PhotoLightbox = ({ slides, index, onClose }: PhotoLightboxProps) =>
       plugins={single ? [Zoom] : [Zoom, Counter, Thumbnails]}
       carousel={{ finite: single, imageFit: 'contain', padding: '16px' }}
       controller={{ closeOnBackdropClick: true }}
+      // Блокировка библиотеки добавляет body и fixed-элементам отступ под скроллбар, а место под него уже держит gutter:
+      // интерфейс уезжает влево. Скролл блокируем сами — правило рядом с gutter в global.css
+      noScroll={{ disabled: true }}
       zoom={{ maxZoomPixelRatio: 3, scrollToZoom: true }}
       thumbnails={{ width: 72, height: 72, border: 2, imageFit: 'cover', vignette: false }}
       counter={{ container: { className: 'mono-label', style: { top: 'unset', bottom: 0, left: '50%', transform: 'translateX(-50%)' } } }}

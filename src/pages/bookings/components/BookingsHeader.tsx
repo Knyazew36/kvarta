@@ -33,10 +33,9 @@ export const BookingsHeader = ({ organizationId, filters, canManage }: BookingsH
               </Button>
             }
           />
-          {/* Блокировки дат — ручки calendar-blocks, отдельный этап */}
           <BlockFormSheet
             trigger={
-              <Button variant="outline" className={`bg-canvas shadow-control ${MOCK_BORDER}`}>
+              <Button variant="outline" className="bg-canvas shadow-control">
                 <BanIcon /> Закрыть даты
               </Button>
             }

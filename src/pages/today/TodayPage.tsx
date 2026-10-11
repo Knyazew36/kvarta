@@ -11,6 +11,7 @@ import type { SyncInfo } from '@/shared/ui/rb/SyncFreshness'
 import { SyncRefresh, useSyncRefresh } from '@/shared/ui/rb/SyncRefresh'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { BookingFormSheet } from '@/widgets/booking-actions/BookingFormSheet'
+import { TaskFormSheet } from '@/widgets/task-actions/TaskFormSheet'
 
 // ── Макетные данные экрана: заменятся ответом API «сводка дня» ──────────────
 
@@ -267,11 +268,13 @@ const TodayPage = () => {
   const checkOuts = movements.length - checkIns
 
   const createTask = (
-    <Button asChild className="shadow-control">
-      <Link to={to.tasks(orgId)}>
-        <PlusIcon /> {isEmployee ? 'Личная задача' : 'Создать задачу'}
-      </Link>
-    </Button>
+    <TaskFormSheet
+      trigger={
+        <Button className="shadow-control">
+          <PlusIcon /> {isEmployee ? 'Личная задача' : 'Создать задачу'}
+        </Button>
+      }
+    />
   )
 
   if (state === 'loading' || state === 'denied' || state === 'empty') {
@@ -286,9 +289,13 @@ const TodayPage = () => {
             description: 'Нет заездов, выездов, задач и событий, требующих решения. Новые события с площадок появятся здесь сами.',
             action: (
               <>
-                <Button variant="outline" size="sm">
-                  <ClipboardPlusIcon /> Создать задачу
-                </Button>
+                <TaskFormSheet
+                  trigger={
+                    <Button variant="outline" size="sm">
+                      <ClipboardPlusIcon /> Создать задачу
+                    </Button>
+                  }
+                />
                 <Button variant="ghost" size="sm" asChild>
                   <Link to={to.calendar(orgId)}>Открыть календарь</Link>
                 </Button>

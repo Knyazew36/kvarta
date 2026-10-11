@@ -220,6 +220,11 @@
     margin-right: 0 !important;
     --removed-body-scroll-bar-size: 0px !important;
   }
+  /* Галерея фото (PhotoLightbox): своя блокировка скролла без компенсации — gutter уже держит ширину */
+  html:has(.yarl__portal) body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
   body {
     @apply bg-background text-body text-foreground antialiased;
   }

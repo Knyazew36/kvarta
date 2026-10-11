@@ -174,8 +174,10 @@ function DateRangeInput({
           numberOfMonths={isMobile ? 1 : numberOfMonths}
           disabled={limits(min, max)}
           onSelect={(next, clicked) => {
-            // При готовом диапазоне клик начинает новый, а не растягивает старый: так выбирают даты заново
-            if (range?.from && range.to) {
+            // Первый клик — только начало: day-picker на пустом диапазоне сам ставит to = from,
+            // и такой «готовый» диапазон съедал следующий клик.
+            // При готовом диапазоне клик тоже начинает новый, а не растягивает старый: так выбирают даты заново
+            if (!range?.from || range.to) {
               setCurrent({ from: toValue(clicked), to: "" })
               return
             }

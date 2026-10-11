@@ -16,6 +16,7 @@ const PAGES_WITHOUT_DEMO_TOOLS: string[] = [
   ROUTES.INVITE,
   ROUTES.ONBOARDING,
   ROUTES.NOTIFICATIONS,
+  ROUTES.CALENDAR,
   ROUTES.BOOKINGS,
   // Со всеми вкладками брони (:tab? в самом шаблоне)
   ROUTES.BOOKING,

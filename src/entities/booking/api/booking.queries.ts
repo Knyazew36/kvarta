@@ -4,6 +4,8 @@ import { useRef } from 'react'
 import { cancelBooking, createBooking, getBooking, getBookingHistory, listBookings, updateBooking } from '@/shared/api/generated'
 import type { BookingCreate, BookingResponse, BookingUpdate, CalendarClose, ListBookingsStatus } from '@/shared/api/generated/models'
 
+import { calendarKeys } from '@/entities/calendar'
+
 import { getBookingConflict, getBookingErrorText } from '../model/conflict'
 
 export type BookingListFilters = {
@@ -95,12 +97,15 @@ export const useCreateBooking = (organizationId: number) => {
     meta: { ...errorMeta, successMessage: 'Бронь создана' },
     onSuccess: ({ data }) => {
       queryClient.setQueryData(bookingKeys.detail(organizationId, data.id), data)
-      return queryClient.invalidateQueries({ queryKey: bookingKeys.lists(organizationId) })
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: bookingKeys.lists(organizationId) }),
+        queryClient.invalidateQueries({ queryKey: calendarKeys.ranges(organizationId) }),
+      ])
     },
   })
 }
 
-// Правка и отмена возвращают бронь целиком — кладём её в кэш карточки, списки и историю перечитываем
+// Правка и отмена возвращают бронь целиком — кладём её в кэш карточки, списки, историю и календарь перечитываем
 const useBookingSaved = (organizationId: number, bookingId: number) => {
   const queryClient = useQueryClient()
 
@@ -110,6 +115,7 @@ const useBookingSaved = (organizationId: number, bookingId: number) => {
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: bookingKeys.lists(organizationId) }),
         queryClient.invalidateQueries({ queryKey: bookingKeys.history(organizationId, bookingId) }),
+        queryClient.invalidateQueries({ queryKey: calendarKeys.ranges(organizationId) }),
       ])
     },
     onError: (error: unknown) => {
