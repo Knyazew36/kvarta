@@ -14,6 +14,7 @@ import { emitUnauthorized } from '@/shared/auth/session-events'
 
 import { getAccessToken, clearAccessToken } from './access-token'
 import { apiDomain } from './constants'
+import { requiresCsrf, resetCsrfToken, resetsCsrf, setCsrfHeader, shouldRetryWithFreshCsrf } from './csrf'
 import log from './log'
 import type { BaseResponse, ErrorResponse } from './type'
 
@@ -25,29 +26,10 @@ const $api = axios.create({
   withCredentials: true
 })
 
-const CSRF_TOKEN_URL = '/api/v1/auth/csrf-token'
-const SAFE_METHODS = ['get', 'head', 'options']
-// После входа, регистрации и выхода сессия пересоздаётся — токен нужно получить заново
-const CSRF_RESET_URLS = ['/api/v1/auth/login', '/api/v1/auth/register', '/api/v1/auth/logout']
-
-// Токен привязан к серверной сессии, храним в памяти; промис — чтобы параллельные запросы не плодили GET
-let csrfToken: Promise<string> | null = null
-
-const getCsrfToken = () => {
-  csrfToken ??= $api
-    .get<{ csrf_token: string }>(CSRF_TOKEN_URL)
-    .then(res => res.data.csrf_token)
-    .catch(error => {
-      csrfToken = null
-      throw error
-    })
-  return csrfToken
-}
-
 $api.interceptors.request.use(
   async config => {
-    if (!SAFE_METHODS.includes((config.method ?? 'get').toLowerCase())) {
-      config.headers['X-CSRF-TOKEN'] = await getCsrfToken()
+    if (requiresCsrf(config)) {
+      await setCsrfHeader(config)
     }
 
     const token = getAccessToken()
@@ -95,8 +77,8 @@ $api.interceptors.response.use(
       })
     }
 
-    if (CSRF_RESET_URLS.includes(response.config.url ?? '')) {
-      csrfToken = null
+    if (resetsCsrf(response.config.url)) {
+      resetCsrfToken()
     }
 
     // Редирект по "юзер без роли в организации" — паттерн из другого проекта, нет организаций тут
@@ -133,19 +115,23 @@ $api.interceptors.response.use(
       }
     }
 
-    // 419 — CSRF-токен устарел (сессия пересоздана), следующий запрос получит новый
-    if (error.response?.status === 419) {
-      csrfToken = null
+    // До ветки повтора: иначе 419 пропадает из консоли и виден только повторный запрос
+    logErrorDetails(error)
+
+    // Устаревший CSRF-токен пользователю не показываем: берём новый и повторяем запрос
+    if (shouldRetryWithFreshCsrf(error.response?.status, error.config)) {
+      resetCsrfToken()
+      return $api(error.config)
     }
 
     if (error.response?.status === 401) {
+      // Сессии больше нет — токен от неё бесполезен
+      resetCsrfToken()
       clearAccessToken()
       // Сброс auth-стора (редирект на /login делают гварды). Мост через session-events,
       // чтобы не тянуть стор в request.ts напрямую (циклический импорт).
       emitUnauthorized()
     }
-
-    logErrorDetails(error)
 
     // Доменные ошибки другого проекта (товары/категории/тарифы/роли) — нерелевантны тут
     // if (error.response?.data?.message === 'Product already exists in this organization') { ... }
@@ -158,6 +144,9 @@ $api.interceptors.response.use(
 )
 
 function logErrorDetails(error: AxiosError) {
+  // В проде не логируем: в AxiosError лежат заголовки (CSRF, Authorization) и тело запроса
+  if (isProduction) return
+
   log({
     name: axios.isAxiosError(error) ? (error.config?.url ?? 'undefined url') : 'Not instance of AxiosError',
     data: error,

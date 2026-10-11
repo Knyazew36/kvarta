@@ -2,6 +2,9 @@
 export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
+  REGISTER: '/register',
+  // Код из письма — общий шаг входа и регистрации
+  OTP: '/otp',
   INVITE: '/invite/:token',
   WORKSPACES: '/workspaces',
   ORG_NEW: '/org/new',

@@ -1,15 +1,16 @@
-import { Navigate, Outlet, useLocation } from 'react-router'
-import { useIsAuthenticated } from '@/shared/auth'
+import { useQuery } from '@tanstack/react-query'
+import { Navigate, Outlet } from 'react-router'
+import { currentUserQueryOptions, useAuthFlowState } from '@/entities/auth'
 import { ROUTES } from '@/shared/config/paths'
-import { env } from '@/env'
 
 const GuestRoute = () => {
-  const isAuthenticated = useIsAuthenticated()
-  const location = useLocation()
+  const { data: user } = useQuery(currentUserQueryOptions)
+  const { from } = useAuthFlowState()
 
-  if (!env.DEMO && isAuthenticated) {
-    const from = (location.state as { from?: string } | null)?.from ?? ROUTES.HOME
-    return <Navigate to={from} replace />
+  // Пока сессия проверяется, показываем страницу: гостю не нужно ждать ответа, чтобы увидеть форму входа
+  if (user) {
+    // Тот же адрес возврата, что у страницы кода: после входа оба перехода ведут в одно место
+    return <Navigate to={from ?? ROUTES.HOME} replace />
   }
 
   return <Outlet />

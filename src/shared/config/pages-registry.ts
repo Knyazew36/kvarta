@@ -255,6 +255,14 @@ export const SCREENS: Screen[] = [
     ],
   },
   {
+    id: 'register',
+    title: 'Регистрация',
+    contour: 'entry',
+    phase: 4,
+    href: ROUTES.REGISTER,
+    status: 'ready',
+  },
+  {
     id: 'invite',
     title: 'Принятие приглашения',
     contour: 'entry',

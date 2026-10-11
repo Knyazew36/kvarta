@@ -2,9 +2,14 @@ import type { ReactNode } from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from 'next-themes'
 
+import { authKeys } from '@/entities/auth'
 import { queryClient } from '@/shared/api/query-client'
+import { subscribeUnauthorized } from '@/shared/auth'
 import { Toaster } from '@/shared/ui/shadcn/toast'
 import { TooltipProvider } from '@/shared/ui/shadcn/animate-ui/components/animate/tooltip'
+
+// Сессия истекла посреди работы: любой 401 обнуляет пользователя, и PrivateRoute уводит на вход
+subscribeUnauthorized(() => queryClient.setQueryData(authKeys.me(), null))
 
 const ServiceProvider = ({ children }: { children: ReactNode }) => {
   return (

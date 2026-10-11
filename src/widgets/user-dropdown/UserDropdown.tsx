@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/ui/shadcn/dropdown-menu'
+import { useLogout } from '@/features/logout'
 
 const THEMES = [
   { value: 'light', label: 'Светлая', icon: SunIcon },
@@ -43,6 +44,7 @@ type UserDropdownProps = {
 
 // Меню профиля в шапке: личные переходы, смена рабочей области и тема; рабочие разделы живут в навигации
 export const UserDropdown = ({ compact, className }: UserDropdownProps) => {
+  const {logout}= useLogout()
   const { orgId = DEMO_ORG_ID } = useParams()
   const { role, isEmployee } = useDemoState()
   const { theme = 'system', setTheme } = useTheme()
@@ -125,7 +127,7 @@ export const UserDropdown = ({ compact, className }: UserDropdownProps) => {
 
         <DropdownMenuSeparator className="bg-mist" />
 
-        <DropdownMenuItem variant="destructive" render={<Link to={ROUTES.LOGIN} />}>
+        <DropdownMenuItem variant="destructive"  onClick={logout}>
           <LogOutIcon /> Выйти
         </DropdownMenuItem>
       </DropdownMenuContent>

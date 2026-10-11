@@ -15,5 +15,16 @@ export const emitSessionChange = (): void => {
   listeners.forEach((listener) => listener())
 }
 
-// Токен к этому моменту уже очищен в request.ts — гварды получат событие и уведут на логин
-export const emitUnauthorized = emitSessionChange
+const unauthorizedListeners = new Set<Listener>()
+
+export const subscribeUnauthorized = (listener: Listener): (() => void) => {
+  unauthorizedListeners.add(listener)
+  return () => {
+    unauthorizedListeners.delete(listener)
+  }
+}
+
+// Бэк ответил 401: сессии больше нет. Подписчик сбрасывает пользователя в кэше — гарды уводят на логин
+export const emitUnauthorized = (): void => {
+  unauthorizedListeners.forEach((listener) => listener())
+}

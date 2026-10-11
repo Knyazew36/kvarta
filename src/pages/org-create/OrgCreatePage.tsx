@@ -1,7 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRightIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
+import { type OrganizationValues, organizationSchema, useCreateOrganization } from '@/entities/organization'
+import { getFieldErrors } from '@/shared/api/model/getFieldErrors'
 import { to } from '@/shared/config/paths'
 import { ErrorText } from '@/shared/ui/rb/ErrorText'
 import { Reveal, SplitHeadline } from '@/shared/ui/rb/motion'
@@ -11,28 +14,30 @@ import { Label } from '@/shared/ui/shadcn/label'
 import { Spinner } from '@/shared/ui/shadcn/spinner'
 import { EntryShell } from '@/widgets/entry-shell/EntryShell'
 
-const SUBMIT_DELAY_MS = 700
-
-// ── Страница ────────────────────────────────────────────────────────────────
-
-// Организация у пользователя одна: создаётся сразу после регистрации, дальше — первые шаги
+// Сюда попадает вошедший без организаций; после создания — первые шаги в новой организации
 const OrgCreatePage = () => {
   const navigate = useNavigate()
-  const [name, setName] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [pending, setPending] = useState(false)
+  const createOrganization = useCreateOrganization()
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<OrganizationValues>({ resolver: zodResolver(organizationSchema), defaultValues: { name: '' } })
 
-  const submit = (event: React.FormEvent) => {
-    event.preventDefault()
-    const orgName = name.trim()
-    if (!orgName) {
-      setError('Введите название организации')
-      return
-    }
-    setPending(true)
-    // Короткая пауза с индикатором: мгновенный переход выглядит как сбой, а не как успех
-    window.setTimeout(() => navigate(to.onboarding('org-new'), { state: { orgName } }), SUBMIT_DELAY_MS)
-  }
+  const submit = handleSubmit(({ name }) => {
+    createOrganization.mutate(
+      { name },
+      {
+        onSuccess: ({ data }) => navigate(to.onboarding(String(data.id)), { replace: true, state: { orgName: data.name } }),
+        onError: (error) => {
+          // Ошибки бэка по полю — под тем же инпутом; остальное показывает общий тост
+          const nameErrors = getFieldErrors(error).name
+          if (nameErrors?.length) setError('name', { message: nameErrors.join(', ') })
+        },
+      },
+    )
+  })
 
   return (
     <EntryShell>
@@ -53,22 +58,18 @@ const OrgCreatePage = () => {
               </Label>
               <Input
                 id="org-name"
-                value={name}
-                onChange={(event) => {
-                  setName(event.target.value)
-                  setError(null)
-                }}
                 placeholder="Например, «Волна»"
                 autoFocus
-                aria-invalid={!!error}
-                aria-describedby={error ? 'org-name-error' : undefined}
+                aria-invalid={!!errors.name || undefined}
+                aria-describedby={errors.name ? 'org-name-error' : undefined}
                 className="text-body h-12"
+                {...register('name')}
               />
-              <ErrorText id="org-name-error">{error}</ErrorText>
+              <ErrorText id="org-name-error" errors={errors.name} />
             </div>
 
-            <Button type="submit" className="group shadow-control h-12" disabled={pending}>
-              {pending ? (
+            <Button type="submit" className="group shadow-control h-12" disabled={createOrganization.isPending}>
+              {createOrganization.isPending ? (
                 <>
                   <Spinner /> Создаём организацию
                 </>
