@@ -1,4 +1,4 @@
-import { BellIcon, MessageSquareIcon, RepeatIcon } from 'lucide-react'
+import { BellIcon, RepeatIcon } from 'lucide-react'
 import { Link } from 'react-router'
 import { useTaskPeople } from '@/entities/task'
 import type { Task } from '@/shared/api/generated/models'
@@ -101,10 +101,6 @@ export const TaskSidebar = ({ task, orgId, employee }: TaskSidebarProps) => {
         </SectionCard>
       )}
 
-      <p className="flex items-start gap-2 px-2 text-caption text-smoke">
-        <MessageSquareIcon className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-        Гость эту задачу и отчёт не видит.
-      </p>
     </div>
   )
 }

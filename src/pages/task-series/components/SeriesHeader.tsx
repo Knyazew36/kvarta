@@ -6,7 +6,7 @@ import { describeSchedule, getCurrentSegment, getSeriesRule, usePauseTaskSeries 
 import type { TaskSeries } from '@/shared/api/generated/models'
 import { to } from '@/shared/config/paths'
 import { PersonName } from '@/shared/ui/rb/PersonAvatar'
-import { RecordHeader } from '@/shared/ui/rb/RecordHeader'
+import { RECORD_PRIMARY_ACTION, RecordHeader } from '@/shared/ui/rb/RecordHeader'
 import { SERIES_STATUS } from '@/shared/ui/rb/status-presets'
 import { StatusFromMeta } from '@/shared/ui/rb/StatusBadge'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -59,7 +59,7 @@ export const SeriesHeader = ({ series, orgId }: { series: TaskSeries; orgId: str
             <EndSeriesDialog
               series={series}
               trigger={
-                <Button variant="ghost">
+                <Button variant="secondary">
                   <CircleSlashIcon /> Завершить
                 </Button>
               }
@@ -67,7 +67,7 @@ export const SeriesHeader = ({ series, orgId }: { series: TaskSeries; orgId: str
           )}
           {/* У остановленной бэком серии доступны оба действия; главное из них — возобновить */}
           {can('pause') && (
-            <Button variant={can('resume') ? 'ghost' : 'outline'} className={can('resume') ? undefined : 'bg-canvas shadow-control'} disabled={pauseSeries.isPending} onClick={() => pauseSeries.mutate({ version: series.version })}>
+            <Button variant={can('resume') ? 'secondary' : 'outline'} className={can('resume') ? undefined : 'bg-canvas shadow-control'} disabled={pauseSeries.isPending} onClick={() => pauseSeries.mutate({ version: series.version })}>
               {pauseSeries.isPending ? <Spinner /> : <PauseIcon />} Приостановить
             </Button>
           )}
@@ -78,7 +78,7 @@ export const SeriesHeader = ({ series, orgId }: { series: TaskSeries; orgId: str
           <ResumeSeriesDialog
             series={series}
             trigger={
-              <Button className="shadow-control">
+              <Button className={RECORD_PRIMARY_ACTION}>
                 <PlayIcon /> Возобновить
               </Button>
             }

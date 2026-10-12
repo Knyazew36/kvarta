@@ -72,9 +72,7 @@ export const CancelBookingDialog = ({ trigger, booking }: { trigger: React.React
       <DialogContent className="sm:max-w-lg">
         <form className="contents" onSubmit={submit} noValidate>
           <DialogHeader className="gap-2">
-            <span className="mono-label text-smoke">
-              Бронь #{booking.id} · {booking.guest_name}
-            </span>
+       
             <DialogTitle className="section-heading text-heading-sm">Отменить бронь?</DialogTitle>
             <DialogDescription className="text-body-sm text-slate">
               Вернуть бронь после отмены нельзя — только создать заново. Гостю об отмене сообщите сами: уведомление не отправляется.
@@ -95,7 +93,6 @@ export const CancelBookingDialog = ({ trigger, booking }: { trigger: React.React
                 {...register('reason')}
               />
               <ErrorText id="cancel-reason-error" errors={errors.reason} />
-              {!errors.reason && <span className="text-caption text-smoke">Видна только команде, остаётся в истории брони</span>}
             </div>
           </DialogBody>
           <DialogFooter className="gap-2">

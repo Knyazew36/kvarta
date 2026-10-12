@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeftIcon, ArrowRightIcon, BellIcon, CameraIcon, ClipboardPlusIcon, EyeIcon, ListChecksIcon, PlusIcon, Trash2Icon, UserIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
 import { getBrowserTimezone } from '@/entities/notification'
@@ -108,6 +108,8 @@ export const TaskFormSheet = ({ trigger, propertyId, bookingId }: TaskFormSheetP
   const orgId = String(organization.id)
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(0)
+  // Фокус при открытии — на саму шторку, а не в поле: на телефоне клавиатура не закрывает форму с порога
+  const popupRef = useRef<HTMLDivElement>(null)
 
   const createTask = useCreateTask(organization.id)
   const { myMembershipId, memberName } = useTaskPeople()
@@ -201,7 +203,7 @@ export const TaskFormSheet = ({ trigger, propertyId, bookingId }: TaskFormSheetP
       }}
     >
       <SheetTrigger render={trigger} />
-      <SheetContent side={isMobile ? 'bottom' : 'right'} className="data-[side=bottom]:max-h-[92dvh]">
+      <SheetContent ref={popupRef} initialFocus={popupRef} side={isMobile ? 'bottom' : 'right'} className="data-[side=bottom]:max-h-[92dvh]">
         <SheetHeader className="gap-3 border-b border-mist">
           <span className="mono-label text-smoke">
             Новая задача · шаг {String(step + 1).padStart(2, '0')} / {String(STEPS.length).padStart(2, '0')}
@@ -231,7 +233,7 @@ export const TaskFormSheet = ({ trigger, propertyId, bookingId }: TaskFormSheetP
             {current.key === 'what' && (
               <>
                 <TaskField id="task-title" label="Название" hint="Глаголом: «Заменить смеситель», а не «Смеситель»" error={errors.title}>
-                  <Input id="task-title" placeholder="Например, уборка после выезда" autoFocus aria-invalid={!!errors.title || undefined} {...register('title')} />
+                  <Input id="task-title" placeholder="Например, уборка после выезда" aria-invalid={!!errors.title || undefined} {...register('title')} />
                 </TaskField>
                 <TaskField id="task-desc" label="Подробности" error={errors.description}>
                   <Textarea id="task-desc" rows={3} placeholder="Что важно не забыть" aria-invalid={!!errors.description || undefined} {...register('description')} />

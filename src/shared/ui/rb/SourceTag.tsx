@@ -31,8 +31,8 @@ type SourceMeta = {
   label: string
   // Подпись для узких мест: полоса брони в месяце, ячейка таблицы на телефоне
   short: string
-  // Значок площадки: фирменный знак (svg), иконка или монограмма на фирменном цвете. Меняется здесь, в одном месте
-  mark: { svg?: (props: React.SVGProps<SVGSVGElement>) => React.ReactNode; letter?: string; icon?: LucideIcon; bg: string; fg: string }
+  // Значок площадки: фирменный знак (svg), иконка цветом текста или монограмма на фирменном цвете. Меняется здесь, в одном месте
+  mark: { svg?: (props: React.SVGProps<SVGSVGElement>) => React.ReactNode; letter?: string; icon?: LucideIcon; bg?: string; fg?: string }
   // Внешняя площадка: брони приходят обменом, отменяются в её кабинете
   external: boolean
 }
@@ -41,8 +41,8 @@ export const SOURCE_META: Record<Source, SourceMeta> = {
   avito: { label: 'Авито', short: 'Ав', mark: { svg: AvitoMark, bg: 'transparent', fg: 'currentColor' }, external: true },
   sutochno: { label: 'Суточно', short: 'Сут', mark: { svg: SutochnoMark, bg: 'transparent', fg: 'currentColor' }, external: true },
   ostrovok: { label: 'Островок', short: 'Остр', mark: { letter: 'О', bg: '#7b5cff', fg: '#ffffff' }, external: true },
-  direct: { label: 'Прямая', short: 'Прям', mark: { icon: HouseIcon, bg: 'var(--foreground)', fg: 'var(--background)' }, external: false },
-  manual: { label: 'Вручную', short: 'Ручн', mark: { icon: PencilIcon, bg: 'var(--mist)', fg: 'var(--foreground)' }, external: false },
+  direct: { label: 'Прямая', short: 'Прям', mark: { icon: HouseIcon }, external: false },
+  manual: { label: 'Вручную', short: 'Ручн', mark: { icon: PencilIcon }, external: false },
 }
 
 export const SOURCE_LABEL = Object.fromEntries(
@@ -67,6 +67,14 @@ export const SourceMark = ({ source, size = 'sm', className }: { source: Source;
       </span>
     )
   }
+  // Иконка — без подложки, цветом текста, как у StatusBadge; подложка остаётся только у монограммы
+  if (Icon) {
+    return (
+      <span role="img" aria-label={label} title={label} className={cn('inline-flex shrink-0', className)}>
+        <Icon aria-hidden className={size === 'xs' ? 'size-3' : 'size-3.5'} />
+      </span>
+    )
+  }
   return (
     <span
       role="img"
@@ -75,7 +83,7 @@ export const SourceMark = ({ source, size = 'sm', className }: { source: Source;
       className={cn('inline-flex shrink-0 items-center justify-center rounded-full leading-none font-semibold', MARK_SIZE[size], className)}
       style={{ background: mark.bg, color: mark.fg }}
     >
-      {Icon ? <Icon aria-hidden strokeWidth={2.5} /> : mark.letter}
+      {mark.letter}
     </span>
   )
 }
@@ -97,6 +105,8 @@ export const SourceTag = ({ source, variant = 'outline', size = 'sm', short, inv
       'inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap',
       size === 'sm' ? 'text-caption' : 'text-body-sm',
       variant === 'outline' && (size === 'sm' ? 'h-6 rounded-full border pr-2.5 pl-1' : 'h-8 rounded-full border pr-3 pl-1.5'),
+      // Иконка без подложки не заполняет скругление шильдика — слева нужен отступ как у текста
+      variant === 'outline' && SOURCE_META[source].mark.icon && (size === 'sm' ? 'pl-2' : 'pl-2.5'),
       variant === 'outline' && (inverted ? 'border-current/30' : 'border-foreground/15 bg-card'),
       inverted ? 'text-current' : 'text-foreground',
       className,

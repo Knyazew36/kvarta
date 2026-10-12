@@ -1,6 +1,7 @@
 import { BellIcon, CircleCheckIcon, CirclePlayIcon, LifeBuoyIcon, PauseIcon, PencilIcon, RotateCcwIcon, SendIcon, XIcon } from 'lucide-react'
 import { useStartTask } from '@/entities/task'
 import type { Task } from '@/shared/api/generated/models'
+import { RECORD_PRIMARY_ACTION } from '@/shared/ui/rb/RecordHeader'
 import { MOCK_BORDER } from '@/shared/mock/mock-border'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Spinner } from '@/shared/ui/shadcn/spinner'
@@ -30,7 +31,7 @@ export const TaskActions = ({ task, assigneeName, reviewerName }: TaskActionsPro
         <CancelTaskDialog
           task={task}
           trigger={
-            <Button variant="ghost">
+            <Button variant="secondary">
               <XIcon /> Отменить
             </Button>
           }
@@ -40,7 +41,7 @@ export const TaskActions = ({ task, assigneeName, reviewerName }: TaskActionsPro
         <TaskEditSheet
           task={task}
           trigger={
-            <Button variant="ghost">
+            <Button variant="secondary">
               <PencilIcon /> Изменить
             </Button>
           }
@@ -54,7 +55,7 @@ export const TaskActions = ({ task, assigneeName, reviewerName }: TaskActionsPro
             task={task.title}
             to={{ name: reviewerName, caption: 'Проверяющий' }}
             trigger={
-              <Button variant="ghost" className={MOCK_BORDER}>
+              <Button variant="secondary" className={MOCK_BORDER}>
                 <LifeBuoyIcon /> Нужна помощь
               </Button>
             }
@@ -62,7 +63,7 @@ export const TaskActions = ({ task, assigneeName, reviewerName }: TaskActionsPro
           <PostponeTaskDialog
             task={task.title}
             trigger={
-              <Button variant="ghost" className={MOCK_BORDER}>
+              <Button variant="secondary" className={MOCK_BORDER}>
                 <PauseIcon /> Отложить
               </Button>
             }
@@ -70,7 +71,7 @@ export const TaskActions = ({ task, assigneeName, reviewerName }: TaskActionsPro
         </>
       )}
       {can('update') && !isExecutor && (
-        <Button variant="outline" className={`bg-canvas ${MOCK_BORDER}`}>
+        <Button variant="secondary" className={MOCK_BORDER}>
           <BellIcon /> Напомнить исполнителю
         </Button>
       )}
@@ -93,7 +94,7 @@ export const TaskActions = ({ task, assigneeName, reviewerName }: TaskActionsPro
           task={task}
           assigneeName={assigneeName}
           trigger={
-            <Button className="shadow-control">
+            <Button className={RECORD_PRIMARY_ACTION}>
               <CircleCheckIcon /> Принять
             </Button>
           }
@@ -102,7 +103,7 @@ export const TaskActions = ({ task, assigneeName, reviewerName }: TaskActionsPro
 
       {/* Повторный start у задачи в работе бэк принимает, но ничего не меняет — кнопку показываем только до начала */}
       {can('start') && task.status === 'open' && (
-        <Button className="shadow-control" disabled={startTask.isPending} onClick={() => startTask.mutate({ version: task.version })}>
+        <Button className={RECORD_PRIMARY_ACTION} disabled={startTask.isPending} onClick={() => startTask.mutate({ version: task.version })}>
           {startTask.isPending ? <Spinner /> : <CirclePlayIcon />} Начать
         </Button>
       )}
@@ -110,7 +111,7 @@ export const TaskActions = ({ task, assigneeName, reviewerName }: TaskActionsPro
         <CompleteTaskDialog
           task={task}
           trigger={
-            <Button className="shadow-control">
+            <Button className={RECORD_PRIMARY_ACTION}>
               <SendIcon /> {task.requires_review ? 'Выполнено, на проверку' : 'Выполнено'}
             </Button>
           }

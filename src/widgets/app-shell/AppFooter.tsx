@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router'
-import { DEMO_ORG_ID, ROUTES, to } from '@/shared/config/paths'
+import { DEMO_ORG_ID, to } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
 
 // Футер кабинета: служебная mono-строка — версия, помощь

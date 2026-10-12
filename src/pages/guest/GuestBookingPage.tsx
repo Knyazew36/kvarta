@@ -154,7 +154,7 @@ const GuestBookingPage = () => {
           <SplitHeadline text={booking.property.public_title ?? 'Ваше бронирование'} delay={0.05} className="brand-display max-w-3xl text-[40px] md:text-[60px]" />
           <Reveal delay={0.25} className="flex flex-wrap items-center gap-3">
             <StatusFromMeta meta={past ? FINISHED : CONFIRMED} />
-            <span className="text-caption text-smoke">Бронь #{booking.id}</span>
+            <span className="text-caption text-smoke">Бронь</span>
           </Reveal>
         </div>
 

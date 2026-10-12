@@ -6,7 +6,7 @@ import { useDemoState } from '@/shared/mock/state'
 import { type Consequence, ConsequencesPreview } from '@/shared/ui/rb/ConsequencesPreview'
 import { type HistoryEntry, HistoryFeed } from '@/shared/ui/rb/HistoryFeed'
 import { type MoneyLine, MoneySummary } from '@/shared/ui/rb/MoneySummary'
-import { RecordHeader } from '@/shared/ui/rb/RecordHeader'
+import { RECORD_PRIMARY_ACTION, RecordHeader } from '@/shared/ui/rb/RecordHeader'
 import { SectionCard } from '@/shared/ui/rb/Section'
 import { SourceTag } from '@/shared/ui/rb/SourceTag'
 import { StateView } from '@/shared/ui/rb/StateView'
@@ -104,7 +104,7 @@ const RequestPage = () => {
         primaryAction={
           <ConfirmPaymentDialog
             trigger={
-              <Button className="shadow-control">
+              <Button className={RECORD_PRIMARY_ACTION}>
                 <BanknoteIcon /> Подтвердить поступление
               </Button>
             }
@@ -117,10 +117,10 @@ const RequestPage = () => {
         }
         secondaryActions={
           <>
-            <Button variant="ghost">
+            <Button variant="secondary">
               <TimerIcon /> Продлить удержание
             </Button>
-            <Button variant="ghost">
+            <Button variant="secondary">
               <XIcon /> Отклонить
             </Button>
           </>

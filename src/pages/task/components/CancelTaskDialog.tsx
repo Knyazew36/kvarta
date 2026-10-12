@@ -51,9 +51,7 @@ export const CancelTaskDialog = ({ trigger, task }: { trigger: React.ReactElemen
       <DialogContent className="sm:max-w-lg">
         <form className="contents" onSubmit={submit} noValidate>
           <DialogHeader className="gap-2">
-            <span className="mono-label text-smoke">
-              Задача #{task.id} · {task.title}
-            </span>
+   
             <DialogTitle className="section-heading text-heading-sm">Отменить задачу?</DialogTitle>
             <DialogDescription className="text-body-sm text-slate">
               Вернуть задачу после отмены нельзя — только создать заново. Отчёты и фото останутся в истории.

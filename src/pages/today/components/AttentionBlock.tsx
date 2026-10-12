@@ -7,6 +7,7 @@ import { cn } from '@/shared/lib/utils'
 import { MOCK_BORDER } from '@/shared/mock/mock-border'
 import { PersonName } from '@/shared/ui/rb/PersonAvatar'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { MAX_VISIBLE_ROWS } from '../model/max-visible-rows'
 import { useMyTasks } from '../model/use-my-tasks'
 
 export type Attention = {
@@ -61,7 +62,7 @@ export const AttentionBlock = ({ mockItems = [] }: { mockItems?: Attention[] }) 
         </Button>
       </div>
       <ol className="-mx-3 flex flex-col">
-        {items.map((item) => (
+        {items.slice(0, MAX_VISIBLE_ROWS).map((item) => (
           <li key={item.id}>
             <Link
               to={item.href}
@@ -88,7 +89,7 @@ export const AttentionBlock = ({ mockItems = [] }: { mockItems?: Attention[] }) 
           </li>
         ))}
       </ol>
-      {overdueQuery.hasNextPage && (
+      {(overdueQuery.hasNextPage || items.length > MAX_VISIBLE_ROWS) && (
         <Link to={`${to.tasks(String(organizationId))}?tab=overdue`} className="text-body-sm text-smoke underline-offset-4 hover:underline">
           Все просроченные задачи
         </Link>

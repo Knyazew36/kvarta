@@ -69,7 +69,7 @@ export const BookingEditSheet = ({ trigger, booking, capacity }: BookingEditShee
       <SheetTrigger render={trigger} />
       <SheetContent>
         <SheetHeader className="border-b border-mist">
-          <span className="mono-label text-smoke">Бронь #{booking.id}</span>
+          <span className="mono-label text-smoke">Бронь</span>
           <SheetTitle className="text-heading-sm">Изменить бронь</SheetTitle>
           <SheetDescription>
             Смена дат пересчитает подготовку объекта и снимет у гостя ручное разрешение на выдачу кодов доступа. Объект брони изменить нельзя.

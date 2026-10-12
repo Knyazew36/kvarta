@@ -9,6 +9,7 @@ import { StatusFromMeta } from '@/shared/ui/rb/StatusBadge'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Skeleton } from '@/shared/ui/shadcn/skeleton'
 import { Spinner } from '@/shared/ui/shadcn/spinner'
+import { MAX_VISIBLE_ROWS } from '../model/max-visible-rows'
 import { useMyTasks } from '../model/use-my-tasks'
 import { Panel } from './Panel'
 
@@ -68,8 +69,7 @@ export const MyTasksBlock = ({ className, children }: MyTasksBlockProps) => {
     <Panel
       title="Мои задачи"
       count={today?.length}
-      // Панель растёт по содержимому, но не выше 96% экрана: дальше список прокручивается внутри
-      className={cn('max-h-[96dvh]', className)}
+      className={className}
       action={
         <Link to={tasksHref} className="text-body-sm text-slate underline-offset-4 hover:text-foreground hover:underline">
           Все задачи
@@ -89,15 +89,15 @@ export const MyTasksBlock = ({ className, children }: MyTasksBlockProps) => {
           </Button>
         </div>
       ) : today.length > 0 ? (
-        <ul className="@container -mx-3 flex min-h-0 flex-col overflow-y-auto overscroll-contain px-3">
-          {today.map((task) => (
+        <ul className="@container flex flex-col">
+          {today.slice(0, MAX_VISIBLE_ROWS).map((task) => (
             <MyTaskRow key={task.id} task={task} />
           ))}
         </ul>
       ) : (
         <p className="text-body-sm text-slate">На сегодня задач нет.</p>
       )}
-      {todayQuery.hasNextPage && (
+      {(todayQuery.hasNextPage || (today?.length ?? 0) > MAX_VISIBLE_ROWS) && (
         <Link to={`${tasksHref}?tab=today`} className="text-body-sm text-slate underline-offset-4 hover:text-foreground hover:underline">
           Показаны не все — открыть полный список
         </Link>

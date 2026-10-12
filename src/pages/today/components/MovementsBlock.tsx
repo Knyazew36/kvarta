@@ -9,6 +9,7 @@ import { BOOKING_STATUS } from '@/shared/ui/rb/status-presets'
 import { StatusFromMeta, type StatusMeta } from '@/shared/ui/rb/StatusBadge'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Skeleton } from '@/shared/ui/shadcn/skeleton'
+import { MAX_VISIBLE_ROWS } from '../model/max-visible-rows'
 import { type Movement, useMovements } from '../model/use-movements'
 import { Panel } from './Panel'
 
@@ -89,12 +90,17 @@ export const MovementsBlock = ({ className }: { className?: string }) => {
         </div>
       ) : movements.length > 0 ? (
         <ul className="flex flex-col">
-          {movements.map((item) => (
+          {movements.slice(0, MAX_VISIBLE_ROWS).map((item) => (
             <MovementRow key={`${item.kind}-${item.booking.id}`} item={item} />
           ))}
         </ul>
       ) : (
         <p className="text-body-sm text-slate">Сегодня никто не заезжает и не выезжает.</p>
+      )}
+      {(movements?.length ?? 0) > MAX_VISIBLE_ROWS && (
+        <Link to={to.calendar(String(organizationId))} className="text-body-sm text-slate underline-offset-4 hover:text-foreground hover:underline">
+          Показаны не все — открыть календарь
+        </Link>
       )}
     </Panel>
   )

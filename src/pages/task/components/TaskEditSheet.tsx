@@ -100,7 +100,6 @@ export const TaskEditSheet = ({ trigger, task }: { trigger: React.ReactElement; 
       <SheetTrigger render={trigger} />
       <SheetContent>
         <SheetHeader className="border-b border-mist">
-          <span className="mono-label text-smoke">Задача #{task.id}</span>
           <SheetTitle className="text-heading-sm">Изменить задачу</SheetTitle>
           <SheetDescription>
             {task.series_id !== null

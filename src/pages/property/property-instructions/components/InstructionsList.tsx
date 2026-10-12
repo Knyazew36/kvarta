@@ -2,7 +2,6 @@ import { EyeIcon, EyeOffIcon, HistoryIcon, LockIcon, type LucideIcon, PencilIcon
 import { INSTRUCTION_TYPES } from '@/entities/instruction'
 import type { InstructionMetadata } from '@/shared/api/generated/models'
 import { cn } from '@/shared/lib/utils'
-import { DeviationNote } from '@/shared/mock/DeviationNote'
 import { SectionCard } from '@/shared/ui/rb/Section'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { InstructionCreateSheet, InstructionEditSheet } from './InstructionFormSheet'

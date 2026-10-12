@@ -66,7 +66,7 @@ export const PropertyHeader = ({ property, orgId, isOwner }: PropertyHeaderProps
       secondaryActions={
         <>
           {/* Публичной страницы объекта на бэке нет */}
-          <Button variant="ghost" className={MOCK_BORDER} asChild>
+          <Button variant="secondary" className={MOCK_BORDER} asChild>
             <Link to={to.hostProperty(MOCK_PROPERTY.id)}>
               Как видит гость <ArrowUpRightIcon />
             </Link>
@@ -81,7 +81,7 @@ export const PropertyHeader = ({ property, orgId, isOwner }: PropertyHeaderProps
                 organizationId={property.organization_id}
                 property={property}
                 trigger={
-                  <Button variant="ghost">
+                  <Button variant="secondary">
                     <ArchiveIcon /> В архив
                   </Button>
                 }

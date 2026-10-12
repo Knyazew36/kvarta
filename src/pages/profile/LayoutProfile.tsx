@@ -59,7 +59,7 @@ const LayoutProfile = () => {
           { label: 'Организация', value: organization.name },
         ]}
         secondaryActions={
-          <Button variant="ghost" onClick={logout} disabled={isPending}>
+          <Button variant="secondary" onClick={logout} disabled={isPending}>
             <LogOutIcon /> Выйти
           </Button>
         }

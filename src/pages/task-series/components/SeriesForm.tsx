@@ -12,7 +12,7 @@ import { to } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
 import { ErrorText } from '@/shared/ui/rb/ErrorText'
 import { PersonAvatar } from '@/shared/ui/rb/PersonAvatar'
-import { RecordHeader } from '@/shared/ui/rb/RecordHeader'
+import { RECORD_PRIMARY_ACTION, RecordHeader } from '@/shared/ui/rb/RecordHeader'
 import { SectionCard } from '@/shared/ui/rb/Section'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { RadioGroup, RadioGroupItem } from '@/shared/ui/shadcn/animate-ui/components/radix/radio-group'
@@ -149,7 +149,7 @@ export const SeriesForm = () => {
           eyebrow="Новая серия задач"
           title="Новая серия"
           primaryAction={
-            <Button type="submit" className="shadow-control" disabled={createSeries.isPending}>
+            <Button type="submit" className={RECORD_PRIMARY_ACTION} disabled={createSeries.isPending}>
               {createSeries.isPending ? <Spinner /> : <SaveIcon />} Создать серию
             </Button>
           }

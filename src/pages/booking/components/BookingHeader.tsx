@@ -6,7 +6,7 @@ import { to } from '@/shared/config/paths'
 import { formatDate, formatMoney, nights } from '@/shared/lib/format'
 import { MOCK_BORDER } from '@/shared/mock/mock-border'
 import { PersonName } from '@/shared/ui/rb/PersonAvatar'
-import { RecordHeader } from '@/shared/ui/rb/RecordHeader'
+import { RECORD_PRIMARY_ACTION, RecordHeader } from '@/shared/ui/rb/RecordHeader'
 import { SourceTag } from '@/shared/ui/rb/SourceTag'
 import { BOOKING_STATUS } from '@/shared/ui/rb/status-presets'
 import { StatusFromMeta } from '@/shared/ui/rb/StatusBadge'
@@ -38,12 +38,13 @@ export const BookingHeader = ({ booking, property, orgId }: BookingHeaderProps) 
     <RecordHeader
       className="shadow-card"
       back={{ to: to.bookings(orgId), label: 'Брони' }}
-      eyebrow={`Бронь #${booking.id}`}
+      eyebrow={`Бронь`}
       title={booking.guest_name}
       status={
         <>
           <StatusFromMeta meta={BOOKING_STATUS[status]} />
-          <SourceTag source={booking.source} />
+          {/* В шапке источник стоит в ряду бейджей статуса — тот же габарит и заливка, что у нейтрального StatusBadge */}
+          <SourceTag source={booking.source} size="default" className="h-7 border-transparent bg-foreground/5 px-3 font-medium text-slate" />
         </>
       }
       facts={[
@@ -75,7 +76,7 @@ export const BookingHeader = ({ booking, property, orgId }: BookingHeaderProps) 
             booking={booking}
             capacity={property?.capacity}
             trigger={
-              <Button className="shadow-control">
+              <Button className={RECORD_PRIMARY_ACTION}>
                 <PencilIcon /> Изменить
               </Button>
             }
@@ -98,7 +99,7 @@ export const BookingHeader = ({ booking, property, orgId }: BookingHeaderProps) 
             <CancelBookingDialog
               booking={booking}
               trigger={
-                <Button variant="ghost">
+                <Button variant="secondary">
                   <XIcon /> Отменить
                 </Button>
               }

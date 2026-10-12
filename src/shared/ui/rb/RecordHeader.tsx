@@ -14,6 +14,9 @@ type RecordHeaderProps = {
   className?: string
 }
 
+// Класс главной кнопки шапки: на мобилке она идёт первой строкой во всю ширину, остальные делят строки под ней
+export const RECORD_PRIMARY_ACTION = 'shadow-control max-md:order-first max-md:basis-full'
+
 // Шапка записи (бронь, задача, объект): номер, статус, ключевые факты и одно главное действие
 export const RecordHeader = ({ back, eyebrow, title, status, facts, primaryAction, secondaryActions, className }: RecordHeaderProps) => (
   <header className={cn('flex flex-col gap-6 rounded-card bg-card p-4 md:p-8', className)}>
@@ -35,7 +38,8 @@ export const RecordHeader = ({ back, eyebrow, title, status, facts, primaryActio
         {status && <div className="flex flex-wrap items-center gap-2">{status}</div>}
       </div>
       {(primaryAction || secondaryActions) && (
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
+        // На мобилке действия — отдельная полоса под чертой с кнопками во всю ширину: иначе пилюли кнопок сливаются с бейджами статуса
+        <div className="flex shrink-0 flex-wrap items-center gap-2 max-md:border-t max-md:border-mist max-md:pt-4 max-md:*:grow md:justify-end">
           {secondaryActions}
           {primaryAction}
         </div>
