@@ -10,7 +10,7 @@ const ALL = 'all'
 // Оба фильтра уходят в запрос и хранятся в ссылке: объект — ?object (его пишет PropertyFilter), исполнитель — ?assignee
 export const TasksFilter = ({ organizationId, employee }: { organizationId: number; employee: boolean }) => (
   <DeviationNote reason="Поиска по названию нет: бэк не умеет искать задачи по тексту.">
-    <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+    <div className="no-scrollbar -mx-2 flex gap-2 overflow-x-auto px-2 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
       <PropertyFilter className="shrink-0" />
       {/* Сотрудник видит только свои задачи, а список участников ему закрыт (403) */}
       {!employee && <AssigneeFilter organizationId={organizationId} />}

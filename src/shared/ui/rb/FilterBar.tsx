@@ -58,7 +58,7 @@ export const FilterBar = ({ filters, search, className, children }: FilterBarPro
           />
         </label>
       )}
-      <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+      <div className="no-scrollbar -mx-2 flex gap-2 overflow-x-auto px-2 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
         {filters.map((filter) => {
           const items = [{ value: 'all', label: `${filter.label}: все` }, ...filter.options]
           const value = params.get(filter.key) ?? 'all'

@@ -54,7 +54,8 @@ function CalendarPopupContent({ title, align = "start", className, children }: C
 
   if (isMobile) {
     return (
-      <DrawerContent>
+      // Шторка сразу на 90% экрана: высота не прыгает, когда в месяце другое число недель
+      <DrawerContent className="h-[90dvh] max-h-[90dvh]">
         {title && (
           <DrawerHeader>
             <DrawerTitle>{title}</DrawerTitle>

@@ -1,6 +1,5 @@
-import { useId, useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { ChevronRightIcon, MenuIcon } from 'lucide-react'
-import { motion } from 'motion/react'
 import { Link, useLocation, useParams } from 'react-router'
 import { DEMO_ORG_ID } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
@@ -33,15 +32,15 @@ type MobileNavProps = {
 
 // Нижнее меню мобильного (§2): «Сегодня / Календарь / Задачи / Ещё»; у сотрудника — свои три пункта.
 // Матовая плашка с блюром: контент читается сквозь неё, но не спорит с подписями.
-// Активный пункт — чёрная pill, которая «переезжает» между пунктами, как во вкладках (animate-ui/tabs)
+// Активный пункт — чёрная pill, которая «переезжает» между пунктами, как во вкладках (animate-ui/tabs).
+// Подложка одна на всё меню и едет по индексу пункта чистым CSS: её положение не измеряется по DOM,
+// поэтому смена страницы, её высота и прокрутка на анимацию не влияют
 export const MobileNav = ({ inline, className }: MobileNavProps) => {
   const { orgId = DEMO_ORG_ID } = useParams()
   const { pathname } = useLocation()
   const { role, isEmployee } = useDemoState()
   const [moreOpen, setMoreOpen] = useState(false)
   const badges = useNavBadges()
-  // Свой id на экземпляр: в витрине /ui меню два, подложки не должны перелетать между ними
-  const pillId = useId()
 
   const nav = navFor(role)
   const primary = nav.main.filter((item) => item.mobile)
@@ -54,34 +53,41 @@ export const MobileNav = ({ inline, className }: MobileNavProps) => {
       active ? 'text-background' : 'text-slate hover:text-foreground',
     )
 
-  // -z-10: подложка лежит под подписями всех пунктов, пока едет от старого к новому
-  const pill = (
-    <motion.span
-      layoutId={pillId}
-      transition={{ type: 'tween', duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-      className="absolute inset-0 -z-10 rounded-pill bg-foreground"
-      aria-hidden
-    />
-  )
+  const isActive = (item: NavItem) => pathname.startsWith(item.match?.(orgId) ?? item.href(orgId))
+  const tabsCount = primary.length + (isEmployee ? 0 : 1)
+  const primaryIndex = primary.findIndex(isActive)
+  // Открытие шторки — не переход: подложка остаётся на текущем разделе
+  const activeIndex = primaryIndex >= 0 ? primaryIndex : moreActive && !isEmployee ? primary.length : -1
+
+  // Пункты равной ширины (flex-1): ширина и сдвиг подложки считаются из числа пунктов, отступа p-1.5 и зазора gap-1
+  const pillStyle: CSSProperties = {
+    width: `calc((100% - 0.75rem - ${tabsCount - 1} * 0.25rem) / ${tabsCount})`,
+    transform: `translateX(calc(${Math.max(activeIndex, 0)} * (100% + 0.25rem)))`,
+  }
 
   return (
     <>
-      <motion.nav
-        // Меню прибито к экрану: без layoutRoot подложка учитывает прокрутку страницы и прилетает сбоку
-        layoutRoot
+      <nav
         aria-label="Основное меню"
         className={cn(
-          'z-30 flex items-center gap-1 rounded-pill bg-card/45 p-1.5 ring-1 ring-foreground/5 backdrop-blur-2xl backdrop-saturate-150 dark:bg-card/40',
+          'relative z-30 flex items-center gap-1 rounded-pill bg-card/45 p-1.5 ring-1 ring-foreground/5 backdrop-blur-2xl backdrop-saturate-150 dark:bg-card/40',
           !inline && 'fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden',
           className,
         )}
       >
+        <span
+          style={pillStyle}
+          className={cn(
+            'absolute inset-y-1.5 left-1.5 rounded-pill bg-foreground transition-[transform,opacity] duration-200 ease-out motion-reduce:transition-none',
+            activeIndex < 0 && 'opacity-0',
+          )}
+          aria-hidden
+        />
         {primary.map((item) => {
-          const active = pathname.startsWith(item.match?.(orgId) ?? item.href(orgId))
+          const active = isActive(item)
           const badge = badges[item.key] ?? item.badge
           return (
             <Link key={item.key} to={item.href(orgId)} className={tabClass(active)} aria-current={active ? 'page' : undefined}>
-              {active && pill}
               <item.icon className="size-5" aria-hidden />
               {item.label}
               {badge != null && !active && (
@@ -94,13 +100,11 @@ export const MobileNav = ({ inline, className }: MobileNavProps) => {
         })}
         {!isEmployee && (
           <button type="button" className={tabClass(moreActive)} onClick={() => setMoreOpen(true)} aria-haspopup="dialog">
-            {/* Открытие шторки — не переход: подложка остаётся на текущем разделе */}
-            {moreActive && pill}
             <MenuIcon className="size-5" aria-hidden />
             Ещё
           </button>
         )}
-      </motion.nav>
+      </nav>
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
         <SheetContent side="bottom" className="max-h-[85svh] gap-0">
