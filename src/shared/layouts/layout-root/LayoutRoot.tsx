@@ -1,6 +1,8 @@
+import { Suspense } from 'react'
 import { matchPath, Outlet, ScrollRestoration, useLocation } from 'react-router'
 import { env } from '@/env'
 import { ROUTES } from '@/shared/config/paths'
+import { Spinner } from '@/shared/ui/shadcn/spinner'
 import { DemoSwitcher } from '@/widgets/demo-switcher/DemoSwitcher'
 import { UxMapWidget } from '@/widgets/ux-map/UxMapWidget'
 
@@ -43,7 +45,16 @@ const LayoutRoot = () => {
 
   return (
     <>
-      <Outlet />
+      {/* Страницы — lazy-чанки: спиннер виден только при первой загрузке, при переходах прежняя страница остаётся до готовности новой */}
+      <Suspense
+        fallback={
+          <div className="flex min-h-svh items-center justify-center">
+            <Spinner />
+          </div>
+        }
+      >
+        <Outlet />
+      </Suspense>
       <ScrollRestoration />
       {showDemoTools && <DemoSwitcher />}
       {showDemoTools && <UxMapWidget />}

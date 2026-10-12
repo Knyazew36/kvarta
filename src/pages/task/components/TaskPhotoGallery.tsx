@@ -1,6 +1,9 @@
+import { lazy, Suspense, useState } from 'react'
 import { useTaskPhotoUrls } from '@/entities/task'
 import type { Task, TaskPhoto } from '@/shared/api/generated/models'
-import { PhotoLightbox } from '@/shared/ui/rb/PhotoLightbox'
+
+// Библиотека галереи и её стили качаются по первому клику на миниатюру, а не вместе со страницей задачи
+const PhotoLightbox = lazy(() => import('@/shared/ui/rb/PhotoLightbox').then((module) => ({ default: module.PhotoLightbox })))
 
 type TaskPhotoGalleryProps = {
   task: Pick<Task, 'organization_id' | 'id'>
@@ -14,6 +17,10 @@ type TaskPhotoGalleryProps = {
 // Галерея набора фото задачи. Файлы закрытые и качаются по сессии, поэтому ссылки собираются здесь,
 // а не в миниатюрах: пока галерея закрыта, лишних ссылок в памяти нет
 export const TaskPhotoGallery = ({ task, photos, openedId, onClose }: TaskPhotoGalleryProps) => {
+  // После первого открытия галерея остаётся в дереве: иначе закрытие обрывало бы её анимацию
+  const [wasOpened, setWasOpened] = useState(false)
+  if (openedId !== null && !wasOpened) setWasOpened(true)
+
   const urls = useTaskPhotoUrls(
     task.organization_id,
     task.id,
@@ -28,5 +35,11 @@ export const TaskPhotoGallery = ({ task, photos, openedId, onClose }: TaskPhotoG
   })
   const index = openedId === null ? -1 : shown.findIndex((slide) => slide.id === openedId)
 
-  return <PhotoLightbox slides={shown} index={index >= 0 ? index : null} onClose={onClose} />
+  if (!wasOpened) return null
+
+  return (
+    <Suspense fallback={null}>
+      <PhotoLightbox slides={shown} index={index >= 0 ? index : null} onClose={onClose} />
+    </Suspense>
+  )
 }

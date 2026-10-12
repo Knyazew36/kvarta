@@ -33,8 +33,6 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         cleanupOutdatedCaches: true,
-        // Бандл пока один и весит ~2.9 МБ — больше лимита workbox в 2 МБ; без этого оболочка не попадёт в precache
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: '/index.html',
         // API в кэш не попадает: сессия и CSRF живут только в сети, а оффлайн-ответ тут хуже ошибки
         navigateFallbackDenylist: [/^\/api\//],

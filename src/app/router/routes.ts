@@ -1,70 +1,72 @@
-import type { ComponentType } from 'react'
+import { lazy, type ComponentType } from 'react'
 import { ROUTES } from '@/shared/config/paths'
-import BookingPage from '@/pages/booking/BookingPage'
-import BookingsPage from '@/pages/bookings/BookingsPage'
-import CalendarPage from '@/pages/calendar/CalendarPage'
-import GuestBookingPage from '@/pages/guest/GuestBookingPage'
-import GuestBookingsPage from '@/pages/guest/GuestBookingsPage'
-import GuestInstructionsPage from '@/pages/guest/GuestInstructionsPage'
-import GuestInvitationPage from '@/pages/guest/GuestInvitationPage'
-import GuestRequestPage from '@/pages/guest/GuestRequestPage'
-import CheckoutPage from '@/pages/host/CheckoutPage'
-import HostPage from '@/pages/host/HostPage'
-import HelpPage from '@/pages/help/HelpPage'
-import HostPropertyPage from '@/pages/host/HostPropertyPage'
-import InvitePage from '@/pages/invite/InvitePage'
 import LoginPage from '@/pages/login/LoginPage'
-import MoneyPage from '@/pages/money/MoneyPage'
-import NotFoundPage from '@/pages/not-found/NotFoundPage'
-import NotificationsPage from '@/pages/notifications/NotificationsPage'
-import OnboardingPage from '@/pages/onboarding/OnboardingPage'
 import OtpPage from '@/pages/otp/OtpPage'
-import OrgCreatePage from '@/pages/org-create/OrgCreatePage'
-import PagesIndexPage from '@/pages/pages-index/PagesIndexPage'
-import LayoutProfile from '@/pages/profile/LayoutProfile'
-import ProfileAboutPage from '@/pages/profile/profile-about/ProfileAboutPage'
-import ProfileNotificationsPage from '@/pages/profile/profile-notifications/ProfileNotificationsPage'
-import ProfileSecurityPage from '@/pages/profile/profile-security/ProfileSecurityPage'
-import ProfileWorkspacesPage from '@/pages/profile/profile-workspaces/ProfileWorkspacesPage'
-import PropertiesPage from '@/pages/properties/PropertiesPage'
-import LayoutProperty from '@/pages/property/LayoutProperty'
-import LayoutGuest from '@/shared/layouts/layout-guest/LayoutGuest'
-import PropertyBookingsPage from '@/pages/property/property-bookings/PropertyBookingsPage'
-import PropertyCalendarPage from '@/pages/property/property-calendar/PropertyCalendarPage'
-import PropertyDirectPage from '@/pages/property/property-direct/PropertyDirectPage'
-import PropertyHistoryPage from '@/pages/property/property-history/PropertyHistoryPage'
-import PropertyInfoPage from '@/pages/property/property-info/PropertyInfoPage'
-import PropertyInstructionsPage from '@/pages/property/property-instructions/PropertyInstructionsPage'
-import PropertyListingsPage from '@/pages/property/property-listings/PropertyListingsPage'
-import PropertyPrepPage from '@/pages/property/property-prep/PropertyPrepPage'
-import PropertyTasksPage from '@/pages/property/property-tasks/PropertyTasksPage'
 import RegisterPage from '@/pages/register/RegisterPage'
-import RequestPage from '@/pages/request/RequestPage'
-import LayoutSettings from '@/pages/settings/LayoutSettings'
-import SettingsChannelsPage from '@/pages/settings/settings-channels/SettingsChannelsPage'
-import SettingsExportPage from '@/pages/settings/settings-export/SettingsExportPage'
-import SettingsInvitationsPage from '@/pages/settings/settings-invitations/SettingsInvitationsPage'
-import SettingsNotificationsPage from '@/pages/settings/settings-notifications/SettingsNotificationsPage'
-import SettingsPagePage from '@/pages/settings/settings-page/SettingsPagePage'
-import SettingsRequisitesPage from '@/pages/settings/settings-requisites/SettingsRequisitesPage'
-import SettingsTeamPage from '@/pages/settings/settings-team/SettingsTeamPage'
-import SpecialistInboxPage from '@/pages/specialist/SpecialistInboxPage'
-import SpecialistProfilePage from '@/pages/specialist/SpecialistProfilePage'
-import SpecialistReviewsPage from '@/pages/specialist/SpecialistReviewsPage'
-import SpecialistFavoritesPage from '@/pages/specialists/SpecialistFavoritesPage'
-import SpecialistPage from '@/pages/specialists/SpecialistPage'
-import SpecialistRequestsPage from '@/pages/specialists/SpecialistRequestsPage'
-import SpecialistsPage from '@/pages/specialists/SpecialistsPage'
-import TaskPage from '@/pages/task/TaskPage'
-import TaskSeriesItemPage from '@/pages/task-series/TaskSeriesItemPage'
-import TaskSeriesPage from '@/pages/task-series/TaskSeriesPage'
-import TasksPage from '@/pages/tasks/TasksPage'
-import TodayPage from '@/pages/today/TodayPage'
-import UiPage from '@/pages/ui/UiPage'
-import UxMapPage from '@/pages/ux-map/UxMapPage'
-import WorkspacesPage from '@/pages/workspaces/WorkspacesPage'
 
-// Страницы подключаются сразу, без lazy: макеты лёгкие, а переходы между ними должны быть мгновенными
+// Каждая страница — свой чанк: в стартовом бандле остаются только оболочка и гарды.
+// Вход, регистрация и код — сразу: это первый экран гостя, а LayoutAuth анимирует их смену через AnimatePresence
+const BookingPage = lazy(() => import('@/pages/booking/BookingPage'))
+const BookingsPage = lazy(() => import('@/pages/bookings/BookingsPage'))
+const CalendarPage = lazy(() => import('@/pages/calendar/CalendarPage'))
+const GuestBookingPage = lazy(() => import('@/pages/guest/GuestBookingPage'))
+const GuestBookingsPage = lazy(() => import('@/pages/guest/GuestBookingsPage'))
+const GuestInstructionsPage = lazy(() => import('@/pages/guest/GuestInstructionsPage'))
+const GuestInvitationPage = lazy(() => import('@/pages/guest/GuestInvitationPage'))
+const GuestRequestPage = lazy(() => import('@/pages/guest/GuestRequestPage'))
+const CheckoutPage = lazy(() => import('@/pages/host/CheckoutPage'))
+const HostPage = lazy(() => import('@/pages/host/HostPage'))
+const HelpPage = lazy(() => import('@/pages/help/HelpPage'))
+const HostPropertyPage = lazy(() => import('@/pages/host/HostPropertyPage'))
+const InvitePage = lazy(() => import('@/pages/invite/InvitePage'))
+const MoneyPage = lazy(() => import('@/pages/money/MoneyPage'))
+const NotFoundPage = lazy(() => import('@/pages/not-found/NotFoundPage'))
+const NotificationsPage = lazy(() => import('@/pages/notifications/NotificationsPage'))
+const OnboardingPage = lazy(() => import('@/pages/onboarding/OnboardingPage'))
+const OrgCreatePage = lazy(() => import('@/pages/org-create/OrgCreatePage'))
+const PagesIndexPage = lazy(() => import('@/pages/pages-index/PagesIndexPage'))
+const LayoutProfile = lazy(() => import('@/pages/profile/LayoutProfile'))
+const ProfileAboutPage = lazy(() => import('@/pages/profile/profile-about/ProfileAboutPage'))
+const ProfileNotificationsPage = lazy(() => import('@/pages/profile/profile-notifications/ProfileNotificationsPage'))
+const ProfileSecurityPage = lazy(() => import('@/pages/profile/profile-security/ProfileSecurityPage'))
+const ProfileWorkspacesPage = lazy(() => import('@/pages/profile/profile-workspaces/ProfileWorkspacesPage'))
+const PropertiesPage = lazy(() => import('@/pages/properties/PropertiesPage'))
+const LayoutProperty = lazy(() => import('@/pages/property/LayoutProperty'))
+const LayoutGuest = lazy(() => import('@/shared/layouts/layout-guest/LayoutGuest'))
+const PropertyBookingsPage = lazy(() => import('@/pages/property/property-bookings/PropertyBookingsPage'))
+const PropertyCalendarPage = lazy(() => import('@/pages/property/property-calendar/PropertyCalendarPage'))
+const PropertyDirectPage = lazy(() => import('@/pages/property/property-direct/PropertyDirectPage'))
+const PropertyHistoryPage = lazy(() => import('@/pages/property/property-history/PropertyHistoryPage'))
+const PropertyInfoPage = lazy(() => import('@/pages/property/property-info/PropertyInfoPage'))
+const PropertyInstructionsPage = lazy(() => import('@/pages/property/property-instructions/PropertyInstructionsPage'))
+const PropertyListingsPage = lazy(() => import('@/pages/property/property-listings/PropertyListingsPage'))
+const PropertyPrepPage = lazy(() => import('@/pages/property/property-prep/PropertyPrepPage'))
+const PropertyTasksPage = lazy(() => import('@/pages/property/property-tasks/PropertyTasksPage'))
+const RequestPage = lazy(() => import('@/pages/request/RequestPage'))
+const LayoutSettings = lazy(() => import('@/pages/settings/LayoutSettings'))
+const SettingsChannelsPage = lazy(() => import('@/pages/settings/settings-channels/SettingsChannelsPage'))
+const SettingsExportPage = lazy(() => import('@/pages/settings/settings-export/SettingsExportPage'))
+const SettingsInvitationsPage = lazy(() => import('@/pages/settings/settings-invitations/SettingsInvitationsPage'))
+const SettingsNotificationsPage = lazy(() => import('@/pages/settings/settings-notifications/SettingsNotificationsPage'))
+const SettingsPagePage = lazy(() => import('@/pages/settings/settings-page/SettingsPagePage'))
+const SettingsRequisitesPage = lazy(() => import('@/pages/settings/settings-requisites/SettingsRequisitesPage'))
+const SettingsTeamPage = lazy(() => import('@/pages/settings/settings-team/SettingsTeamPage'))
+const SpecialistInboxPage = lazy(() => import('@/pages/specialist/SpecialistInboxPage'))
+const SpecialistProfilePage = lazy(() => import('@/pages/specialist/SpecialistProfilePage'))
+const SpecialistReviewsPage = lazy(() => import('@/pages/specialist/SpecialistReviewsPage'))
+const SpecialistFavoritesPage = lazy(() => import('@/pages/specialists/SpecialistFavoritesPage'))
+const SpecialistPage = lazy(() => import('@/pages/specialists/SpecialistPage'))
+const SpecialistRequestsPage = lazy(() => import('@/pages/specialists/SpecialistRequestsPage'))
+const SpecialistsPage = lazy(() => import('@/pages/specialists/SpecialistsPage'))
+const TaskPage = lazy(() => import('@/pages/task/TaskPage'))
+const TaskSeriesItemPage = lazy(() => import('@/pages/task-series/TaskSeriesItemPage'))
+const TaskSeriesPage = lazy(() => import('@/pages/task-series/TaskSeriesPage'))
+const TasksPage = lazy(() => import('@/pages/tasks/TasksPage'))
+const TodayPage = lazy(() => import('@/pages/today/TodayPage'))
+const UiPage = lazy(() => import('@/pages/ui/UiPage'))
+const UxMapPage = lazy(() => import('@/pages/ux-map/UxMapPage'))
+const WorkspacesPage = lazy(() => import('@/pages/workspaces/WorkspacesPage'))
+
 // children — вложенные страницы внутри своего лейаута; index — страница по адресу самого лейаута
 export type AppRoute = { path?: string; index?: boolean; Component: ComponentType; children?: AppRoute[] }
 
