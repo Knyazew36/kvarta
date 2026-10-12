@@ -85,7 +85,7 @@ export const TaskSidebar = ({ task, orgId, employee }: TaskSidebarProps) => {
             <span className="flex items-start gap-2 text-body-sm">
               <RepeatIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
               <span className="flex flex-col gap-0.5">
-                <span className="font-medium">Задача из серии #{task.series_id}</span>
+                <span className="font-medium">Задача</span>
                 <span className="text-slate">
                   {task.series_exception ? 'Исключение: изменения правила серии её не затронут.' : 'Следует правилу серии, пока по ней не начата работа.'}
                 </span>

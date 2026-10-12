@@ -67,9 +67,9 @@ export const SeriesRuleFields = ({ hideStart }: SeriesRuleFieldsProps) => {
             control={control}
             name="weekdays"
             render={({ field }) => (
-              <ToggleGroup multiple value={field.value} onValueChange={(value) => field.onChange(value as string[])} aria-label="Дни недели" className="flex-wrap">
+              <ToggleGroup multiple value={field.value} onValueChange={(value) => field.onChange(value as string[])} aria-label="Дни недели" className="grid w-full grid-cols-7 gap-1.5 sm:flex sm:w-fit sm:flex-wrap">
                 {WEEKDAY_SHORT.map((label, index) => (
-                  <ToggleGroupItem key={label} value={String(index + 1)} className="size-11 bg-mist text-body-sm">
+                  <ToggleGroupItem key={label} value={String(index + 1)} className="h-11 w-full min-w-0 bg-mist px-0 text-body-sm sm:w-11">
                     {label}
                   </ToggleGroupItem>
                 ))}

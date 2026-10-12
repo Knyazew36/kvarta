@@ -11,7 +11,7 @@ const EMPTY = '—'
 export const BookingGuestTab = ({ booking }: { booking: Booking }) => (
   <div className="grid items-start gap-4 lg:grid-cols-2">
     <SectionCard title="Гость">
-      <dl className="grid grid-cols-2 gap-5">
+      <dl className="grid  grid-cols-1 md:grid-cols-2 gap-2 md:gap-5">
         <MetaItem label="Имя">{booking.guest_name}</MetaItem>
         <MetaItem label="Гостей">{pluralize(booking.guests_count, ['человек', 'человека', 'человек'])}</MetaItem>
         <MetaItem label="Телефон">
@@ -40,7 +40,7 @@ export const BookingGuestTab = ({ booking }: { booking: Booking }) => (
     </SectionCard>
 
     <SectionCard title="Проживание">
-      <dl className="grid grid-cols-2 gap-5">
+      <dl className="grid grid-cols-1  md:grid-cols-2 gap-2 md:gap-5">
         <MetaItem label="Заезд">
           {formatDate(booking.start_date, 'd MMMM yyyy')}
           {booking.check_in_time && `, с ${booking.check_in_time}`}

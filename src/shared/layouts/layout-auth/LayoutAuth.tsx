@@ -16,10 +16,10 @@ export const LayoutAuth = () => {
   return (
     // reducedMotion="user": при системной настройке «меньше движения» остаются только смены прозрачности
     <MotionConfig reducedMotion="user">
-      <div className="grid min-h-svh gap-4 bg-background p-3 md:p-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+      <div className="grid min-h-svh gap-4 bg-background p-3 grid-cols-[minmax(0,1fr)] md:p-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
         <Showcase />
 
-        <main className="flex flex-col px-3 pb-4 md:px-8 lg:px-12 xl:px-20">
+        <main className="flex min-w-0 flex-col overflow-x-clip px-3 pb-4 md:px-8 lg:px-12 xl:px-20">
           <Reveal delay={0.3} className="flex justify-end pt-2">
             <ThemeTogglerButton variant="ghost" className="size-10 rounded-full" aria-label="Сменить тему" />
           </Reveal>

@@ -14,7 +14,21 @@ export default defineConfig({
   server: {
     // Dev ходит на API через тот же origin: бэк не отдаёт CORS для localhost, а cookies сессии SameSite=Lax
     proxy: {
-      '/api': { target: 'https://api.rentybot.ru', changeOrigin: true },
+      '/api': {
+        target: 'https://api.rentybot.ru',
+        changeOrigin: true,
+        // Бэк ставит куки Secure; SameSite=None. По http на IP в локальной сети (не localhost) браузер их выбрасывает —
+        // сессия каждый раз новая, отсюда CSRF token mismatch. Через proxy запросы same-origin, хватает Lax без Secure
+        configure: (proxy) => {
+          proxy.on('proxyRes', (proxyRes) => {
+            const cookies = proxyRes.headers['set-cookie']
+            if (!cookies) return
+            proxyRes.headers['set-cookie'] = cookies.map((cookie) =>
+              cookie.replace(/;\s*secure/gi, '').replace(/;\s*samesite=none/gi, '; SameSite=Lax'),
+            )
+          })
+        },
+      },
     },
   },
   resolve: {

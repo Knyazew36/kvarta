@@ -49,7 +49,7 @@ export const BookingOverviewTab = ({ booking, orgId }: { booking: Booking; orgId
       key: 'booking',
       title: 'Бронь',
       status: BOOKING_STATUS[booking.status],
-      text: cancelled ? `Причина: ${cancellation ? (cancellation.reason ?? 'не указана') : '…'}` : 'Создана вручную, версия ' + booking.version,
+      text: cancelled ? `Причина: ${cancellation ? (cancellation.reason ?? 'не указана') : '…'}` : 'Создана вручную',
       tab: cancelled ? 'history' : 'guest',
     },
     {

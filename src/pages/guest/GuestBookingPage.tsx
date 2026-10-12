@@ -160,10 +160,10 @@ const GuestBookingPage = () => {
 
         {/* Заезд и выезд — ink-карточка с аркой: самое нужное гостю в поездке. Время — снимок из брони, в поясе объекта */}
         <Reveal delay={0.3}>
-          <section className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-card rounded-t-arc bg-foreground px-6 pt-12 pb-8 text-background shadow-card md:px-12 dark:bg-mist dark:text-foreground">
+          <section className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 rounded-card rounded-t-arc bg-foreground px-4 pt-12 pb-8 sm:gap-4 sm:px-6 text-background shadow-card md:px-12 dark:bg-mist dark:text-foreground">
             <div className="flex flex-col gap-1">
               <span className="text-caption opacity-60">Заезд</span>
-              <span className="brand-display text-[36px] tabular-nums md:text-[56px]">{booking.check_in_time}</span>
+              <span className="brand-display text-[30px] tabular-nums sm:text-[36px] md:text-[56px]">{booking.check_in_time}</span>
               <span className="text-body-sm opacity-80">{formatDate(from, 'd MMM, EEEEEE')}</span>
             </div>
             <div className="flex flex-col items-center gap-2">
@@ -175,7 +175,7 @@ const GuestBookingPage = () => {
             </div>
             <div className="flex flex-col items-end gap-1 text-right">
               <span className="text-caption opacity-60">Выезд</span>
-              <span className="brand-display text-[36px] tabular-nums md:text-[56px]">{booking.check_out_time}</span>
+              <span className="brand-display text-[30px] tabular-nums sm:text-[36px] md:text-[56px]">{booking.check_out_time}</span>
               <span className="text-body-sm opacity-80">{formatDate(until, 'd MMM, EEEEEE')}</span>
             </div>
           </section>

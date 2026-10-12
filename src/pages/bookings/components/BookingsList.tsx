@@ -77,7 +77,7 @@ export const BookingsList = ({ organizationId, filters }: { organizationId: numb
         <table className="w-full border-separate border-spacing-0 text-left">
           <thead>
             <tr className="text-caption text-smoke">
-              <th className="px-4 py-3 font-normal">Запись</th>
+              <th className="px-4 py-3 font-normal">Источник</th>
               <th className="px-4 py-3 font-normal">Гость</th>
               {showProperty && <th className="px-4 py-3 font-normal">Объект</th>}
               <th className="px-4 py-3 font-normal">Даты</th>

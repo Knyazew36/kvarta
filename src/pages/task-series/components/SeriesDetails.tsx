@@ -22,7 +22,7 @@ export const SeriesDetails = ({ series, segment, immutableOnly }: SeriesDetailsP
       {!immutableOnly && (
         <>
           {template.description ? <p className="whitespace-pre-line text-body text-slate">{template.description}</p> : <p className="text-body-sm text-smoke">Без описания</p>}
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+          <dl className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
             <MetaItem label="Правило">{describeSchedule(rule)}</MetaItem>
             <MetaItem label="Начало">{formatDateLabel(rule.start_date)}</MetaItem>
             <MetaItem label="Окончание">{rule.end_date ? formatDateLabel(rule.end_date) : 'Без окончания'}</MetaItem>

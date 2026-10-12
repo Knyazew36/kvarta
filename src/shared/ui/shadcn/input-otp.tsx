@@ -29,7 +29,7 @@ function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="input-otp-group"
       className={cn(
-        "flex items-center gap-2 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40",
+        "flex min-w-0 items-center gap-2 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 dark:has-aria-invalid:ring-destructive/40",
         className
       )}
       {...props}
@@ -53,7 +53,7 @@ function InputOTPSlot({
       data-active={isActive}
       className={cn(
         // Каждая цифра — отдельная ячейка с зазором: слитные поля на одном фоне не читаются как код
-        "relative flex size-12 items-center justify-center rounded-lg border-[1.5px] border-transparent bg-input text-subheading-lg font-medium tabular-nums text-foreground transition-all outline-none aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-foreground data-[active=true]:aria-invalid:ring-destructive/20 dark:data-[active=true]:aria-invalid:ring-destructive/40",
+        "relative flex h-12 w-12 min-w-0 items-center justify-center rounded-lg border-[1.5px] border-transparent bg-input text-subheading-lg font-medium tabular-nums text-foreground transition-all outline-none aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-foreground data-[active=true]:aria-invalid:ring-destructive/20 dark:data-[active=true]:aria-invalid:ring-destructive/40",
         className
       )}
       {...props}

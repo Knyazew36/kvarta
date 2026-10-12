@@ -27,7 +27,7 @@ export const TaskHeader = ({ task, orgId, employee }: TaskHeaderProps) => {
     <RecordHeader
       className="shadow-card"
       back={{ to: to.tasks(orgId), label: employee ? 'Мои задачи' : 'Задачи' }}
-      eyebrow={`Задача #${task.id}${task.series_id !== null ? ' · из серии' : ''}${task.visibility === 'personal' ? ' · личная' : ''}`}
+      eyebrow={`Задача`}
       title={task.title}
       status={
         <>

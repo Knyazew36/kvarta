@@ -58,7 +58,7 @@ export const TaskRow = ({ task, orgId, assigneeName }: TaskRowProps) => {
           <span className="text-caption text-smoke">без срока</span>
         )}
       </span>
-      <span className={cn('flex min-w-0 flex-col gap-1', faded)}>
+      <span className={cn('flex min-w-0 flex-col gap-1', assigneeName && 'col-span-2 md:col-span-1', faded)}>
         {/* Ссылка растянута на всю строку: строка кликабельна, а кнопка «Проверить» остаётся отдельной целью */}
         <Link
           to={href}
@@ -79,12 +79,14 @@ export const TaskRow = ({ task, orgId, assigneeName }: TaskRowProps) => {
           name={assigneeName}
           size="xs"
           // Полупрозрачная ячейка встаёт поверх растянутой ссылки — клики пропускаем сквозь неё
-          className={cn('col-span-2 col-start-2 row-start-2 md:col-span-1 md:col-start-auto md:row-start-auto', faded && 'pointer-events-none opacity-50')}
+          className={cn('col-start-2 row-start-2 min-w-0 md:col-start-auto md:row-start-auto', faded && 'pointer-events-none opacity-50')}
         />
       ) : (
         <span className="hidden md:block" />
       )}
-      <span className="relative row-start-1 flex items-center justify-end gap-2 md:col-start-4">
+      {/* На мобильном статус встаёт во вторую строку рядом с исполнителем: в первой он сжимал название до пары букв.
+          Без исполнителя второй строки нет — статус остаётся справа от названия */}
+      <span className={cn('relative col-start-3 flex items-center justify-end gap-2 md:col-start-4 md:row-start-1', assigneeName ? 'row-start-2' : 'row-start-1')}>
         {/* Принять отчёт может автор или назначенный проверяющий — бэк сам говорит, кому это доступно */}
         {task.allowed_actions.includes('approve') ? (
           <Button size="sm" variant="outline" className="bg-canvas shadow-control" asChild>

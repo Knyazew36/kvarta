@@ -1,7 +1,7 @@
+import { useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { cn } from '@/shared/lib/utils'
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/shadcn/animate-ui/components/animate/tabs'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/shadcn/select'
 
 export type TabDef = { value: string; label: string; to?: string; count?: number; attention?: boolean }
 
@@ -15,11 +15,11 @@ type ResponsiveTabsProps = {
 }
 
 // Вкладки записи — это маршруты (:tab в URL): выбор вкладки меняет ссылку, а не локальное состояние.
-// На мобильном 6–9 вкладок не помещаются: показываем select с тем же набором
+// Когда вкладки не помещаются, они прокручиваются внутри подложки: сама подложка стоит на месте и не шире страницы
 export const ResponsiveTabs = ({ tabs, value, label, onValueChange, className }: ResponsiveTabsProps) => {
   const navigate = useNavigate()
   const { search } = useLocation()
-  const items = tabs.map((tab) => ({ value: tab.value, label: tab.label }))
+  const scrollRef = useRef<HTMLDivElement>(null)
   const go = (next: string) => {
     if (onValueChange) return onValueChange(next)
     const tab = tabs.find((item) => item.value === next)
@@ -27,47 +27,40 @@ export const ResponsiveTabs = ({ tabs, value, label, onValueChange, className }:
     if (tab?.to) navigate(tab.to + search, { replace: true, preventScrollReset: true })
   }
 
+  // Активная вкладка могла остаться за краем ленты: подводим её к середине. Считаем сами — scrollIntoView двигал бы и страницу
+  useEffect(() => {
+    const scroller = scrollRef.current
+    const active = scroller?.querySelector<HTMLElement>('[role="tab"][data-state="active"]')
+    if (!scroller || !active) return
+    const offset = active.getBoundingClientRect().left - scroller.getBoundingClientRect().left
+    scroller.scrollTo({ left: scroller.scrollLeft + offset - (scroller.clientWidth - active.offsetWidth) / 2, behavior: 'smooth' })
+  }, [value])
+
   return (
-    <div className={className}>
-      {/* Табы — только Animate UI: переезжающая подложка одинакова во всём кабинете */}
-      <Tabs value={value} onValueChange={(next) => go(next)} className="hidden md:flex">
-        <TabsList aria-label={label} className="no-scrollbar h-12 max-w-full overflow-x-auto bg-card shadow-control">
-          {tabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} className="h-10">
-              {tab.label}
-              {tab.count != null && (
-                <span
-                  className={cn(
-                    'rounded-full px-1.5 py-0.5 text-caption tabular-nums',
-                    tab.attention ? 'bg-lime text-[#0a1217]' : tab.value === value ? 'bg-background/15' : 'bg-mist',
-                  )}
-                >
-                  {tab.count}
-                </span>
-              )}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-      <div className="md:hidden">
-        <Select
-          items={items}
-          value={value}
-          onValueChange={(next) => go(next as string)}
-        >
-          <SelectTrigger aria-label={label} className="w-full bg-card">
-            <span className="mono-label text-smoke">{label}</span>
-            <SelectValue className="font-medium" />
-          </SelectTrigger>
-          <SelectContent>
-            {items.map((item) => (
-              <SelectItem key={item.value} value={item.value}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
+    // Табы — только Animate UI: переезжающая подложка одинакова во всём кабинете
+    <Tabs value={value} onValueChange={(next) => go(next)} className={cn('w-fit max-w-full', className)}>
+      {/* justify-start: при переполнении центрирование спрятало бы первые вкладки за левым краем */}
+      <TabsList
+        ref={scrollRef}
+        aria-label={label}
+        className="no-scrollbar h-12 max-w-full justify-start overflow-x-auto overscroll-x-contain bg-card shadow-control"
+      >
+        {tabs.map((tab) => (
+          <TabsTrigger key={tab.value} value={tab.value} className="h-10">
+            {tab.label}
+            {tab.count != null && (
+              <span
+                className={cn(
+                  'rounded-full px-1.5 py-0.5 text-caption tabular-nums',
+                  tab.attention ? 'bg-lime text-[#0a1217]' : tab.value === value ? 'bg-background/15' : 'bg-mist',
+                )}
+              >
+                {tab.count}
+              </span>
+            )}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   )
 }

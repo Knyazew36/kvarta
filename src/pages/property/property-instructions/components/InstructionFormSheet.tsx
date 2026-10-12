@@ -251,7 +251,7 @@ export const InstructionEditSheet = ({ trigger, organizationId, instruction, met
       <SheetContent>
         <SheetHeader className="border-b border-mist">
           <span className="mono-label text-smoke">
-            {meta.label} · версия {detail?.version ?? instruction.version}
+            {meta.label}
           </span>
           <SheetTitle className="text-heading-sm">{readOnly ? instruction.title : 'Изменить инструкцию'}</SheetTitle>
           <SheetDescription>

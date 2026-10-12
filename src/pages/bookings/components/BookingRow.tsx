@@ -29,19 +29,16 @@ export const BookingRow = ({ booking, orgId, propertyName, showProperty }: Booki
   const href = to.booking(booking.id, orgId)
 
   return (
-    // Вся строка кликабельна мышью; клавиатурный путь — ссылка на номере записи
+    // Вся строка кликабельна мышью; клавиатурный путь — ссылка на имени гостя
     <tr onClick={() => navigate(href)} className={cn('group cursor-pointer [&>td]:transition-colors hover:[&>td]:bg-mist', isBookingClosed(status) && 'text-slate', status === 'cancelled' && 'opacity-50')}>
       <td className="rounded-l-2xl px-4 py-3.5">
-        <span className="flex flex-col items-start gap-1">
-          <Link to={href} onClick={(event) => event.stopPropagation()} className="text-body-sm font-medium outline-none hover:underline focus-visible:underline">
-            #{booking.id}
-          </Link>
-          <SourceTag source={booking.source} />
-        </span>
+        <SourceTag source={booking.source} />
       </td>
       <td className="px-4 py-3.5">
         <span className="flex flex-col gap-0.5">
-          <span className="text-body-sm font-medium">{booking.guest_name}</span>
+          <Link to={href} onClick={(event) => event.stopPropagation()} className="text-body-sm font-medium outline-none hover:underline focus-visible:underline">
+            {booking.guest_name}
+          </Link>
           <span className="text-caption text-smoke">{pluralize(booking.guests_count, ['гость', 'гостя', 'гостей'])}</span>
         </span>
       </td>
@@ -81,9 +78,7 @@ export const BookingCard = ({ booking, orgId, propertyName }: BookingRowProps) =
             <span className="text-body-sm font-medium tabular-nums">
               {formatRange(booking.start_date, booking.end_date)} · {nightsLabel(booking)}
             </span>
-            <span className="flex items-center gap-2 text-caption text-smoke">
-              #{booking.id} <SourceTag source={booking.source} />
-            </span>
+            <SourceTag source={booking.source} />
           </span>
           <Amount booking={booking} />
         </span>

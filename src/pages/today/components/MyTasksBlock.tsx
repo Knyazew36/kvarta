@@ -18,40 +18,36 @@ const MyTaskRow = ({ task }: { task: Task }) => {
   const inProgress = task.status === 'in_progress'
 
   return (
-    <li className="-mx-3 flex items-center gap-4 rounded-2xl p-3 transition-colors hover:bg-background/70 md:gap-6">
-      <span className="flex w-16 shrink-0 flex-col">
-        {/* Подборка «сегодня» — только задачи со сроком */}
-        <span className={cn('text-subheading-lg font-medium tabular-nums', task.is_overdue && 'text-destructive')}>
-          {task.due_at && getDueLabel(task.due_at, task.timezone).time}
-        </span>
-        <span className={cn('text-caption', task.is_overdue ? 'text-destructive' : 'text-smoke')}>{task.is_overdue ? 'просрочено' : inProgress ? 'в работе' : 'срок'}</span>
+    <li className="-mx-3 flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl p-3 transition-colors hover:bg-background/70 @md:flex-nowrap @md:gap-x-6">
+      {/* Подборка «сегодня» — только задачи со сроком */}
+      <span className={cn('w-16 shrink-0 text-subheading-lg font-medium tabular-nums', task.is_overdue && 'text-destructive')}>
+        {task.due_at && getDueLabel(task.due_at, task.timezone).time}
       </span>
       <Link to={href} className="flex min-w-0 flex-1 flex-col gap-0.5 outline-none focus-visible:underline">
-        <span className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-body font-medium">{task.title}</span>
-          {/* Начатую задачу видно сразу: у просроченной подпись под временем занята просрочкой */}
-          {inProgress && <StatusFromMeta meta={TASK_STATUS.in_progress} size="sm" className="shrink-0" />}
-        </span>
+        <span className="line-clamp-2 text-body font-medium break-words @md:line-clamp-1">{task.title}</span>
         <span className="truncate text-body-sm text-slate">{task.property_context?.name ?? (task.visibility === 'personal' ? 'Личная задача' : 'Без объекта')}</span>
       </Link>
+      {/* Просрочку и «в работе» показываем бейджами. В узкой панели они идут в строку под временем и названием,
+          в широкой — столбиком в правом верхнем углу строки, название рядом с ними обрезается */}
+      {(task.is_overdue || inProgress) && (
+        <span className="flex w-full shrink-0 flex-wrap gap-1 @md:w-auto @md:flex-col @md:flex-nowrap @md:items-end @md:self-start">
+          {task.is_overdue && <StatusFromMeta meta={TASK_STATUS.overdue} size="sm" />}
+          {inProgress && <StatusFromMeta meta={TASK_STATUS.in_progress} size="sm" />}
+        </span>
+      )}
+      {/* В узкой панели кнопка уходит под строку на всю ширину: рядом с ней название сжималось до пары букв */}
       {/* Что можно сделать с задачей, говорит бэк; но start он отдаёт и у начатой задачи — «Начать» только для open.
-          Отчёт — форма с чек-листом и фото, она живёт на странице задачи */}
-      {!inProgress && task.allowed_actions.includes('start') ? (
+          Отчёт — форма с чек-листом и фото, она живёт на странице задачи, отдельной кнопки здесь нет */}
+      {!inProgress && task.allowed_actions.includes('start') && (
         <Button
           size="sm"
           variant="outline"
-          className="shrink-0 bg-canvas shadow-control"
+          className="w-full shrink-0 bg-canvas shadow-control @md:w-auto"
           disabled={startTask.isPending}
           onClick={() => startTask.mutate({ version: task.version })}
         >
           {startTask.isPending && <Spinner />} Начать
         </Button>
-      ) : (
-        task.allowed_actions.includes('complete') && (
-          <Button size="sm" className="shrink-0 shadow-control" asChild>
-            <Link to={href}>Отправить отчёт</Link>
-          </Button>
-        )
       )}
     </li>
   )
@@ -72,7 +68,8 @@ export const MyTasksBlock = ({ className, children }: MyTasksBlockProps) => {
     <Panel
       title="Мои задачи"
       count={today?.length}
-      className={className}
+      // Панель растёт по содержимому, но не выше 96% экрана: дальше список прокручивается внутри
+      className={cn('max-h-[96dvh]', className)}
       action={
         <Link to={tasksHref} className="text-body-sm text-slate underline-offset-4 hover:text-foreground hover:underline">
           Все задачи
@@ -92,7 +89,7 @@ export const MyTasksBlock = ({ className, children }: MyTasksBlockProps) => {
           </Button>
         </div>
       ) : today.length > 0 ? (
-        <ul className="flex flex-col">
+        <ul className="@container -mx-3 flex min-h-0 flex-col overflow-y-auto overscroll-contain px-3">
           {today.map((task) => (
             <MyTaskRow key={task.id} task={task} />
           ))}

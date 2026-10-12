@@ -52,7 +52,7 @@ const BookingRow = ({ booking, past, tone }: { booking: GuestBooking; past?: boo
           {pluralize(nights(from, until), ['ночь', 'ночи', 'ночей'])} · заезд с {booking.check_in_time}
         </span>
         {/* Суммы и оплат в гостевых ручках нет */}
-        <span className={cn('w-fit truncate rounded-lg px-1 text-caption text-smoke', MOCK_BORDER)}>13 600 ₽ · остаток 6 800 ₽ при заезде</span>
+        <span className={cn('w-fit max-w-full truncate rounded-lg px-1 text-caption text-smoke', MOCK_BORDER)}>13 600 ₽ · остаток 6 800 ₽ при заезде</span>
       </span>
       <ArrowRightIcon className="size-5 text-smoke transition-transform duration-500 group-hover:translate-x-1 group-hover:text-foreground" aria-hidden />
     </Link>

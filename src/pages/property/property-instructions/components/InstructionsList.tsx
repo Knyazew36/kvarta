@@ -18,7 +18,8 @@ type InstructionsListProps = {
   readOnly: boolean
 }
 
-const ROW = 'flex min-w-0 flex-1 items-center gap-4 rounded-2xl p-3'
+// На мобилке боковых отступов у строки нет: иконки прижаты к отступам самого блока
+const ROW = 'flex min-w-0 flex-1 items-center gap-3 rounded-2xl py-3 md:gap-4 md:p-3'
 
 // Пять слотов по типам: один тип — одна инструкция на объект
 export const InstructionsList = ({ organizationId, propertyId, instructions, canReadContent, readOnly }: InstructionsListProps) => {
@@ -26,30 +27,32 @@ export const InstructionsList = ({ organizationId, propertyId, instructions, can
 
   return (
     <SectionCard title="Материалы" count={`${instructions.length} из ${INSTRUCTION_TYPES.length}`} className="shadow-card">
-      <DeviationNote reason="в списке нет текста и даты изменения — бэк отдаёт текст только при открытии инструкции, дату — в истории">
         <ul className="flex flex-col">
           {INSTRUCTION_TYPES.map((meta) => {
             const instruction = byType.get(meta.type)
             const Icon = meta.icon
 
             const body = instruction ? (
-              <span className="flex min-w-0 flex-1 flex-col gap-1">
-                <span className="flex flex-wrap items-center gap-2">
+              <span className="flex min-w-0 flex-1 flex-col items-start gap-1">
+                {/* На мобилке обёртка растворяется (contents), и бейджи уходят под подпись */}
+                <span className="contents md:flex md:flex-wrap md:items-center md:gap-2">
                   <span className={cn('text-body-sm font-medium', !instruction.enabled && 'text-smoke')}>{instruction.title}</span>
-                  {instruction.sensitive && (
-                    <span className="mono-label inline-flex items-center gap-1 rounded-full bg-foreground px-2 py-0.5 text-background">
-                      <LockIcon className="size-3" aria-hidden /> чувствительное
-                    </span>
-                  )}
-                  {!instruction.enabled && (
-                    <span className="mono-label inline-flex items-center gap-1 rounded-full bg-mist px-2 py-0.5 text-slate">
-                      <EyeOffIcon className="size-3" aria-hidden /> выключена
+                  {(instruction.sensitive || !instruction.enabled) && (
+                    <span className="order-last flex flex-wrap items-center gap-2 max-md:mt-1 md:order-none">
+                      {instruction.sensitive && (
+                        <span className="mono-label inline-flex items-center gap-1 rounded-full bg-foreground px-2 py-0.5 text-background">
+                          <LockIcon className="size-3" aria-hidden /> чувствительное
+                        </span>
+                      )}
+                      {!instruction.enabled && (
+                        <span className="mono-label inline-flex items-center gap-1 rounded-full bg-mist px-2 py-0.5 text-slate">
+                          <EyeOffIcon className="size-3" aria-hidden /> выключена
+                        </span>
+                      )}
                     </span>
                   )}
                 </span>
-                <span className="mono-label text-smoke">
-                  {meta.label} · версия {instruction.version}
-                </span>
+                <span className="mono-label text-smoke">{meta.label}</span>
               </span>
             ) : (
               <span className="flex min-w-0 flex-1 flex-col gap-1">
@@ -70,12 +73,13 @@ export const InstructionsList = ({ organizationId, propertyId, instructions, can
               <button type="button" className={cn(ROW, 'cursor-pointer text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/30')}>
                 {icon}
                 {body}
-                <ActionIcon className="size-4 shrink-0 text-smoke" aria-hidden />
+                {/* На мобилке иконка действия и «История» стоят столбиком: эта сдвинута вверх от центра, «История» — вниз */}
+                <ActionIcon className={cn('size-4 shrink-0 text-smoke', instruction && 'max-md:-translate-y-3')} aria-hidden />
               </button>
             )
 
             return (
-              <li key={meta.type} className="flex items-center gap-1 rounded-2xl transition-colors hover:bg-mist">
+              <li key={meta.type} className="relative flex items-center gap-1 rounded-2xl transition-colors md:hover:bg-mist">
                 {instruction && canReadContent ? (
                   <InstructionEditSheet
                     organizationId={organizationId}
@@ -97,7 +101,15 @@ export const InstructionsList = ({ organizationId, propertyId, instructions, can
                     organizationId={organizationId}
                     instruction={instruction}
                     trigger={
-                      <Button variant="ghost" size="icon-sm" className="mr-2 shrink-0" aria-label={`История: ${instruction.title}`}>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className={cn(
+                          'shrink-0 max-md:-mr-2.5 md:mr-2',
+                          canReadContent && 'max-md:absolute max-md:top-1/2 max-md:right-0 max-md:-mt-1.5',
+                        )}
+                        aria-label={`История: ${instruction.title}`}
+                      >
                         <HistoryIcon />
                       </Button>
                     }
@@ -107,7 +119,6 @@ export const InstructionsList = ({ organizationId, propertyId, instructions, can
             )
           })}
         </ul>
-      </DeviationNote>
     </SectionCard>
   )
 }
