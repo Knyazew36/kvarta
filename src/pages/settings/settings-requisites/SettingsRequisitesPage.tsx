@@ -59,13 +59,13 @@ const SettingsRequisitesPage = () => {
     <div className="grid items-start gap-4 lg:grid-cols-[1fr_380px]">
       <div className="flex flex-col gap-4">
         {sets.length === 0 && (
-          <div className="flex flex-col items-start gap-3 rounded-card bg-card p-6 shadow-card md:p-8">
+          <div className="flex flex-col items-start gap-3 rounded-card bg-card p-4 shadow-card md:p-8">
             <span className="text-body font-medium">Реквизитов нет</span>
             <span className="max-w-md text-body-sm text-slate">Без них прямое бронирование не опубликовать: гостю некуда перевести предоплату.</span>
           </div>
         )}
         {sets.map((set) => (
-          <article key={set.id} className="flex flex-col gap-5 rounded-card bg-card p-6 shadow-card md:p-7">
+          <article key={set.id} className="flex flex-col gap-5 rounded-card bg-card p-4 shadow-card md:p-7">
             <header className="flex items-start justify-between gap-3">
               <span className="flex flex-col gap-0.5">
                 <span className="text-subheading-lg font-medium">{set.title}</span>

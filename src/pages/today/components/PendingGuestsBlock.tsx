@@ -15,7 +15,7 @@ export const PendingGuestsBlock = () => {
   if (!pending || pending.length === 0) return null
 
   return (
-    <section className="flex flex-col gap-5 rounded-card bg-card p-6 shadow-card md:p-8">
+    <section className="flex flex-col gap-5 rounded-card bg-card p-4 shadow-card md:p-8">
       <h2 className="section-heading flex items-center gap-2.5 text-subheading-lg">
         <UserCheckIcon className="size-5 shrink-0" aria-hidden />
         Гости ждут подтверждения

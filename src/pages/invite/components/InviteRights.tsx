@@ -31,12 +31,12 @@ export const InviteRights = ({ permissions }: { permissions: string[] }) => {
 
   return (
     <>
-      <RevealItem className="rounded-card bg-card shadow-card flex flex-col gap-4 p-6">
+      <RevealItem className="rounded-card bg-card shadow-card flex flex-col gap-4 p-4 md:p-6">
         <h2 className="section-heading text-subheading-lg">Сможете</h2>
         <Rights items={granted} allowed delay={0.9} />
       </RevealItem>
       {missing.length > 0 && (
-        <RevealItem className="rounded-card bg-card shadow-card flex flex-col gap-4 p-6">
+        <RevealItem className="rounded-card bg-card shadow-card flex flex-col gap-4 p-4 md:p-6">
           <h2 className="section-heading text-subheading-lg">Не увидите</h2>
           <Rights items={missing} allowed={false} delay={1.1} />
         </RevealItem>

@@ -48,7 +48,7 @@ export const AttentionBlock = ({ mockItems = [] }: { mockItems?: Attention[] }) 
   if (items.length === 0) return null
 
   return (
-    <section className="flex flex-col gap-6 rounded-card bg-foreground p-6 text-background shadow-card md:p-8 dark:bg-mist dark:text-foreground">
+    <section className="flex flex-col gap-6 rounded-card bg-foreground p-4 text-background shadow-card md:p-8 dark:bg-mist dark:text-foreground">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="section-heading text-subheading-lg">
           Требует внимания

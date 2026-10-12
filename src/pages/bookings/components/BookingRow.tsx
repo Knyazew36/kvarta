@@ -68,7 +68,7 @@ export const BookingCard = ({ booking, orgId, propertyName }: BookingRowProps) =
 
   return (
     <li>
-      <Link to={to.booking(booking.id, orgId)} className={cn('flex flex-col gap-4 rounded-card bg-card p-5 shadow-card', isBookingClosed(status) && 'text-slate', status === 'cancelled' && 'opacity-50')}>
+      <Link to={to.booking(booking.id, orgId)} className={cn('flex flex-col gap-4 rounded-card bg-card p-4 md:p-5 shadow-card', isBookingClosed(status) && 'text-slate', status === 'cancelled' && 'opacity-50')}>
         <span className="flex items-start justify-between gap-3">
           <span className="flex min-w-0 flex-col gap-0.5">
             <span className="truncate text-body font-medium">{booking.guest_name}</span>

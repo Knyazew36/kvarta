@@ -10,7 +10,7 @@ type PanelProps = {
 
 // Frost-панель: вторая ступень поверхностей после белого холста
 export const Panel = ({ title, count, action, children, className }: PanelProps) => (
-  <section className={cn('flex min-w-0 flex-col gap-5 rounded-card bg-card p-6 shadow-card md:p-8', className)}>
+  <section className={cn('flex min-w-0 flex-col gap-5 rounded-card bg-card p-4 shadow-card md:p-8', className)}>
     <div className="flex items-baseline justify-between gap-3">
       <h2 className="section-heading text-subheading-lg">
         {title}

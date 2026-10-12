@@ -41,7 +41,7 @@ export const BookingsList = ({ organizationId, filters }: { organizationId: numb
   if (bookings.length === 0) {
     const filtered = filters.status !== 'all' || filters.propertyId !== undefined
     return filtered ? (
-      <div className="flex flex-col items-start gap-2 rounded-card bg-card p-6 shadow-card md:p-8">
+      <div className="flex flex-col items-start gap-2 rounded-card bg-card p-4 shadow-card md:p-8">
         <span className="text-body font-medium">Под фильтр ничего не попало</span>
         <span className="text-body-sm text-slate">Измените условия — записи никуда не делись.</span>
       </div>

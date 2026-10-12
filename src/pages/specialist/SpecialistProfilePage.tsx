@@ -315,7 +315,7 @@ const SpecialistProfilePage = () => {
 
           <div className="flex flex-col gap-4 lg:sticky lg:top-28">
             {/* Приём обращений меняется сразу, без модерации: это не текст профиля, а состояние (CAT-08) */}
-            <section className="flex flex-col gap-4 rounded-card bg-foreground p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
+            <section className="flex flex-col gap-4 rounded-card bg-foreground p-4 md:p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
               <h2 className="section-heading text-subheading-lg">Приём обращений</h2>
               <label htmlFor="sp-accepting" className="flex cursor-pointer items-start justify-between gap-4">
                 <span className="flex flex-col gap-0.5">
@@ -343,7 +343,7 @@ const SpecialistProfilePage = () => {
               </label>
             </section>
 
-            <section className="flex flex-col gap-4 rounded-card bg-card p-5 shadow-card">
+            <section className="flex flex-col gap-4 rounded-card bg-card p-4 md:p-5 shadow-card">
               <span className="mono-label text-smoke">Так вас видят в поиске</span>
               <div className={cn('flex flex-col gap-4 rounded-3xl bg-background p-4', hidden && 'opacity-50')}>
                 <div className="flex items-start gap-3">

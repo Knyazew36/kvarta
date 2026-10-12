@@ -181,7 +181,7 @@ const TodayPage = () => {
         <AttentionBlock />
         <div className="grid items-start gap-4 lg:grid-cols-[1fr_340px]">
           <MyTasksBlock />
-          <section className={cn('flex flex-col gap-5 rounded-card bg-foreground p-6 text-background shadow-card md:p-8 dark:bg-mist dark:text-foreground', MOCK_BORDER)}>
+          <section className={cn('flex flex-col gap-5 rounded-card bg-foreground p-4 text-background shadow-card md:p-8 dark:bg-mist dark:text-foreground', MOCK_BORDER)}>
             <h2 className="section-heading text-subheading-lg">Нужна помощь?</h2>
             <div className="flex items-center gap-3">
               <PersonAvatar name="Игорь Петров" tone="inverse" />

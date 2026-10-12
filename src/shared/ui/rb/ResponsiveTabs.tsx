@@ -23,7 +23,8 @@ export const ResponsiveTabs = ({ tabs, value, label, onValueChange, className }:
   const go = (next: string) => {
     if (onValueChange) return onValueChange(next)
     const tab = tabs.find((item) => item.value === next)
-    if (tab?.to) navigate(tab.to + search, { replace: true })
+    // Временно: вкладка не сбрасывает скролл наверх
+    if (tab?.to) navigate(tab.to + search, { replace: true, preventScrollReset: true })
   }
 
   return (

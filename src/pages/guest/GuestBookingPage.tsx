@@ -67,7 +67,7 @@ const getInstructionsSummary = (instructions: GuestInstructionMetadata[] | undef
 // ── Блоки ───────────────────────────────────────────────────────────────────
 
 const Card = ({ icon: Icon, title, children, className }: { icon: LucideIcon; title: string; children: React.ReactNode; className?: string }) => (
-  <section className={cn('flex flex-col gap-4 rounded-card bg-card p-5 shadow-card md:p-6', className)}>
+  <section className={cn('flex flex-col gap-4 rounded-card bg-card p-4 shadow-card md:p-6', className)}>
     <h2 className="flex items-center gap-2.5 text-body font-medium">
       <span className="flex size-8 items-center justify-center rounded-full bg-background">
         <Icon className="size-4" aria-hidden />

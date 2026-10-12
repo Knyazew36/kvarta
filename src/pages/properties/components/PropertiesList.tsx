@@ -77,7 +77,7 @@ export const PropertiesList = ({ organizationId, status, search, canCreate }: Pr
 
   if (list.length === 0) {
     return (
-      <div className="flex flex-col items-start gap-2 rounded-card bg-card p-6 shadow-card md:p-8">
+      <div className="flex flex-col items-start gap-2 rounded-card bg-card p-4 shadow-card md:p-8">
         <span className="text-body font-medium">Под фильтр ничего не попало</span>
         <span className="text-body-sm text-slate">Измените условия или сбросьте фильтры.</span>
       </div>

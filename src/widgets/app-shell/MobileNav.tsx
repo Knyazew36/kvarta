@@ -6,7 +6,7 @@ import { DEMO_ORG_ID } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
 import { useDemoState } from '@/shared/mock/state'
 import { ThemeTogglerButton } from '@/shared/ui/shadcn/animate-ui/components/buttons/theme-toggler'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
+import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 import { NAV_HELP, navFor, type NavItem } from './nav'
 import { useNavBadges } from './use-nav-badges'
 
@@ -103,20 +103,21 @@ export const MobileNav = ({ inline, className }: MobileNavProps) => {
       </motion.nav>
 
       <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-        <SheetContent side="bottom" className="max-h-[85svh] gap-0 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <SheetContent side="bottom" className="max-h-[85svh] gap-0">
           <SheetHeader className="pb-2">
             <SheetTitle>Ещё</SheetTitle>
-            <SheetDescription className="mono-label">Разделы по вашим правам</SheetDescription>
           </SheetHeader>
-          <div className="flex flex-col px-3">
-            {rest.map((item) => (
-              <MoreLink key={item.key} item={item} badge={badges[item.key] ?? item.badge} orgId={orgId} onClick={() => setMoreOpen(false)} />
-            ))}
-          </div>
-          <div className="mx-6 mt-3 flex items-center justify-between rounded-3xl bg-mist p-3 pl-4">
-            <span className="text-body-sm font-medium">Тема оформления</span>
-            <ThemeTogglerButton variant="ghost" className="size-10 rounded-full bg-card" aria-label="Сменить тему" />
-          </div>
+          <SheetBody className="px-0 md:px-0 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="flex flex-col px-3">
+              {rest.map((item) => (
+                <MoreLink key={item.key} item={item} badge={badges[item.key] ?? item.badge} orgId={orgId} onClick={() => setMoreOpen(false)} />
+              ))}
+            </div>
+            <div className="mx-6 mt-3 flex items-center justify-between rounded-3xl bg-mist p-3 pl-4">
+              <span className="text-body-sm font-medium">Тема оформления</span>
+              <ThemeTogglerButton variant="ghost" className="size-10 rounded-full bg-card" aria-label="Сменить тему" />
+            </div>
+          </SheetBody>
         </SheetContent>
       </Sheet>
     </>

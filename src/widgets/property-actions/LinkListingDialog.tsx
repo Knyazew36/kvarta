@@ -96,7 +96,7 @@ export const LinkListingDialog = ({ trigger, property, defaultSource = 'avito' }
               </div>
             </>
           ) : (
-            <div className="flex flex-col gap-4 rounded-3xl bg-mist p-5">
+            <div className="flex flex-col gap-4 rounded-3xl bg-mist p-4 md:p-5">
               <span className="flex items-center gap-2">
                 <SourceMark source={source} size="md" />
                 <span className="mono-label text-smoke">Найдено на {SOURCE_LABEL[source]}</span>

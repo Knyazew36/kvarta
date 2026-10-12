@@ -51,7 +51,7 @@ const PERIOD_OPTIONS = [
 // ── Сводка ──────────────────────────────────────────────────────────────────
 
 const Cell = ({ label, value, note, accent, className }: { label: string; value: string; note: string; accent?: boolean; className?: string }) => (
-  <div className={cn('flex min-w-0 flex-col gap-1.5 p-5 md:p-6', className)}>
+  <div className={cn('flex min-w-0 flex-col gap-1.5 p-4 md:p-6', className)}>
     <span className={cn('text-caption', accent ? 'font-medium text-foreground' : 'text-smoke')}>{label}</span>
     <span className={cn('text-heading-sm font-medium tabular-nums', !accent && 'text-foreground')}>{value}</span>
     <span className="text-caption text-smoke">{note}</span>

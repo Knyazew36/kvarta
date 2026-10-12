@@ -31,7 +31,7 @@ export const PropertyCard = ({ property, orgId }: { property: Property | Propert
     <Link
       to={to.property(String(property.id), 'info', orgId)}
       className={cn(
-        'group flex flex-col gap-6 rounded-card bg-card p-6 shadow-card outline-none transition-[background-color,opacity] hover:bg-mist/60 focus-visible:ring-3 focus-visible:ring-ring/30 md:p-7',
+        'group flex flex-col gap-6 rounded-card bg-card p-4 shadow-card outline-none transition-[background-color,opacity] hover:bg-mist/60 focus-visible:ring-3 focus-visible:ring-ring/30 md:p-7',
         // Архивный объект остаётся кликабельным, но не спорит с рабочими; под курсором и в фокусе читается в полную силу
         archived && 'opacity-55 hover:opacity-100 focus-visible:opacity-100',
       )}

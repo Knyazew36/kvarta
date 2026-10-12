@@ -19,7 +19,7 @@ import { EntryShell } from '@/widgets/entry-shell/EntryShell'
 type CardProps = { icon: LucideIcon; title: string; children: React.ReactNode; actions: React.ReactNode }
 
 const Card = ({ icon: Icon, title, children, actions }: CardProps) => (
-  <Reveal className="mx-auto flex w-full max-w-xl flex-col gap-6 rounded-card bg-card p-6 shadow-card md:p-10">
+  <Reveal className="mx-auto flex w-full max-w-xl flex-col gap-6 rounded-card bg-card p-4 shadow-card md:p-10">
     <span className="flex size-14 items-center justify-center rounded-full bg-mist">
       <Icon className="size-6" aria-hidden />
     </span>

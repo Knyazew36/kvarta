@@ -142,7 +142,7 @@ const SpecialistReviewsPage = () => {
               </ul>
             </SectionCard>
 
-            <section className="flex flex-col gap-5 rounded-card bg-card p-6 shadow-card lg:sticky lg:top-28">
+            <section className="flex flex-col gap-5 rounded-card bg-card p-4 md:p-6 shadow-card lg:sticky lg:top-28">
               <span className="mono-label text-smoke">Рейтинг в каталоге</span>
               <RatingLine value={rating} count={count} size="lg" />
               <RatingBars counts={DISTRIBUTION} />

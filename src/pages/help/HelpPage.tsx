@@ -150,7 +150,7 @@ const HelpPage = () => {
         </SectionCard>
 
         <div className="flex flex-col gap-4 lg:sticky lg:top-24">
-          <section className="flex flex-col gap-4 rounded-card bg-foreground p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
+          <section className="flex flex-col gap-4 rounded-card bg-foreground p-4 md:p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
             <h2 className="section-heading text-subheading-lg">Срочно?</h2>
             <span className="text-body-sm opacity-70">Гость у двери, а код не работает, или пропали брони — пишите в чат, ответим в первую очередь.</span>
             <div className="flex flex-col gap-2">

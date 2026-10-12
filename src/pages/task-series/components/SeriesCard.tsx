@@ -35,7 +35,7 @@ export const SeriesCard = ({ series, orgId, propertyName, assigneeName }: Series
     <Link
       to={to.taskSeriesItem(series.id, orgId)}
       className={cn(
-        'flex flex-col gap-5 rounded-card bg-card p-6 shadow-card outline-none transition-colors hover:bg-mist focus-visible:ring-3 focus-visible:ring-ring/30',
+        'flex flex-col gap-5 rounded-card bg-card p-4 md:p-6 shadow-card outline-none transition-colors hover:bg-mist focus-visible:ring-3 focus-visible:ring-ring/30',
         series.status !== 'active' && 'text-slate',
       )}
     >

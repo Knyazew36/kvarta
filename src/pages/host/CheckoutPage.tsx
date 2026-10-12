@@ -168,7 +168,7 @@ const CheckoutPage = () => {
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_440px] lg:gap-16">
           <div className="order-2 flex flex-col gap-8 lg:order-1">
             {changed && (
-                <Reveal className="flex items-start gap-4 rounded-3xl bg-card p-5 ring-1 ring-foreground/15">
+                <Reveal className="flex items-start gap-4 rounded-3xl bg-card p-4 md:p-5 ring-1 ring-foreground/15">
                   <RefreshCwIcon className="mt-0.5 size-5 shrink-0" aria-hidden />
                   <span className="flex flex-col gap-1">
                     <span className="text-body font-medium">Владелец изменил цену</span>
@@ -179,7 +179,7 @@ const CheckoutPage = () => {
                 </Reveal>
               )}
               {taken && (
-                <Reveal className="flex flex-col gap-4 rounded-3xl bg-foreground p-5 text-background sm:flex-row sm:items-center sm:justify-between dark:bg-mist dark:text-foreground">
+                <Reveal className="flex flex-col gap-4 rounded-3xl bg-foreground p-4 md:p-5 text-background sm:flex-row sm:items-center sm:justify-between dark:bg-mist dark:text-foreground">
                   <span className="flex items-start gap-4">
                     <CalendarX2Icon className="mt-0.5 size-5 shrink-0 text-lime" aria-hidden />
                     <span className="flex flex-col gap-1">
@@ -222,7 +222,7 @@ const CheckoutPage = () => {
 
                 <fieldset className="flex flex-col gap-4">
                   <legend className="section-heading mb-5 text-subheading-lg">Как оплатить</legend>
-                  <div className="flex items-start gap-4 rounded-3xl bg-card p-5">
+                  <div className="flex items-start gap-4 rounded-3xl bg-card p-4 md:p-5">
                     <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-background text-caption font-semibold">СБП</span>
                     <span className="flex flex-col gap-1">
                       <span className="text-body-sm font-medium">Перевод предоплаты по номеру телефона</span>

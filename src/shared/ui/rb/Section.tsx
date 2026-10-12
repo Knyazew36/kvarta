@@ -15,7 +15,7 @@ type SectionCardProps = {
 export const SectionCard = ({ title, count, action, inverted, children, className, bodyClassName }: SectionCardProps) => (
   <section
     className={cn(
-      'flex min-w-0 flex-col gap-4 rounded-card p-5 md:p-6',
+      'flex min-w-0 flex-col gap-4 rounded-card p-4 md:p-6',
       inverted ? 'bg-foreground text-background' : 'bg-card text-card-foreground',
       className,
     )}

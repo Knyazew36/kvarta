@@ -118,7 +118,7 @@ const SpecialistRequestsPage = () => {
           {list.map((request) => {
             const category = CATEGORY_BY_VALUE[request.category]
             return (
-              <li key={request.id} className="flex flex-col gap-4 rounded-card bg-card p-5 shadow-card md:p-6">
+              <li key={request.id} className="flex flex-col gap-4 rounded-card bg-card p-4 shadow-card md:p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 items-center gap-4">
                     <PersonAvatar name={request.specialist} />
@@ -159,7 +159,7 @@ const SpecialistRequestsPage = () => {
           })}
         </ul>
       ) : (
-        <p className="flex items-center gap-3 rounded-card bg-card p-6 text-body-sm text-slate">
+        <p className="flex items-center gap-3 rounded-card bg-card p-4 md:p-6 text-body-sm text-slate">
           <SendIcon className="size-4 shrink-0" aria-hidden /> В этом состоянии обращений нет.
         </p>
       )}

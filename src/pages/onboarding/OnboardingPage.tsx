@@ -145,7 +145,7 @@ const OnboardingPage = () => {
                     type="button"
                     aria-expanded={isOpen}
                     onClick={() => setSelected(isOpen ? null : step.key)}
-                    className="group rounded-card focus-visible:ring-ring/30 flex w-full items-center gap-4 p-5 text-left outline-none focus-visible:ring-3 md:gap-6 md:p-6"
+                    className="group rounded-card focus-visible:ring-ring/30 flex w-full items-center gap-4 p-4 text-left outline-none focus-visible:ring-3 md:gap-6 md:p-6"
                   >
                     <span
                       className={cn(

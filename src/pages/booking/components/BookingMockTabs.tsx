@@ -49,7 +49,7 @@ export const BookingPaymentsMock = ({ booking }: { booking: Booking }) => (
     <SectionCard title="Расчёт">
       <MoneySummary lines={MONEY} />
     </SectionCard>
-    <section className="flex flex-col gap-4 rounded-card bg-foreground p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
+    <section className="flex flex-col gap-4 rounded-card bg-foreground p-4 md:p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
       <span className="text-caption text-smoke">Ждёт проверки</span>
       <span className="text-heading-sm font-medium tabular-nums">{formatMoney(CLAIMED.amount)}</span>
       <span className="text-body-sm text-smoke">

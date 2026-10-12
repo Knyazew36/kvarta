@@ -42,7 +42,7 @@ export const BalancesTab = () => {
   const rest = known.reduce((sum, row) => sum + (row.total ?? 0) - row.paid, 0)
 
   return (
-    <section className="flex flex-col gap-4 rounded-card bg-card p-5 shadow-card md:p-6">
+    <section className="flex flex-col gap-4 rounded-card bg-card p-4 shadow-card md:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="section-heading text-subheading-lg">Остатки к получению</h2>
         <span className="text-caption text-smoke">

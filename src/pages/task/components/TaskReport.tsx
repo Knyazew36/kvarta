@@ -21,7 +21,7 @@ export const TaskReturnedNote = ({ task, report }: { task: Task; report: Report 
   const reviewer = report.reviewed_by !== null ? userName(report.reviewed_by) : 'Проверяющий'
 
   return (
-    <section className="flex flex-col gap-4 rounded-card bg-foreground p-6 text-background shadow-card md:p-8 dark:bg-mist dark:text-foreground">
+    <section className="flex flex-col gap-4 rounded-card bg-foreground p-4 text-background shadow-card md:p-8 dark:bg-mist dark:text-foreground">
       <span className="flex items-center gap-3">
         <PersonAvatar name={reviewer} tone="inverse" size="sm" />
         <span className="flex flex-col">

@@ -29,7 +29,8 @@ export const TasksTabs = ({ organizationId, tabKeys, tab, baseFilters }: TasksTa
         nextParams.set('tab', next)
         return nextParams
       },
-      { replace: true },
+      // Временно: вкладка не сбрасывает скролл наверх
+      { replace: true, preventScrollReset: true },
     )
 
   return (

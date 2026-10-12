@@ -41,7 +41,7 @@ export const GuestInstructionCard = ({ index, bookingId, instruction, timezone }
   const receivedAt = content.data?.received_at ?? instruction.received_at
 
   return (
-    <div className="flex gap-4 rounded-3xl bg-card p-5">
+    <div className="flex gap-4 rounded-3xl bg-card p-4 md:p-5">
       <span className="text-caption text-smoke tabular-nums">{String(index + 1).padStart(2, '0')}</span>
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <span className="flex items-center gap-2 text-body font-medium">

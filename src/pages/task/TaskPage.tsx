@@ -75,7 +75,7 @@ const TaskPage = () => {
       <DeviationNote reason="Статуса «Запланирована» на бэке нет, а «Возвращена» и «Просрочена» вычисляются на фронте: по решению в последнем отчёте и флагу просрочки." />
 
       {task.is_overdue && (
-        <p role="status" className="flex items-start gap-3 rounded-card bg-destructive/10 p-5 text-body-sm text-destructive dark:bg-destructive/20">
+        <p role="status" className="flex items-start gap-3 rounded-card bg-destructive/10 p-4 md:p-5 text-body-sm text-destructive dark:bg-destructive/20">
           <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
           Срок истёк: {formatDue(task.due_at, task.timezone)}.
         </p>

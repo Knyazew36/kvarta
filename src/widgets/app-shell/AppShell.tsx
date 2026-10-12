@@ -11,7 +11,7 @@ const AppShell = () => (
     <AppSidebar />
     <SidebarInset className="min-h-svh bg-background">
       <Topbar />
-      <div className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col px-4 pt-2 md:px-8 md:pt-4">
+      <div className="mx-auto flex w-full max-w-[1280px] flex-1 flex-col px-2 pt-2 md:px-8 md:pt-4">
         <Outlet />
       </div>
       <AppFooter />

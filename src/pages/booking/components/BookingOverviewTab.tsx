@@ -27,7 +27,7 @@ const AspectCard = ({ aspect, booking, orgId }: { aspect: Aspect; booking: Booki
       <span className="text-body-sm text-slate">{aspect.text}</span>
     </>
   )
-  const className = cn('flex flex-col items-start gap-3 rounded-3xl bg-card p-5 shadow-card', aspect.mock && MOCK_BORDER)
+  const className = cn('flex flex-col items-start gap-3 rounded-3xl bg-card p-4 md:p-5 shadow-card', aspect.mock && MOCK_BORDER)
 
   return aspect.tab ? (
     <Link to={to.booking(booking.id, orgId, aspect.tab)} className={cn(className, 'outline-none transition-colors hover:bg-mist focus-visible:ring-3 focus-visible:ring-ring/30')}>

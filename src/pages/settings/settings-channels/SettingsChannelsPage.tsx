@@ -73,7 +73,7 @@ const NOT_CONNECTED: StatusMeta = { tone: 'neutral', icon: XCircleIcon, label: '
 // ── Карточка аккаунта ───────────────────────────────────────────────────────
 
 const AccountCard = ({ account }: { account: Account }) => (
-  <article className={cn('flex flex-col gap-5 rounded-card bg-card p-6 shadow-card md:p-7', account.error && 'ring-1 ring-destructive/40')}>
+  <article className={cn('flex flex-col gap-5 rounded-card bg-card p-4 shadow-card md:p-7', account.error && 'ring-1 ring-destructive/40')}>
     <header className="flex flex-wrap items-start justify-between gap-3">
       <span className="flex items-center gap-3">
         <span className="flex size-12 items-center justify-center rounded-2xl bg-background">
@@ -154,7 +154,7 @@ const SettingsChannelsPage = () => {
           <AccountCard key={account.source} account={account} />
         ))}
         {/* Островок — в планах (D-07): показываем честно, без кнопки, которая ничего не сделает */}
-        <article className="flex flex-col gap-4 rounded-card border border-dashed border-foreground/20 p-6 md:p-7">
+        <article className="flex flex-col gap-4 rounded-card border border-dashed border-foreground/20 p-4 md:p-7">
           <span className="flex items-start justify-between gap-3">
             <span className="flex items-center gap-3">
               <span className="flex size-12 items-center justify-center rounded-2xl bg-card">
@@ -167,7 +167,7 @@ const SettingsChannelsPage = () => {
           <span className="text-body-sm text-slate">Подключение появится позже. Пока брони с Островка можно вносить вручную — даты закроются на остальных площадках.</span>
         </article>
         {accounts.length === 0 && (
-          <article className="flex flex-col items-start gap-4 rounded-card bg-card p-6 shadow-card md:p-7">
+          <article className="flex flex-col items-start gap-4 rounded-card bg-card p-4 shadow-card md:p-7">
             <span className="flex size-12 items-center justify-center rounded-2xl bg-background">
               <PlugIcon className="size-5" aria-hidden />
             </span>

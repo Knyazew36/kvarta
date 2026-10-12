@@ -51,7 +51,7 @@ export const NotificationsList = ({ organizationId, read }: { organizationId: nu
   return (
     <>
       {groupByDay(notifications).map((day) => (
-        <section key={day.key} className="flex flex-col gap-3 rounded-card bg-card p-6 shadow-card md:p-8">
+        <section key={day.key} className="flex flex-col gap-3 rounded-card bg-card p-4 shadow-card md:p-8">
           <h2 className="section-heading text-subheading-lg">{dayLabel(day.key)}</h2>
           <ul className="flex flex-col">
             <AnimatePresence initial={false}>

@@ -42,7 +42,7 @@ const SkeletonShape = ({ kind }: { kind: NonNullable<StateViewProps['skeleton']>
     return (
       <div className={cn('grid gap-4', kind === 'grid' ? 'md:grid-cols-3' : 'md:grid-cols-2')}>
         {Array.from({ length: kind === 'grid' ? 6 : 4 }, (_, i) => (
-          <div key={i} className="flex flex-col gap-4 rounded-card bg-card p-6">
+          <div key={i} className="flex flex-col gap-4 rounded-card bg-card p-4 md:p-6">
             <Skeleton className="h-5 w-1/3 rounded-full" />
             <Skeleton className="h-4 w-2/3 rounded-full" />
             <Skeleton className="h-16 w-full" />
@@ -54,7 +54,7 @@ const SkeletonShape = ({ kind }: { kind: NonNullable<StateViewProps['skeleton']>
   if (kind === 'record') {
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-4 rounded-card bg-card p-6">
+        <div className="flex flex-col gap-4 rounded-card bg-card p-4 md:p-6">
           <Skeleton className="h-4 w-24 rounded-full" />
           <Skeleton className="h-10 w-1/2" />
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -104,7 +104,7 @@ export const StateView = ({ state, empty, error, denied, skeleton = 'list', clas
     <div
       role={state === 'error' ? 'alert' : undefined}
       className={cn(
-        'flex flex-col items-start gap-6 rounded-card p-6 md:flex-row md:items-center md:p-10',
+        'flex flex-col items-start gap-6 rounded-card p-4 md:flex-row md:items-center md:p-10',
         state === 'denied' ? 'bg-foreground text-background' : 'bg-card',
         className,
       )}

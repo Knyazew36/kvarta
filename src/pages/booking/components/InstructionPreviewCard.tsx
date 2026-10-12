@@ -87,7 +87,7 @@ export const InstructionPreviewCard = ({ booking, grants, canPreview }: Instruct
   ]
 
   return (
-    <section className="flex flex-col gap-5 rounded-card bg-foreground p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
+    <section className="flex flex-col gap-5 rounded-card bg-foreground p-4 md:p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
       <div className="flex items-center justify-between gap-3">
         <h2 className="section-heading text-subheading-lg">Глазами гостя</h2>
         <span className="mono-label text-smoke">предпросмотр</span>

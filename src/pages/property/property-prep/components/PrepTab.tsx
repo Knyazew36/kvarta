@@ -121,7 +121,7 @@ const ArrivalCard = ({ arrival }: { arrival: Arrival }) => {
   const isToday = arrival.weekday === 'сегодня'
 
   return (
-    <article className="grid gap-6 rounded-card bg-card p-6 shadow-card md:grid-cols-[140px_1fr_auto] md:items-start md:p-7">
+    <article className="grid gap-6 rounded-card bg-card p-4 shadow-card md:grid-cols-[140px_1fr_auto] md:items-start md:p-7">
       <div className="flex items-baseline gap-3 md:flex-col md:gap-1">
         <span className="text-heading-sm font-medium tabular-nums">{arrival.date}</span>
         <span className={cn('text-caption', isToday ? 'font-medium text-foreground' : 'text-smoke')}>
@@ -199,7 +199,7 @@ export const PrepTab = ({ property }: { property: PropertyBrief }) => {
       {arrivals.length > 0 ? (
         arrivals.map((arrival) => <ArrivalCard key={arrival.id} arrival={arrival} />)
       ) : (
-        <div className="rounded-card bg-card p-6 text-body-sm text-slate shadow-card">Ближайших заездов нет — готовить нечего.</div>
+        <div className="rounded-card bg-card p-4 md:p-6 text-body-sm text-slate shadow-card">Ближайших заездов нет — готовить нечего.</div>
       )}
     </div>
   )

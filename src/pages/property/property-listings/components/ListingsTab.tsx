@@ -178,7 +178,7 @@ const ListingCard = ({ listing, property }: { listing: Listing; property: string
   }
 
   return (
-    <article className={cn('flex flex-col gap-6 rounded-card bg-card p-6 shadow-card md:p-7', listing.status === 'access_error' && 'ring-1 ring-destructive/40')}>
+    <article className={cn('flex flex-col gap-6 rounded-card bg-card p-4 shadow-card md:p-7', listing.status === 'access_error' && 'ring-1 ring-destructive/40')}>
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 flex-col gap-2">
           <SourceTag source={listing.source} size="default" className="self-start" />
@@ -252,7 +252,7 @@ export const ListingsTab = ({ property }: { property: PropertyBrief }) => {
         </div>
       )}
       {missing.length > 0 && (
-        <section className="flex flex-col gap-5 rounded-card border border-dashed border-foreground/20 p-6 md:flex-row md:items-center md:justify-between md:p-7">
+        <section className="flex flex-col gap-5 rounded-card border border-dashed border-foreground/20 p-4 md:flex-row md:items-center md:justify-between md:p-7">
           <span className="flex flex-col gap-1">
             <span className="text-body font-medium">{listings.length === 0 ? 'Объявления не привязаны' : 'Можно привязать ещё'}</span>
             <span className="text-body-sm text-slate">

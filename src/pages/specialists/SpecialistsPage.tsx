@@ -130,7 +130,7 @@ const SpecialistCard = ({ specialist, saved, onToggleSaved }: { specialist: Spec
     unavailable && specialist.until ? withLabel(SPECIALIST_AVAILABILITY.unavailable, `Недоступен до ${specialist.until}`) : SPECIALIST_AVAILABILITY[specialist.availability]
 
   return (
-    <article className="group relative flex flex-col gap-5 rounded-card bg-card p-6 shadow-card transition-colors focus-within:ring-3 focus-within:ring-ring/30 hover:bg-mist/60 md:p-7">
+    <article className="group relative flex flex-col gap-5 rounded-card bg-card p-4 shadow-card transition-colors focus-within:ring-3 focus-within:ring-ring/30 hover:bg-mist/60 md:p-7">
       <div className="flex items-start gap-4">
         <PersonAvatar name={specialist.name} size="lg" />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -295,7 +295,7 @@ const SpecialistsPage = () => {
         </div>
       ) : (
         // Пусто по фильтру — не то же, что пустой каталог: подсказываем, что ослабить
-        <div className="flex flex-col items-start gap-4 rounded-card bg-card p-6 md:flex-row md:items-center md:p-10">
+        <div className="flex flex-col items-start gap-4 rounded-card bg-card p-4 md:flex-row md:items-center md:p-10">
           <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-mist text-slate">
             <SearchXIcon className="size-7" aria-hidden />
           </span>

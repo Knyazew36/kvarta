@@ -49,7 +49,7 @@ export const DepositsTab = () => {
   const onHand = rows.filter((row) => row.state === 'held' || row.state === 'to_return').reduce((sum, row) => sum + row.amount, 0)
 
   return (
-    <section className="flex flex-col gap-4 rounded-card bg-card p-5 shadow-card md:p-6">
+    <section className="flex flex-col gap-4 rounded-card bg-card p-4 shadow-card md:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="section-heading text-subheading-lg">Залоги</h2>
         <span className="text-caption text-smoke">на руках {formatMoney(onHand)} · не доход, деньги гостей</span>

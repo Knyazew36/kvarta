@@ -17,7 +17,7 @@ export const ConflictBanner = ({ title, description, action = 'Разобрат�
       <button
         type="button"
         className={cn(
-          'group rounded-card bg-foreground text-background shadow-card dark:bg-mist dark:text-foreground flex w-full cursor-pointer flex-col gap-3 p-5 text-left outline-none transition-opacity hover:opacity-95 focus-visible:ring-3 focus-visible:ring-ring/30 sm:flex-row sm:items-center sm:justify-between md:px-8',
+          'group rounded-card bg-foreground text-background shadow-card dark:bg-mist dark:text-foreground flex w-full cursor-pointer flex-col gap-3 p-4 md:p-5 text-left outline-none transition-opacity hover:opacity-95 focus-visible:ring-3 focus-visible:ring-ring/30 sm:flex-row sm:items-center sm:justify-between md:px-8',
           className,
         )}
       >

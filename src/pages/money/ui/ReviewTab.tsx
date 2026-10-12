@@ -60,7 +60,7 @@ const CLAIMS: Claim[] = [
 const ClaimCard = ({ claim }: { claim: Claim }) => (
   <article
     className={cn(
-      'grid gap-6 rounded-card bg-card p-6 shadow-card md:grid-cols-[200px_1fr_auto] md:items-center md:p-7',
+      'grid gap-6 rounded-card bg-card p-4 shadow-card md:grid-cols-[200px_1fr_auto] md:items-center md:p-7',
       claim.holdUntil && 'ring-1 ring-foreground/15',
     )}
   >
@@ -122,7 +122,7 @@ export const ReviewTab = () => {
 
   if (claims.length === 0) {
     return (
-      <div className="flex flex-col items-start gap-2 rounded-card bg-card p-6 shadow-card md:p-8">
+      <div className="flex flex-col items-start gap-2 rounded-card bg-card p-4 shadow-card md:p-8">
         <span className="text-body font-medium">Проверять нечего</span>
         <span className="text-body-sm text-slate">Когда гость сообщит о переводе, заявление появится здесь — и на «Сегодня».</span>
       </div>

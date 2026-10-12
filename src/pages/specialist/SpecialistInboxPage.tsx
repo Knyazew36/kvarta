@@ -84,7 +84,7 @@ const IncomingCard = ({ item }: { item: Incoming }) => {
   const meta = item.kind === 'message' && status === 'pending' ? withLabel(CONTACT_REQUEST_STATUS.pending, 'Новое сообщение') : CONTACT_REQUEST_STATUS[status]
 
   return (
-    <li className="flex flex-col gap-4 rounded-card bg-card p-5 shadow-card md:p-6">
+    <li className="flex flex-col gap-4 rounded-card bg-card p-4 shadow-card md:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 items-center gap-4">
           <PersonAvatar name={item.from} />

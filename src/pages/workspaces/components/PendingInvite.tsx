@@ -13,7 +13,7 @@ const PENDING = { org: 'Мойка Лофт', from: 'Олег Ким', role: 'У
 export const PendingInvite = () => (
   <Reveal
     delay={0.8}
-    className={cn('rounded-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between md:p-6', MOCK_BORDER)}
+    className={cn('rounded-card flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between md:p-6', MOCK_BORDER)}
   >
     <span className="flex items-start gap-3">
       <span className="bg-mist flex size-10 shrink-0 items-center justify-center rounded-full">

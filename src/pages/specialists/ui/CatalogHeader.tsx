@@ -68,7 +68,7 @@ export const AccessGate = ({ access }: { access: CatalogAccess }) => {
   const [params] = useSearchParams()
   const info = ACCESS[access]
   return (
-    <section className="flex flex-col gap-6 rounded-card bg-foreground p-6 text-background shadow-card md:p-10 dark:bg-mist dark:text-foreground">
+    <section className="flex flex-col gap-6 rounded-card bg-foreground p-4 text-background shadow-card md:p-10 dark:bg-mist dark:text-foreground">
       <StatusFromMeta meta={CATALOG_ACCESS[access]} className="bg-background text-foreground dark:bg-foreground dark:text-background" />
       <div className="flex max-w-2xl flex-col gap-3">
         <h2 className="text-heading-sm font-semibold tracking-[-0.02em] md:text-heading">{info.title}</h2>

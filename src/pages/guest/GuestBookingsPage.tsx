@@ -95,7 +95,7 @@ const GuestBookingsPage = () => {
             }}
           />
         ) : bookings.length === 0 ? (
-          <Reveal delay={0.3} className="flex flex-col items-start gap-5 rounded-card bg-card p-6 md:p-8">
+          <Reveal delay={0.3} className="flex flex-col items-start gap-5 rounded-card bg-card p-4 md:p-8">
             <span className="text-subheading-lg font-medium">Бронирований пока нет</span>
             <span className="max-w-md text-body-sm text-slate">
               Бронь появится здесь, когда владелец пришлёт вам ссылку-приглашение и подтвердит доступ. Если ссылку вы уже открыли — дождитесь подтверждения.

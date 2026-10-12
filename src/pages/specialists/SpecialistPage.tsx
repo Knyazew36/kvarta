@@ -244,7 +244,7 @@ const ContactPanel = ({ profile, saved, onToggleSaved }: { profile: Profile; sav
   const canRequest = !unavailable && (!request || request.status === 'expired' || request.status === 'withdrawn')
 
   return (
-    <section className="flex flex-col gap-5 rounded-card bg-foreground p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
+    <section className="flex flex-col gap-5 rounded-card bg-foreground p-4 md:p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
       <div className="flex items-center justify-between gap-3">
         <h2 className="section-heading text-subheading-lg">Связь</h2>
         <Button variant="ghost" size="icon-sm" className={INVERTED_GHOST} aria-pressed={saved} aria-label={saved ? 'Убрать из избранного' : 'В избранное'} onClick={onToggleSaved}>
@@ -374,7 +374,7 @@ const SpecialistPage = () => {
     return (
       <div className="flex flex-col gap-8 pt-4 pb-8 md:pt-10">
         {back}
-        <section className="flex flex-col items-start gap-6 rounded-card bg-card p-6 md:flex-row md:items-center md:p-10">
+        <section className="flex flex-col items-start gap-6 rounded-card bg-card p-4 md:flex-row md:items-center md:p-10">
           <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-mist text-slate">
             <EyeOffIcon className="size-7" aria-hidden />
           </span>
@@ -480,7 +480,7 @@ const SpecialistPage = () => {
           >
             {reviewCount > 0 ? (
               <div className="flex flex-col gap-6">
-                <div className="grid items-center gap-6 rounded-3xl bg-background p-5 sm:grid-cols-[auto_1fr]">
+                <div className="grid items-center gap-6 rounded-3xl bg-background p-4 md:p-5 sm:grid-cols-[auto_1fr]">
                   <div className="flex flex-col gap-1">
                     <RatingLine value={rating} count={reviewCount} size="lg" />
                     <span className="text-caption text-smoke">Только от пользователей с подтверждённой бронью</span>
@@ -523,7 +523,7 @@ const SpecialistPage = () => {
                 </ul>
               </div>
             ) : (
-              <p className="rounded-3xl bg-background p-5 text-body-sm text-slate">
+              <p className="rounded-3xl bg-background p-4 md:p-5 text-body-sm text-slate">
                 Нет отзывов. Рейтинг появится после первой оценки — пустой профиль не получает «пять звёзд» по умолчанию.
               </p>
             )}

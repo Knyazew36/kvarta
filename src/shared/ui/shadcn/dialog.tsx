@@ -51,7 +51,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100svh-2rem)] w-full max-w-[calc(100%-2rem)] flex-col -translate-x-1/2 -translate-y-1/2 gap-6 rounded-card bg-popover p-6 text-sm text-popover-foreground duration-100 outline-none sm:max-w-md data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100svh-2rem)] w-full max-w-[calc(100%-2rem)] flex-col -translate-x-1/2 -translate-y-1/2 gap-6 rounded-card bg-popover p-4 md:p-6 text-sm text-popover-foreground duration-100 outline-none sm:max-w-md data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}
@@ -93,7 +93,7 @@ function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-body"
-      className={cn("-mx-6 flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6", className)}
+      className={cn("-mx-4 flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-4 md:-mx-6 md:px-6", className)}
       {...props}
     />
   )

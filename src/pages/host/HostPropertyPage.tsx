@@ -319,7 +319,7 @@ const HostPropertyPage = () => {
           </div>
 
           {/* Карточка брони: на компьютере держится рядом при прокрутке, на телефоне её дублирует нижняя панель */}
-          <Reveal delay={0.5} className="flex flex-col gap-6 rounded-card bg-card p-6 shadow-card lg:sticky lg:top-6 md:p-7">
+          <Reveal delay={0.5} className="flex flex-col gap-6 rounded-card bg-card p-4 shadow-card lg:sticky lg:top-6 md:p-7">
             <div className="flex items-baseline justify-between gap-3">
               <span className="text-heading-sm font-medium tabular-nums">{formatMoney(listing.price)}</span>
               <span className="text-caption text-smoke">за ночь</span>

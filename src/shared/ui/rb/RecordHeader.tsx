@@ -16,7 +16,7 @@ type RecordHeaderProps = {
 
 // Шапка записи (бронь, задача, объект): номер, статус, ключевые факты и одно главное действие
 export const RecordHeader = ({ back, eyebrow, title, status, facts, primaryAction, secondaryActions, className }: RecordHeaderProps) => (
-  <header className={cn('flex flex-col gap-6 rounded-card bg-card p-5 md:p-8', className)}>
+  <header className={cn('flex flex-col gap-6 rounded-card bg-card p-4 md:p-8', className)}>
     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-center gap-3">

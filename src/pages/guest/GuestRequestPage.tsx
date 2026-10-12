@@ -159,7 +159,7 @@ const HoldView = ({ onPaid }: { onPaid: () => void }) => (
       </span>
     </ArcCard>
 
-    <section className="flex flex-col gap-4 rounded-card bg-card p-5 shadow-card md:p-6">
+    <section className="flex flex-col gap-4 rounded-card bg-card p-4 shadow-card md:p-6">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="section-heading text-subheading-lg">Перевод по СБП</h2>
         <span className="text-caption text-smoke">получает {OWNER.name}</span>
@@ -204,7 +204,7 @@ const ClaimView = ({ onSent, onBack }: { onSent: () => void; onBack: () => void 
         onSent()
       }}
     >
-      <section className="flex flex-col gap-5 rounded-card bg-card p-5 shadow-card md:p-6">
+      <section className="flex flex-col gap-5 rounded-card bg-card p-4 shadow-card md:p-6">
         <div className="flex flex-col gap-1">
           <h2 className="section-heading text-subheading-lg">Что вы перевели</h2>
           <p className="text-body-sm text-slate">Так владельцу проще найти перевод. Это ещё не подтверждение — его даст владелец.</p>
@@ -282,7 +282,7 @@ const ReviewView = () => (
         Вы сообщили о переводе {formatMoney(REQUEST.prepay)} в 16:12 {DEMO_TZ}. Обычно проверка занимает до часа — придёт сообщение на ваш номер.
       </span>
     </ArcCard>
-    <div className="flex items-start gap-3 rounded-3xl bg-card p-5">
+    <div className="flex items-start gap-3 rounded-3xl bg-card p-4 md:p-5">
       <CheckIcon className="mt-0.5 size-4 shrink-0" aria-hidden />
       <span className="text-body-sm text-slate">
         Вы успели до {REQUEST.deadline}, поэтому даты остаются за вами на время проверки — даже если срок удержания пройдёт.

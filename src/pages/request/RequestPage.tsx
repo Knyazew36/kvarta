@@ -149,7 +149,7 @@ const RequestPage = () => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <section className="flex flex-col gap-4 rounded-card bg-foreground p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
+          <section className="flex flex-col gap-4 rounded-card bg-foreground p-4 md:p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
             <span className="text-caption text-smoke">Гость сообщил о переводе</span>
             <span className="text-heading-sm font-medium tabular-nums">{formatMoney(REQUEST.claimed.amount)}</span>
             <span className="text-body-sm text-smoke">

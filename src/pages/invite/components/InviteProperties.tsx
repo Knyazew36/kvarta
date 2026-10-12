@@ -4,7 +4,7 @@ import { RevealItem } from '@/shared/ui/rb/motion'
 
 // Бэк отдаёт только property_ids: названий нет, приглашённый ещё не участник и объектов не видит — показываем количество
 export const InviteProperties = ({ propertyIds }: { propertyIds: number[] }) => (
-  <RevealItem className="rounded-card bg-card shadow-card flex flex-col gap-4 p-6 md:col-span-2">
+  <RevealItem className="rounded-card bg-card shadow-card flex flex-col gap-4 p-4 md:p-6 md:col-span-2">
     <h2 className="section-heading text-subheading-lg">
       Объекты <span className="text-smoke ml-1">{propertyIds.length}</span>
     </h2>

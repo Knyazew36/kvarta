@@ -122,7 +122,7 @@ export const DirectTab = ({ property, canPublish }: { property: PropertyBrief; c
 
       <div className="flex flex-col gap-4 lg:sticky lg:top-24">
         {published ? (
-          <section className="flex flex-col gap-5 rounded-card bg-foreground p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
+          <section className="flex flex-col gap-5 rounded-card bg-foreground p-4 md:p-6 text-background shadow-card dark:bg-mist dark:text-foreground">
             <span className="mono-label inline-flex items-center gap-1.5 text-smoke">
               <GlobeIcon className="size-3" aria-hidden /> Опубликован с 2 окт
             </span>
@@ -149,7 +149,7 @@ export const DirectTab = ({ property, canPublish }: { property: PropertyBrief; c
             </div>
           </section>
         ) : (
-          <section className="flex flex-col gap-4 rounded-card bg-card p-6 shadow-card">
+          <section className="flex flex-col gap-4 rounded-card bg-card p-4 md:p-6 shadow-card">
             <span className="mono-label text-smoke">Публикация</span>
             <span className="text-subheading-lg font-medium">
               {missing.length > 0 ? `Не хватает ${missing.length} ${missing.length === 1 ? 'пункта' : 'пунктов'}` : 'Всё готово к публикации'}

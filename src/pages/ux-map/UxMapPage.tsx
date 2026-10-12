@@ -86,7 +86,7 @@ const UxMapPage = () => {
         </Tabs>
       </div>
 
-      <section className="grid gap-4 rounded-card bg-card p-6 shadow-card md:grid-cols-3 md:p-8">
+      <section className="grid gap-4 rounded-card bg-card p-4 shadow-card md:grid-cols-3 md:p-8">
         <div className="flex flex-col gap-2">
           <h2 className="section-heading text-subheading-lg">{map.label}</h2>
           <p className="text-body-sm text-slate">{map.who}</p>
@@ -140,7 +140,7 @@ const UxMapPage = () => {
           </div>
           <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {journey.steps.map((step, index) => (
-              <li key={step.href} className="relative flex flex-col gap-3 rounded-3xl bg-card p-5 shadow-card">
+              <li key={step.href} className="relative flex flex-col gap-3 rounded-3xl bg-card p-4 md:p-5 shadow-card">
                 <Link
                   to={stepHref(map, step.href)}
                   onClick={() => select(map.role, journey.id)}

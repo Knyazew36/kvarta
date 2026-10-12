@@ -63,7 +63,7 @@ function SheetContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-5 right-5 rounded-full bg-mist hover:bg-ash/50"
+                className="absolute top-3 right-3 rounded-full md:top-5 md:right-5 bg-mist hover:bg-ash/50"
                 size="icon-sm"
               />
             }
@@ -82,7 +82,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex shrink-0 flex-col gap-1.5 p-6 pr-16", className)}
+      className={cn("flex shrink-0 flex-col gap-1.5 p-4 pr-14 md:p-6 md:pr-16", className)}
       {...props}
     />
   )
@@ -93,7 +93,7 @@ function SheetBody({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-body"
-      className={cn("min-h-0 flex-1 overflow-y-auto px-6 pb-6", className)}
+      className={cn("min-h-0 flex-1 overflow-y-auto px-4 pb-4 md:px-6 md:pb-6", className)}
       {...props}
     />
   )
@@ -103,7 +103,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-footer"
-      className={cn("mt-auto flex shrink-0 flex-col gap-2 p-6", className)}
+      className={cn("mt-auto flex shrink-0 flex-col gap-2 p-4 md:p-6", className)}
       {...props}
     />
   )

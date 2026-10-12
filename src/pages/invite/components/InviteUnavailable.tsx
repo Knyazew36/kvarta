@@ -18,7 +18,7 @@ export const InviteUnavailable = ({ kind }: { kind: 'not-found' | 'gone' }) => {
   const Icon = kind === 'not-found' ? SearchXIcon : BanIcon
 
   return (
-    <Reveal className="rounded-card bg-card shadow-card mx-auto flex w-full max-w-xl flex-col gap-6 p-6 md:p-10">
+    <Reveal className="rounded-card bg-card shadow-card mx-auto flex w-full max-w-xl flex-col gap-6 p-4 md:p-10">
       <motion.span
         initial={{ scale: 0.6, rotate: -20, opacity: 0 }}
         animate={{ scale: 1, rotate: 0, opacity: 1 }}

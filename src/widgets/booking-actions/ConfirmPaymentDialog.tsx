@@ -33,7 +33,7 @@ export const ConfirmPaymentDialog = ({ trigger, record, property, amount, purpos
         </DialogHeader>
 
         <DialogBody>
-          <dl className="bg-mist grid grid-cols-2 gap-4 rounded-3xl p-5">
+          <dl className="bg-mist grid grid-cols-2 gap-4 rounded-3xl p-4 md:p-5">
             <MetaItem label="Запись">{record}</MetaItem>
             <MetaItem label="Объект">{property}</MetaItem>
             <MetaItem label="Сумма">

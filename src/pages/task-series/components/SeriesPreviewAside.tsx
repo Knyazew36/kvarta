@@ -17,7 +17,7 @@ export const SeriesPreviewAside = ({ from, horizonDays = 30 }: SeriesPreviewAsid
   const occurrences = getNextOccurrences(toSeriesRule(values), { from })
 
   return (
-    <aside className="flex flex-col gap-5 rounded-card bg-foreground p-6 text-background shadow-card lg:sticky lg:top-24 dark:bg-mist dark:text-foreground">
+    <aside className="flex flex-col gap-5 rounded-card bg-foreground p-4 md:p-6 text-background shadow-card lg:sticky lg:top-24 dark:bg-mist dark:text-foreground">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="section-heading text-subheading-lg">Ближайшие даты</h2>
         <span className="mono-label text-smoke">{formatTimezone(values.timezone)}</span>
