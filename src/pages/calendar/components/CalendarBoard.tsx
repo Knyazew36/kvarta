@@ -1,4 +1,4 @@
-import { RefreshCwIcon } from 'lucide-react'
+import { ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useCalendar } from '@/entities/calendar'
@@ -11,7 +11,6 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { type CalendarMode, type CustomPeriod, getRequestRange } from '../model/range'
 import { useDayShift } from '../model/use-period-params'
 import { BlockSheet } from './BlockSheet'
-import { CalendarAgenda } from './CalendarAgenda'
 import { CalendarDayTimeline } from './CalendarDayTimeline'
 import { CalendarGrid } from './CalendarGrid'
 import { CalendarLegend } from './CalendarLegend'
@@ -85,7 +84,7 @@ export const CalendarBoard = ({ organizationId, mode, date, shift, custom, days,
   return (
     <>
       {/* Пока грузится соседний период, на экране прежний — приглушаем его */}
-      <div className={cn('hidden transition-opacity md:block', isPlaceholderData && 'opacity-60')}>
+      <div className={cn('transition-opacity', isPlaceholderData && 'opacity-60')}>
         {mode === 'day' ? (
           <div className="flex flex-col gap-4">
             <CalendarDayTimeline day={days[0]} rows={rows} today={today} nowHour={nowHour} addresses={addresses} orgId={orgId} onBlockClick={setOpenBlock} />
@@ -105,13 +104,21 @@ export const CalendarBoard = ({ organizationId, mode, date, shift, custom, days,
               onShiftDay={shiftDay}
             />
             {shiftDay && (
-              <p className="px-1.5 text-right text-caption text-smoke">Сдвиг по дням: тяните шапку с датами или Shift + колесо</p>
+              <>
+                <p className="hidden px-1.5 text-right text-caption text-smoke md:block">Сдвиг по дням: тяните шапку с датами или Shift + колесо</p>
+                {/* На телефоне палец прокручивает сетку, а не тянет шапку — окно по дням двигают кнопки */}
+                <div className="flex justify-center gap-3 md:hidden">
+                  <Button variant="ghost" size="icon" className="rounded-full bg-card shadow-control" aria-label="На день назад" onClick={() => shiftDay(-1)}>
+                    <ChevronLeftIcon />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="rounded-full bg-card shadow-control" aria-label="На день вперёд" onClick={() => shiftDay(1)}>
+                    <ChevronRightIcon />
+                  </Button>
+                </div>
+              </>
             )}
           </div>
         )}
-      </div>
-      <div className={cn('transition-opacity md:hidden', isPlaceholderData && 'opacity-60')}>
-        <CalendarAgenda days={days} rows={rows} today={today} orgId={orgId} />
       </div>
 
       <CalendarLegend withTasks={mode === 'day'} />

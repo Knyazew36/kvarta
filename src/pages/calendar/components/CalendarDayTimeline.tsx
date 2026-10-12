@@ -23,6 +23,7 @@ import {
   isBooking,
   turnoversOn,
 } from '../model/entries'
+import { PROPERTY_COL, PROPERTY_COL_VAR } from '../model/layout'
 import { EntryHint, Hint, TurnoverHint } from './calendar-hints'
 import { PropertyCell } from './PropertyCell'
 
@@ -50,10 +51,12 @@ export const CalendarDayTimeline = ({ day, rows, today, nowHour, addresses, orgI
 
   return (
     <div className="overflow-x-auto rounded-card bg-card shadow-card">
-      <div className="relative" style={{ minWidth: DAY_SPAN * 56 + 220 }}>
+      <div className={cn('relative', PROPERTY_COL_VAR)} style={{ minWidth: `calc(${DAY_SPAN * 56}px + var(--property-col))` }}>
         <div className="sticky top-0 z-20 flex border-b border-mist bg-card">
-          <div className="sticky left-0 z-10 flex w-[220px] shrink-0 items-end bg-card px-5 pb-3">
-            <span className="text-caption text-smoke">Объект · время объекта</span>
+          <div className={cn(PROPERTY_COL, 'flex items-end pb-3')}>
+            <span className="text-caption text-smoke">
+              Объект<span className="hidden md:inline"> · время объекта</span>
+            </span>
           </div>
           <div className="relative h-14 min-w-0 flex-1">
             {/* Первую отметку не подписываем — у края она обрезается; рядом с «сейчас» подпись прячем, чтобы не наезжала */}

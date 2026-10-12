@@ -4,7 +4,7 @@ import { cn } from '@/shared/lib/utils'
 import { type CalendarRow, dayOf, isBooking } from '../model/entries'
 import { weekdayShort } from '../model/range'
 
-// Телефон: лента заездов и выездов по дням вместо широкой сетки
+// Лента заездов и выездов по дням. Сейчас не подключена: на телефоне показываем ту же сетку, что и на десктопе
 export const CalendarAgenda = ({ days, rows, today, orgId }: { days: string[]; rows: CalendarRow[]; today: string; orgId: string }) => (
   <ol className="flex flex-col gap-3">
     {days.map((day) => {

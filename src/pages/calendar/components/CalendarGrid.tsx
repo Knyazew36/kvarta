@@ -6,12 +6,17 @@ import { to } from '@/shared/config/paths'
 import { formatRange } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { type CalendarEntry, type CalendarRow, dayOf, isBooking, pct } from '../model/entries'
+import { PROPERTY_COL, PROPERTY_COL_VAR } from '../model/layout'
 import { type CalendarMode, dayOffset, isWeekend, weekdayShort } from '../model/range'
 import { DayHint, EntryHint, Hint, TurnoverHint } from './calendar-hints'
 import { PropertyCell } from './PropertyCell'
 
-// Минимальная ширина дня: неделя растягивается на всю карточку, месяц уходит в горизонтальную прокрутку
-const MIN_DAY_WIDTH: Record<Exclude<CalendarMode, 'day'>, number> = { week: 100, month: 44 }
+// Минимальная ширина дня: неделя растягивается на всю карточку, месяц уходит в горизонтальную прокрутку.
+// На телефоне день недели уже — на экран помещается около четырёх дней, остальное прокручивается
+const DAY_WIDTH_VAR: Record<Exclude<CalendarMode, 'day'>, string> = {
+  week: '[--day-width:72px] md:[--day-width:100px]',
+  month: '[--day-width:44px]',
+}
 
 type EntryBarProps = {
   entry: CalendarEntry
@@ -103,6 +108,8 @@ export const CalendarGrid = ({ mode, days, rows, today, nowFraction, addresses, 
   const dragRef = useRef<number | null>(null)
   const gesture = !!onShiftDay
   const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    // Палец прокручивает сетку — окно по дням тянет только мышь
+    if (event.pointerType !== 'mouse') return
     dragRef.current = event.clientX
     event.currentTarget.setPointerCapture(event.pointerId)
   }
@@ -121,14 +128,17 @@ export const CalendarGrid = ({ mode, days, rows, today, nowFraction, addresses, 
 
   return (
     <div ref={scrollRef} className="overflow-x-auto rounded-card bg-card shadow-card">
-      <div className="relative" style={{ minWidth: span * MIN_DAY_WIDTH[mode] + 220 }}>
+      <div
+        className={cn('relative', PROPERTY_COL_VAR, DAY_WIDTH_VAR[mode])}
+        style={{ minWidth: `calc(var(--day-width) * ${span} + var(--property-col))` }}
+      >
         {/* Шапка с датами залипает сверху, подписи объектов — слева */}
         <div className="sticky top-0 z-20 flex border-b border-mist bg-card">
-          <div className="sticky left-0 z-10 flex w-[220px] shrink-0 items-end bg-card px-5 pb-3">
+          <div className={cn(PROPERTY_COL, 'flex items-end pb-3')}>
             <span className="text-caption text-smoke">Объект</span>
           </div>
           <div
-            className={cn('flex min-w-0 flex-1', gesture && 'cursor-grab touch-none select-none active:cursor-grabbing')}
+            className={cn('flex min-w-0 flex-1', gesture && 'cursor-grab select-none active:cursor-grabbing')}
             onPointerDown={gesture ? startDrag : undefined}
             onPointerMove={gesture ? moveDrag : undefined}
             onPointerUp={gesture ? endDrag : undefined}

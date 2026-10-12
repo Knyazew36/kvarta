@@ -10,7 +10,9 @@ export const CalendarRefresh = ({ organizationId }: { organizationId: number }) 
   const queryClient = useQueryClient()
   const refreshing = useIsFetching({ queryKey: calendarKeys.ranges(organizationId) }) > 0
   // Время последней удачной загрузки любого периода — во времени браузера
-  const updatedAt = Math.max(0, ...queryClient.getQueriesData({ queryKey: calendarKeys.ranges(organizationId) }).map(([key]) => queryClient.getQueryState(key)?.dataUpdatedAt ?? 0))
+  const rangeStates = queryClient.getQueriesData({ queryKey: calendarKeys.ranges(organizationId) }).map(([key]) => queryClient.getQueryState(key))
+  const updatedAt = Math.max(0, ...rangeStates.map((state) => state?.dataUpdatedAt ?? 0))
+  const failed = rangeStates.some((state) => state?.status === 'error')
 
   const refresh = () => {
     void queryClient.invalidateQueries({ queryKey: calendarKeys.all })
@@ -20,7 +22,7 @@ export const CalendarRefresh = ({ organizationId }: { organizationId: number }) 
   return (
     <div className="flex items-center gap-3">
       {updatedAt > 0 && <span className="text-caption text-smoke tabular-nums">обновлено в {formatTime(new Date(updatedAt))}</span>}
-      <RefreshButton aria-label="Обновить данные календаря" refreshing={refreshing} disabled={refreshing} onClick={refresh} />
+      <RefreshButton aria-label="Обновить данные календаря" refreshing={refreshing} failed={failed} disabled={refreshing} onClick={refresh} />
     </div>
   )
 }

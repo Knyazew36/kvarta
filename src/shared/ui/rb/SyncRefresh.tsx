@@ -48,7 +48,7 @@ export const SyncRefresh = ({ sync, label = 'Обновить данные', cla
 
   return (
     <Popover open={open} onOpenChange={(next) => (next ? !refreshing && refresh() : setOpen(false))}>
-      <PopoverTrigger aria-label={label} render={<RefreshButton refreshing={refreshing} className={className} />} />
+      <PopoverTrigger aria-label={label} render={<RefreshButton refreshing={refreshing} failed={failed.length > 0} className={className} />} />
       <PopoverContent align="end" sideOffset={8} className="w-72 gap-3 bg-foreground p-4 text-background ring-0 dark:ring-0">
         {refreshing ? (
           <span className="flex items-center gap-2 text-body-sm">

@@ -30,11 +30,7 @@ export const CalendarToolbar = ({ mode, date, shift, custom, days, today }: Cale
   return (
     <DeviationNote reason="«Сегодня» и линия «сейчас» считаются по часовому поясу браузера: у объектов пояса разные, а сетка одна. На шкале дня время заезда и выезда — в поясе самого объекта. Листать можно любой месяц, а не только текущий.">
       <div className="flex flex-wrap items-center gap-3">
-        <Tabs
-          value={custom ? 'custom' : mode}
-          onValueChange={(value) => update({ mode: value, shift: null, from: null, to: null })}
-          className="hidden md:block"
-        >
+        <Tabs value={custom ? 'custom' : mode} onValueChange={(value) => update({ mode: value, shift: null, from: null, to: null })}>
           <TabsList aria-label="Масштаб календаря" className="bg-card shadow-control">
             {CALENDAR_MODES.map((item) => (
               <TabsTrigger key={item.value} value={item.value}>

@@ -5,8 +5,108 @@ import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/shadcn/animate-ui/components/buttons/button"
 import { XIcon } from "lucide-react"
 
-function Sheet({ ...props }: SheetPrimitive.Root.Props) {
-  return <SheetPrimitive.Root data-slot="sheet" {...props} />
+type SheetActionsRef = React.RefObject<SheetPrimitive.Root.Actions | null>
+
+const SheetActionsContext = React.createContext<SheetActionsRef | null>(null)
+
+const SWIPE_LOCK_DISTANCE = 8
+const SWIPE_CLOSE_DISTANCE = 96
+const SWIPE_CLOSE_VELOCITY = 0.5
+
+// Шторку тянем, только когда контент под пальцем уже в самом верху — иначе это обычный скролл
+function isScrolledToTop(target: EventTarget | null, popup: HTMLElement) {
+  for (let node = target as HTMLElement | null; node && node !== popup; node = node.parentElement) {
+    if (node.scrollTop > 0) return false
+  }
+  return true
+}
+
+function useSwipeDownToClose(popup: HTMLElement | null, enabled: boolean) {
+  const actionsRef = React.useContext(SheetActionsContext)
+
+  React.useEffect(() => {
+    if (!popup || !enabled) return
+
+    let gesture: { startX: number; startY: number; startTime: number; dragging: boolean; offset: number } | null = null
+
+    const handleStart = (event: TouchEvent) => {
+      gesture = null
+      if (event.touches.length !== 1 || !isScrolledToTop(event.target, popup)) return
+      const touch = event.touches[0]
+      gesture = { startX: touch.clientX, startY: touch.clientY, startTime: event.timeStamp, dragging: false, offset: 0 }
+    }
+
+    const handleMove = (event: TouchEvent) => {
+      if (!gesture) return
+      const touch = event.touches[0]
+      const dx = touch.clientX - gesture.startX
+      const dy = touch.clientY - gesture.startY
+
+      if (!gesture.dragging) {
+        if (Math.abs(dx) < SWIPE_LOCK_DISTANCE && Math.abs(dy) < SWIPE_LOCK_DISTANCE) return
+        if (dy <= 0 || Math.abs(dx) > Math.abs(dy)) {
+          gesture = null
+          return
+        }
+        gesture.dragging = true
+        popup.style.transition = 'none'
+      }
+
+      // Иначе браузер перехватит жест под pull-to-refresh
+      if (event.cancelable) event.preventDefault()
+      gesture.offset = Math.max(0, dy)
+      popup.style.transform = `translateY(${gesture.offset}px)`
+    }
+
+    const finish = (event: TouchEvent, cancelled: boolean) => {
+      const current = gesture
+      gesture = null
+      if (!current?.dragging) return
+
+      popup.style.transition = ''
+      const velocity = current.offset / Math.max(1, event.timeStamp - current.startTime)
+      const shouldClose =
+        !cancelled && (current.offset > SWIPE_CLOSE_DISTANCE || (current.offset > SWIPE_LOCK_DISTANCE && velocity > SWIPE_CLOSE_VELOCITY))
+
+      if (!shouldClose) {
+        popup.style.transform = ''
+        return
+      }
+
+      popup.style.transform = 'translateY(100%)'
+      actionsRef?.current?.close()
+      // Закрытие могли отменить в onOpenChange — тогда возвращаем шторку на место
+      window.setTimeout(() => {
+        if (popup.isConnected && popup.hasAttribute('data-open')) popup.style.transform = ''
+      }, 300)
+    }
+
+    const handleEnd = (event: TouchEvent) => finish(event, false)
+    const handleCancel = (event: TouchEvent) => finish(event, true)
+
+    popup.addEventListener('touchstart', handleStart, { passive: true })
+    popup.addEventListener('touchmove', handleMove, { passive: false })
+    popup.addEventListener('touchend', handleEnd)
+    popup.addEventListener('touchcancel', handleCancel)
+
+    return () => {
+      popup.removeEventListener('touchstart', handleStart)
+      popup.removeEventListener('touchmove', handleMove)
+      popup.removeEventListener('touchend', handleEnd)
+      popup.removeEventListener('touchcancel', handleCancel)
+    }
+  }, [popup, enabled, actionsRef])
+}
+
+function Sheet({ actionsRef, ...props }: SheetPrimitive.Root.Props) {
+  const ownActionsRef = React.useRef<SheetPrimitive.Root.Actions | null>(null)
+  const resolvedActionsRef = actionsRef ?? ownActionsRef
+
+  return (
+    <SheetActionsContext.Provider value={resolvedActionsRef}>
+      <SheetPrimitive.Root data-slot="sheet" actionsRef={resolvedActionsRef} {...props} />
+    </SheetActionsContext.Provider>
+  )
 }
 
 function SheetTrigger({ ...props }: SheetPrimitive.Trigger.Props) {
@@ -39,23 +139,42 @@ function SheetContent({
   children,
   side = "right",
   showCloseButton = true,
+  ref,
   ...props
 }: SheetPrimitive.Popup.Props & {
   side?: "top" | "right" | "bottom" | "left"
   showCloseButton?: boolean
 }) {
+  const [popup, setPopup] = React.useState<HTMLDivElement | null>(null)
+  const mergedRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      setPopup(node)
+      if (typeof ref === "function") ref(node)
+      else if (ref) ref.current = node
+    },
+    [ref]
+  )
+  useSwipeDownToClose(popup, side === "bottom")
+
   return (
     <SheetPortal>
       <SheetOverlay />
       <SheetPrimitive.Popup
+        ref={mergedRef}
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "fixed z-50 flex flex-col bg-popover bg-clip-padding text-sm text-popover-foreground transition duration-200 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:rounded-t-card data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:rounded-r-card data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:rounded-l-card data-[side=right]:data-ending-style:translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:rounded-b-card data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:w-full data-[side=right]:sm:max-w-lg",
+          "fixed z-50 flex flex-col bg-popover bg-clip-padding text-sm text-popover-foreground transition duration-200 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:rounded-t-card data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:rounded-r-card data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:rounded-none data-[side=right]:sm:rounded-l-card data-[side=right]:data-ending-style:translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:rounded-b-card data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:w-full data-[side=right]:sm:max-w-lg",
           className
         )}
         {...props}
       >
+        {side === "bottom" && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute top-2 left-1/2 h-1 w-9 -translate-x-1/2 rounded-full bg-ash/50"
+          />
+        )}
         {children}
         {showCloseButton && (
           <SheetPrimitive.Close

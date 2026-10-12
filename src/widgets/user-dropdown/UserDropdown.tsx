@@ -4,14 +4,10 @@ import {
   ChevronDownIcon,
   LifeBuoyIcon,
   LogOutIcon,
-  MonitorIcon,
-  MoonIcon,
-  SunIcon,
   UserIcon,
   UsersIcon,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { useTheme } from 'next-themes'
 import { getName } from '@front-cmdt/utils/get-name'
 import { Link, useParams } from 'react-router'
 import { DEMO_ORG_ID, ROUTES, to } from '@/shared/config/paths'
@@ -23,20 +19,13 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/shared/ui/shadcn/dropdown-menu'
+import { ThemeTogglerButton } from '@/shared/ui/shadcn/animate-ui/components/buttons/theme-toggler'
 import { useCurrentUser } from '@/entities/auth'
 import { getRoleLabel, isEmployee, organizationQueryOptions } from '@/entities/organization'
 import { useLogout } from '@/features/logout'
-
-const THEMES = [
-  { value: 'light', label: 'Светлая', icon: SunIcon },
-  { value: 'dark', label: 'Тёмная', icon: MoonIcon },
-  { value: 'system', label: 'Как в системе', icon: MonitorIcon },
-] as const
 
 type UserDropdownProps = {
   // compact — только аватар (мобильная шапка), иначе аватар + имя + почта
@@ -56,7 +45,6 @@ export const UserDropdown = ({ compact, className }: UserDropdownProps) => {
     enabled: currentOrgId !== undefined,
   })
   const role = organization?.membership.role
-  const { theme = 'system', setTheme } = useTheme()
   const { data: user } = useCurrentUser()
   // fullName только нормализует регистр и пробелы: порядок слов в name с бэка не гарантирован, shortName его бы переставил
   const name = getName(user?.name).fullName
@@ -126,15 +114,9 @@ export const UserDropdown = ({ compact, className }: UserDropdownProps) => {
 
         <DropdownMenuSeparator className="bg-mist" />
 
-        <DropdownMenuGroup>
+        <DropdownMenuGroup className="flex items-center justify-between pr-2">
           <DropdownMenuLabel className="mono-label text-smoke">Тема</DropdownMenuLabel>
-          <DropdownMenuRadioGroup value={theme} onValueChange={(value) => setTheme(value as string)}>
-            {THEMES.map(({ value, label, icon: Icon }) => (
-              <DropdownMenuRadioItem key={value} value={value}>
-                <Icon /> {label}
-              </DropdownMenuRadioItem>
-            ))}
-          </DropdownMenuRadioGroup>
+          <ThemeTogglerButton variant="ghost" className="size-9 rounded-full" aria-label="Сменить тему" />
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator className="bg-mist" />

@@ -17,7 +17,8 @@ export const usePeriodParams = () => {
         }
         return next
       },
-      { replace: true },
+      // Период меняется на той же странице: без этого ScrollRestoration уводит её наверх
+      { replace: true, preventScrollReset: true },
     )
 }
 
