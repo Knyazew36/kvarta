@@ -1,4 +1,5 @@
 import { BanIcon } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router'
 import type { CalendarBlock } from '@/shared/api/generated/models'
 import { to } from '@/shared/config/paths'
@@ -72,36 +73,83 @@ type CalendarGridProps = {
   addresses: Map<number, string | null>
   orgId: string
   onBlockClick: (block: CalendarBlock) => void
+  // Сдвиг окна на день жестом: неделю можно поставить с середины одной до середины другой. Нет обработчика — жеста нет
+  onShiftDay?: (step: 1 | -1) => void
 }
 
-export const CalendarGrid = ({ mode, days, rows, today, nowFraction, addresses, orgId, onBlockClick }: CalendarGridProps) => {
+export const CalendarGrid = ({ mode, days, rows, today, nowFraction, addresses, orgId, onBlockClick, onShiftDay }: CalendarGridProps) => {
   const span = days.length
   const first = days[0]
   const todayIndex = days.indexOf(today)
+  // Shift + колесо над сеткой. Слушатель нативный — React вешает wheel пассивным, прокрутку страницы не отменить
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const wheelRef = useRef(0)
+  useEffect(() => {
+    const node = scrollRef.current
+    if (!node || !onShiftDay) return
+    const onWheel = (event: WheelEvent) => {
+      if (!event.shiftKey) return
+      event.preventDefault()
+      wheelRef.current += event.deltaX || event.deltaY
+      if (Math.abs(wheelRef.current) < 50) return
+      onShiftDay(wheelRef.current > 0 ? 1 : -1)
+      wheelRef.current = 0
+    }
+    node.addEventListener('wheel', onWheel, { passive: false })
+    return () => node.removeEventListener('wheel', onWheel)
+  })
+
+  // Шапку с датами тянут за собой, каждый протянутый день сдвигает окно
+  const dragRef = useRef<number | null>(null)
+  const gesture = !!onShiftDay
+  const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    dragRef.current = event.clientX
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+  const moveDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (dragRef.current === null) return
+    const dayWidth = event.currentTarget.clientWidth / span
+    const moved = event.clientX - dragRef.current
+    if (Math.abs(moved) < dayWidth) return
+    // Тянем влево — уходим вперёд по датам
+    onShiftDay?.(moved < 0 ? 1 : -1)
+    dragRef.current += Math.sign(moved) * dayWidth
+  }
+  const endDrag = () => {
+    dragRef.current = null
+  }
 
   return (
-    <div className="overflow-x-auto rounded-card bg-card shadow-card">
+    <div ref={scrollRef} className="overflow-x-auto rounded-card bg-card shadow-card">
       <div className="relative" style={{ minWidth: span * MIN_DAY_WIDTH[mode] + 220 }}>
         {/* Шапка с датами залипает сверху, подписи объектов — слева */}
         <div className="sticky top-0 z-20 flex border-b border-mist bg-card">
           <div className="sticky left-0 z-10 flex w-[220px] shrink-0 items-end bg-card px-5 pb-3">
             <span className="text-caption text-smoke">Объект</span>
           </div>
-          {days.map((day) => (
-            <Hint key={day} content={<DayHint day={day} rows={rows} today={today} />}>
-              <div className={cn('flex min-w-0 flex-1 cursor-default flex-col items-center gap-0.5 py-3', isWeekend(day) && 'bg-mist/60')}>
-                <span className="text-caption text-smoke">{weekdayShort(day)}</span>
-                <span
-                  className={cn(
-                    'flex size-8 items-center justify-center rounded-full text-body-sm font-medium tabular-nums',
-                    day === today && 'bg-foreground text-background',
-                  )}
-                >
-                  {Number(day.slice(8))}
-                </span>
-              </div>
-            </Hint>
-          ))}
+          <div
+            className={cn('flex min-w-0 flex-1', gesture && 'cursor-grab touch-none select-none active:cursor-grabbing')}
+            onPointerDown={gesture ? startDrag : undefined}
+            onPointerMove={gesture ? moveDrag : undefined}
+            onPointerUp={gesture ? endDrag : undefined}
+            onPointerCancel={gesture ? endDrag : undefined}
+          >
+            {days.map((day) => (
+              <Hint key={day} content={<DayHint day={day} rows={rows} today={today} />}>
+                <div className={cn('flex min-w-0 flex-1 flex-col items-center gap-0.5 py-3', !gesture && 'cursor-default', isWeekend(day) && 'bg-mist/60')}>
+                  <span className="text-caption text-smoke">{weekdayShort(day)}</span>
+                  <span
+                    className={cn(
+                      'flex size-8 items-center justify-center rounded-full text-body-sm font-medium tabular-nums',
+                      day === today && 'bg-foreground text-background',
+                    )}
+                  >
+                    {Number(day.slice(8))}
+                  </span>
+                </div>
+              </Hint>
+            ))}
+          </div>
         </div>
 
         {rows.map((row) => (

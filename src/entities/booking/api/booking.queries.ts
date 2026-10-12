@@ -7,6 +7,7 @@ import type { BookingCreate, BookingResponse, BookingUpdate, CalendarClose, List
 import { calendarKeys } from '@/entities/calendar'
 import { guestAccessKeys } from '@/entities/guest-access'
 import { instructionKeys } from '@/entities/instruction'
+import { preparationKeys } from '@/entities/preparation'
 
 import { getBookingConflict, getBookingErrorText } from '../model/conflict'
 
@@ -102,13 +103,15 @@ export const useCreateBooking = (organizationId: number) => {
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: bookingKeys.lists(organizationId) }),
         queryClient.invalidateQueries({ queryKey: calendarKeys.ranges(organizationId) }),
+        queryClient.invalidateQueries({ queryKey: preparationKeys.lists(organizationId) }),
       ])
     },
   })
 }
 
 // Правка и отмена возвращают бронь целиком — кладём её в кэш карточки, списки, историю и календарь перечитываем.
-// Смена дат снимает у гостей разрешение по оплате, отмена отзывает привязки и приглашения — доступ гостей тоже перечитываем
+// Смена дат снимает у гостей разрешение по оплате, отмена отзывает привязки и приглашения — доступ гостей тоже перечитываем.
+// Окно подготовки к заезду бэк пересчитывает сам — подготовки перечитываем следом
 const useBookingSaved = (organizationId: number, bookingId: number) => {
   const queryClient = useQueryClient()
 
@@ -122,6 +125,7 @@ const useBookingSaved = (organizationId: number, bookingId: number) => {
         queryClient.invalidateQueries({ queryKey: guestAccessKeys.booking(organizationId, bookingId) }),
         queryClient.invalidateQueries({ queryKey: guestAccessKeys.pending(organizationId) }),
         queryClient.invalidateQueries({ queryKey: instructionKeys.previews(organizationId, bookingId) }),
+        queryClient.invalidateQueries({ queryKey: preparationKeys.lists(organizationId) }),
       ])
     },
     onError: (error: unknown) => {

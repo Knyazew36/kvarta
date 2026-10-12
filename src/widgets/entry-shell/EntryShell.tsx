@@ -27,7 +27,7 @@ export const EntryShell = ({ children, className }: { children: React.ReactNode;
         <ThemeTogglerButton variant="ghost" className="size-10 rounded-full" aria-label="Сменить тему" />
       </motion.header>
       <main className={cn('mx-auto flex w-full max-w-[1200px] flex-1 flex-col px-4 pb-10 md:px-8', className)}>{children}</main>
-      <motion.footer
+      {/* <motion.footer
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.9 }}
@@ -36,7 +36,7 @@ export const EntryShell = ({ children, className }: { children: React.ReactNode;
         <a href="mailto:help@rentybot.ru" className="hover:text-foreground transition-colors">
           help@rentybot.ru
         </a>
-      </motion.footer>
+      </motion.footer> */}
     </div>
   </MotionConfig>
 )

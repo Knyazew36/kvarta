@@ -1,18 +1,18 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/golos-text";
 @import "@fontsource-variable/jetbrains-mono";
 @import "@fontsource-variable/geologica";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    /* Дизайн «Lime spark on editorial white»: Inter вместо Sana Sans; засечечного шрифта в проекте нет — вся типографика на гротеске */
-    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    /* Дизайн «Lime spark on editorial white»: Golos Text вместо Sana Sans; засечечного шрифта в проекте нет — вся типографика на гротеске */
+    --font-sans: 'Golos Text Variable', ui-sans-serif, system-ui, sans-serif;
     --font-heading: var(--font-sans);
     /* Дисплейный шрифт — только для главного заголовка экрана: гротеск, нарисованный под кириллицу. Меняется здесь, в одном месте */
-    --font-display: 'Geologica Variable', 'Inter Variable', ui-sans-serif, sans-serif;
+    --font-display: 'Geologica Variable', 'Golos Text Variable', ui-sans-serif, sans-serif;
     --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
     --color-canvas: var(--canvas);
     --color-paper: var(--paper);

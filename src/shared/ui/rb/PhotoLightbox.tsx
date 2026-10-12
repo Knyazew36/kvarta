@@ -29,7 +29,6 @@ const STYLES = {
     '--yarl__icon_size': '20px',
     '--yarl__toolbar_padding': '12px',
     '--yarl__counter_filter': 'none',
-    '--yarl__thumbnails_container_background_color': 'transparent',
     '--yarl__thumbnails_container_padding': '12px',
     '--yarl__thumbnails_thumbnail_background': 'rgb(255 255 255 / 0.08)',
     '--yarl__thumbnails_thumbnail_border_color': 'transparent',

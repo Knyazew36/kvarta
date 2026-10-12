@@ -32,6 +32,8 @@ export const TaskHeader = ({ task, orgId, employee }: TaskHeaderProps) => {
       status={
         <>
           <StatusFromMeta meta={TASK_STATUS[status]} />
+          {/* «Просрочена» перекрывает статус работы: начатую задачу показываем вторым бейджем */}
+          {status === 'overdue' && task.status === 'in_progress' && <StatusFromMeta meta={TASK_STATUS.in_progress} />}
           {task.requires_photo && (
             <StatusBadge tone="outline" icon={CameraIcon}>
               Фото обязательно

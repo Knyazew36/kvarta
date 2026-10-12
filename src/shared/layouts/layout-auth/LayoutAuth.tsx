@@ -56,12 +56,12 @@ export const LayoutAuth = () => {
               </Reveal> */}
             </div>
           </div>
-
+{/* 
           <Reveal delay={0.9} className="mono-label flex flex-wrap justify-end gap-x-4 gap-y-1 text-smoke">
             <a href="mailto:help@rentybot.ru" className="transition-colors hover:text-foreground">
               help@rentybot.ru
             </a>
-          </Reveal>
+          </Reveal> */}
         </main>
       </div>
     </MotionConfig>

@@ -454,10 +454,24 @@ function TooltipTrigger({
     hideImmediate,
     currentTooltip,
     setReferenceEl,
+    referenceElRef,
   } = useGlobalTooltip();
 
   const triggerRef = React.useRef<HTMLDivElement>(null);
   React.useImperativeHandle(ref, () => triggerRef.current as HTMLDivElement);
+
+  // Триггер исчез под курсором (переход по ссылке, перерисовка списка) — mouseleave не придёт.
+  // Без этого подсказка или её отложенный показ остаются висеть на уже удалённом элементе
+  React.useEffect(() => {
+    const node = triggerRef.current;
+    return () => {
+      // Нужна именно текущая привязка на момент размонтирования, а не снимок из эффекта
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      if (referenceElRef.current !== node) return;
+      setReferenceEl(null);
+      hideImmediate();
+    };
+  }, [referenceElRef, setReferenceEl, hideImmediate]);
 
   const suppressNextFocusRef = React.useRef(false);
 

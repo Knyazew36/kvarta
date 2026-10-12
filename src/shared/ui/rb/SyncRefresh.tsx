@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { CheckIcon, RefreshCwIcon, TriangleAlertIcon } from 'lucide-react'
 import { DEMO_TODAY, DEMO_TZ, formatDate, formatTime } from '@/shared/lib/format'
-import { cn } from '@/shared/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/shadcn/popover'
+import { RefreshButton } from './RefreshButton'
 import { SOURCE_LABEL } from './SourceTag'
 import type { SyncInfo } from './SyncFreshness'
 
@@ -48,16 +48,7 @@ export const SyncRefresh = ({ sync, label = 'Обновить данные', cla
 
   return (
     <Popover open={open} onOpenChange={(next) => (next ? !refreshing && refresh() : setOpen(false))}>
-      <PopoverTrigger
-        aria-label={label}
-        className={cn(
-          'inline-flex h-9 w-fit items-center gap-2 rounded-full bg-canvas px-3.5 text-body-sm font-medium text-foreground shadow-control outline-none transition-colors hover:bg-mist focus-visible:ring-3 focus-visible:ring-ring/30',
-          className,
-        )}
-      >
-        <RefreshCwIcon className={cn('size-4', refreshing && 'animate-spin')} aria-hidden />
-        {refreshing ? 'Обновляем…' : 'Обновить'}
-      </PopoverTrigger>
+      <PopoverTrigger aria-label={label} render={<RefreshButton refreshing={refreshing} className={className} />} />
       <PopoverContent align="end" sideOffset={8} className="w-72 gap-3 bg-foreground p-4 text-background ring-0 dark:ring-0">
         {refreshing ? (
           <span className="flex items-center gap-2 text-body-sm">

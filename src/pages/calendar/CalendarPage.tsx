@@ -11,7 +11,7 @@ import { CalendarHeader } from './components/CalendarHeader'
 import { ConflictBannerMock, SourceFilterMock, SyncStatusMock } from './components/CalendarMocks'
 import { CalendarRefresh } from './components/CalendarRefresh'
 import { CalendarToolbar } from './components/CalendarToolbar'
-import { formatPeriod, getDays, parseDate, parseMode } from './model/range'
+import { formatPeriod, getDays, getPeriodDays, parseCustomPeriod, parseDate, parseMode, parseShift, periodLayout } from './model/range'
 
 const parsePropertyId = (value: string | null) => (value && /^\d+$/.test(value) ? Number(value) : undefined)
 
@@ -22,8 +22,11 @@ const CalendarPage = () => {
   const today = todayIn(getBrowserTimezone())
   const mode = parseMode(params.get('mode'))
   const date = parseDate(params.get('date'), today)
-  const days = getDays(mode, date)
-  const period = formatPeriod(mode, days)
+  // Свой период из ссылки перекрывает масштаб и опорную дату
+  const custom = parseCustomPeriod(params.get('from'), params.get('to'))
+  const shift = !custom && mode === 'week' ? parseShift(params.get('shift')) : 0
+  const days = custom ? getPeriodDays(custom) : getDays(mode, date, shift)
+  const period = formatPeriod(custom ? 'week' : mode, days)
 
   // Календарь видят владелец, управляющие и администраторы: сотруднику бэк отвечает 403, поэтому за ним не ходим
   if (isEmployee(role)) {
@@ -54,7 +57,7 @@ const CalendarPage = () => {
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <CalendarToolbar mode={mode} date={date} days={days} today={today} />
+          <CalendarToolbar mode={mode} date={date} shift={shift} custom={custom} days={days} today={today} />
           <div className="flex flex-wrap items-center gap-2">
             <SyncStatusMock />
             <CalendarRefresh organizationId={organization.id} />
@@ -66,7 +69,17 @@ const CalendarPage = () => {
           <SourceFilterMock />
         </div>
 
-        <CalendarBoard organizationId={organization.id} mode={mode} days={days} today={today} propertyId={parsePropertyId(params.get('object'))} />
+        <CalendarBoard
+          organizationId={organization.id}
+          mode={custom ? periodLayout(days) : mode}
+          date={date}
+          shift={shift}
+          custom={custom}
+         
+          days={days}
+          today={today}
+          propertyId={parsePropertyId(params.get('object'))}
+        />
       </div>
     </div>
   )

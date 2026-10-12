@@ -43,7 +43,7 @@ const LoginPage = () => {
     <form className="flex flex-col gap-8" noValidate onSubmit={submit}>
       <div className="flex flex-col gap-3">
         <h2 className="brand-display text-[40px]">Вход</h2>
-        <p className="text-body text-slate">Пришлём одноразовый код. Пароль не нужен.</p>
+        <p className="text-body text-slate">Пришлём одноразовый код</p>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -54,7 +54,6 @@ const LoginPage = () => {
           id="login-email"
           type="email"
           autoComplete="email"
-          autoFocus
           aria-invalid={!!errors.email || undefined}
           aria-describedby={errors.email ? 'login-email-error' : undefined}
           className="h-12 text-body"

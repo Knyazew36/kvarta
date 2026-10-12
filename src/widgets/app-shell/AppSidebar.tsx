@@ -17,6 +17,7 @@ import {
   SidebarMenuItem,
 } from '@/shared/ui/shadcn/animate-ui/components/radix/sidebar'
 import { NAV_ACCOUNT, NAV_DEV, NAV_HELP, navFor, type NavItem } from './nav'
+import { useNavBadges } from './use-nav-badges'
 
 // Организация у пользователя одна — переключатель отключён до появления нескольких
 // // Макетные организации: заменятся списком рабочих областей из API
@@ -68,22 +69,26 @@ import { NAV_ACCOUNT, NAV_DEV, NAV_HELP, navFor, type NavItem } from './nav'
 
 const NavLinks = ({ items, orgId }: { items: NavItem[]; orgId: string }) => {
   const { pathname } = useLocation()
+  const badges = useNavBadges()
   return (
     <SidebarMenu className="gap-0.5">
-      {items.map((item) => (
-        <SidebarMenuItem key={item.key}>
-          {/* Активен и вложенный маршрут: карточка брони подсвечивает «Брони» */}
-          <SidebarMenuButton asChild isActive={pathname.startsWith(item.match?.(orgId) ?? item.href(orgId))}>
-            <Link to={item.href(orgId)}>
-              <item.icon />
-              <span>{item.label}</span>
-            </Link>
-          </SidebarMenuButton>
-          {item.badge != null && (
-            <SidebarMenuBadge className="mono-label top-1/2 -translate-y-1/2 rounded-full bg-attention px-1.5 text-background">{item.badge}</SidebarMenuBadge>
-          )}
-        </SidebarMenuItem>
-      ))}
+      {items.map((item) => {
+        const badge = badges[item.key] ?? item.badge
+        return (
+          <SidebarMenuItem key={item.key}>
+            {/* Активен и вложенный маршрут: карточка брони подсвечивает «Брони» */}
+            <SidebarMenuButton asChild isActive={pathname.startsWith(item.match?.(orgId) ?? item.href(orgId))}>
+              <Link to={item.href(orgId)}>
+                <item.icon />
+                <span>{item.label}</span>
+              </Link>
+            </SidebarMenuButton>
+            {badge != null && (
+              <SidebarMenuBadge className="mono-label top-1/2 -translate-y-1/2 rounded-full bg-attention px-1.5 text-background tabular-nums">{badge}</SidebarMenuBadge>
+            )}
+          </SidebarMenuItem>
+        )
+      })}
     </SidebarMenu>
   )
 }

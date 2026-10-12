@@ -5,9 +5,8 @@ import { CalendarIcon } from "lucide-react"
 import type { DateRange, Matcher } from "react-day-picker"
 import { cn } from "@/shared/lib/utils"
 import { plural } from "@/shared/lib/format"
-import { useIsMobile } from "@/shared/lib/hooks/use-mobile"
 import { Calendar } from "@/shared/ui/shadcn/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/shadcn/popover"
+import { CalendarPopup, CalendarPopupContent, CalendarPopupTrigger } from "@/shared/ui/shadcn/calendar-popup"
 
 // Значение хранится строкой yyyy-MM-dd, как у нативного <input type="date">: формы и URL не меняются
 const toDate = (value?: string) => {
@@ -79,8 +78,8 @@ function DateInput({
   const selected = toDate(current)
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
+    <CalendarPopup open={open} onOpenChange={setOpen}>
+      <CalendarPopupTrigger
         id={id}
         disabled={disabled}
         data-slot="date-input"
@@ -91,9 +90,9 @@ function DateInput({
           {selected ? display(selected) : placeholder}
         </span>
         <CalendarIcon className="size-4 shrink-0 text-smoke" aria-hidden />
-      </PopoverTrigger>
+      </CalendarPopupTrigger>
       {name && <input type="hidden" name={name} value={current} />}
-      <PopoverContent align="start" className="w-auto p-2">
+      <CalendarPopupContent title={placeholder}>
         <Calendar
           mode="single"
           selected={selected}
@@ -105,8 +104,8 @@ function DateInput({
           }}
           autoFocus
         />
-      </PopoverContent>
-    </Popover>
+      </CalendarPopupContent>
+    </CalendarPopup>
   )
 }
 
@@ -139,15 +138,13 @@ function DateRangeInput({
 }: DateRangeInputProps) {
   const [open, setOpen] = React.useState(false)
   const [current, setCurrent] = useControllable(value, defaultValue, onValueChange)
-  // Два месяца рядом на телефоне не помещаются
-  const isMobile = useIsMobile()
   const range: DateRange | undefined = current.from ? { from: toDate(current.from), to: toDate(current.to) } : undefined
   const nights =
     range?.from && range.to ? Math.round((range.to.getTime() - range.from.getTime()) / 86_400_000) : 0
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
+    <CalendarPopup open={open} onOpenChange={setOpen}>
+      <CalendarPopupTrigger
         id={id}
         disabled={disabled}
         data-slot="date-range-input"
@@ -165,13 +162,13 @@ function DateRangeInput({
           </span>
         )}
         <CalendarIcon className="size-4 shrink-0 text-smoke" aria-hidden />
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-auto p-2">
+      </CalendarPopupTrigger>
+      <CalendarPopupContent title={placeholder}>
         <Calendar
           mode="range"
           selected={range}
           defaultMonth={range?.from}
-          numberOfMonths={isMobile ? 1 : numberOfMonths}
+          numberOfMonths={numberOfMonths}
           disabled={limits(min, max)}
           onSelect={(next, clicked) => {
             // Первый клик — только начало: day-picker на пустом диапазоне сам ставит to = from,
@@ -187,8 +184,8 @@ function DateRangeInput({
           }}
           autoFocus
         />
-      </PopoverContent>
-    </Popover>
+      </CalendarPopupContent>
+    </CalendarPopup>
   )
 }
 

@@ -50,7 +50,7 @@ export const NAV_MAIN: NavItem[] = [
   { key: 'today', label: 'Сегодня', icon: SunIcon, href: to.today, roles: TEAM, mobile: true },
   { key: 'calendar', label: 'Календарь', icon: CalendarRangeIcon, href: to.calendar, roles: TEAM, mobile: true },
   { key: 'bookings', label: 'Брони', icon: NotebookTabsIcon, href: to.bookings, roles: TEAM },
-  { key: 'tasks', label: 'Задачи', icon: ClipboardListIcon, href: to.tasks, roles: TEAM, mobile: true, badge: 3 },
+  { key: 'tasks', label: 'Задачи', icon: ClipboardListIcon, href: to.tasks, roles: TEAM, mobile: true },
   { key: 'properties', label: 'Объекты', icon: HouseIcon, href: to.properties, roles: TEAM },
   { key: 'money', label: 'Деньги', icon: BanknoteIcon, href: to.money, roles: ['owner'], badge: 1 },
   // Лента событий, а не правила рассылки: правила — в «Настройки → Уведомления»
@@ -70,7 +70,7 @@ export const NAV_SETTINGS: NavItem[] = [
 
 // У сотрудника своя короткая навигация: стартовая — «Мои задачи» (§2)
 export const NAV_EMPLOYEE: NavItem[] = [
-  { key: 'tasks', label: 'Мои задачи', icon: ClipboardListIcon, href: to.tasks, roles: ['employee'], mobile: true, badge: 2 },
+  { key: 'tasks', label: 'Мои задачи', icon: ClipboardListIcon, href: to.tasks, roles: ['employee'], mobile: true },
   { key: 'notifications', label: 'Уведомления', icon: BellIcon, href: to.notifications, roles: ['employee'], mobile: true },
   { key: 'profile', label: 'Профиль и помощь', icon: CircleUserIcon, href: (o) => to.profile(undefined, o), roles: ['employee'], mobile: true },
 ]

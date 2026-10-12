@@ -47,7 +47,7 @@ const RegisterPage = () => {
     <form className="flex flex-col gap-8" noValidate onSubmit={submit}>
       <div className="flex flex-col gap-3">
         <h2 className="brand-display text-[40px]">Регистрация</h2>
-        <p className="text-body text-slate">Пришлём одноразовый код. Пароль не нужен.</p>
+        <p className="text-body text-slate">Пришлём одноразовый код</p>
       </div>
 
       <div className="flex flex-col gap-5">
@@ -58,7 +58,6 @@ const RegisterPage = () => {
           <Input
             id="register-name"
             autoComplete="name"
-            autoFocus
             aria-invalid={!!errors.name || undefined}
             aria-describedby={errors.name ? 'register-name-error' : undefined}
             className="h-12 text-body"

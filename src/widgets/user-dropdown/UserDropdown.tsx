@@ -1,5 +1,6 @@
 import {
   BellIcon,
+  BuildingIcon,
   ChevronDownIcon,
   LifeBuoyIcon,
   LogOutIcon,
@@ -13,7 +14,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTheme } from 'next-themes'
 import { getName } from '@front-cmdt/utils/get-name'
 import { Link, useParams } from 'react-router'
-import { DEMO_ORG_ID, to } from '@/shared/config/paths'
+import { DEMO_ORG_ID, ROUTES, to } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
 import { PersonAvatar } from '@/shared/ui/rb/PersonAvatar'
 import {
@@ -107,13 +108,13 @@ export const UserDropdown = ({ compact, className }: UserDropdownProps) => {
           </DropdownMenuItem>
           {!(role && isEmployee(role)) && (
             <DropdownMenuItem render={<Link to={to.settings('notifications', orgId)} />}>
-              <BellIcon /> Уведомления и MAX
+              <BellIcon /> Мои уведомления
             </DropdownMenuItem>
           )}
-          {/* Выбор организации отключён: организация у пользователя одна
+          {/* Экран выбора организации: оттуда же создаётся новая */}
           <DropdownMenuItem render={<Link to={ROUTES.WORKSPACES} />}>
-            <BuildingIcon /> Сменить организацию
-          </DropdownMenuItem> */}
+            <BuildingIcon /> Мои организации
+          </DropdownMenuItem>
           {/* Гостевой кабинет — отдельный контур, переход в него явный (§2) */}
           <DropdownMenuItem render={<Link to={to.guestBookings()} />}>
             <UsersIcon /> Мои поездки как гость

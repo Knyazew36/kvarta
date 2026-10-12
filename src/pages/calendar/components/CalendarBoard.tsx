@@ -8,7 +8,8 @@ import { to } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
 import { StateView } from '@/shared/ui/rb/StateView'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
-import { type CalendarMode, getRequestRange } from '../model/range'
+import { type CalendarMode, type CustomPeriod, getRequestRange } from '../model/range'
+import { useDayShift } from '../model/use-period-params'
 import { BlockSheet } from './BlockSheet'
 import { CalendarAgenda } from './CalendarAgenda'
 import { CalendarDayTimeline } from './CalendarDayTimeline'
@@ -19,13 +20,17 @@ import { DayTasksMock } from './CalendarMocks'
 type CalendarBoardProps = {
   organizationId: number
   mode: CalendarMode
+  date: string
+  shift: number
+  custom: CustomPeriod | null
   days: string[]
   today: string
   propertyId?: number
 }
 
 // Сетка календаря с данными: запрос периода, его состояния и карточка блокировки
-export const CalendarBoard = ({ organizationId, mode, days, today, propertyId }: CalendarBoardProps) => {
+export const CalendarBoard = ({ organizationId, mode, date, shift, custom, days, today, propertyId }: CalendarBoardProps) => {
+  const shiftDay = useDayShift(mode, date, shift, custom)
   const { data: rows, isPending, isError, refetch, isRefetching, isPlaceholderData } = useCalendar(organizationId, getRequestRange(days, propertyId))
   // В ответе календаря у объекта только название и пояс — адрес берём из списка объектов, вместе с архивными
   const { data: properties } = useAllProperties(organizationId, 'all')
@@ -87,16 +92,22 @@ export const CalendarBoard = ({ organizationId, mode, days, today, propertyId }:
             <DayTasksMock />
           </div>
         ) : (
-          <CalendarGrid
-            mode={mode}
-            days={days}
-            rows={rows}
-            today={today}
-            nowFraction={nowHour / 24}
-            addresses={addresses}
-            orgId={orgId}
-            onBlockClick={setOpenBlock}
-          />
+          <div className="flex flex-col gap-3">
+            <CalendarGrid
+              mode={mode}
+              days={days}
+              rows={rows}
+              today={today}
+              nowFraction={nowHour / 24}
+              addresses={addresses}
+              orgId={orgId}
+              onBlockClick={setOpenBlock}
+              onShiftDay={shiftDay}
+            />
+            {shiftDay && (
+              <p className="px-1.5 text-right text-caption text-smoke">Сдвиг по дням: тяните шапку с датами или Shift + колесо</p>
+            )}
+          </div>
         )}
       </div>
       <div className={cn('transition-opacity md:hidden', isPlaceholderData && 'opacity-60')}>
